@@ -1,0 +1,13 @@
+[package]
+name = "discord_bot"
+version = "0.1.0"
+authors = ["Kelvin Samuel <kelvin@kks110.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dotenv = "0.15"
+tracing = "0.1.26"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serenity = { default-features = false, features = ["client", "framework", "standard_framework", "gateway", "model", "rustls_backend"], version = "0.10"}
