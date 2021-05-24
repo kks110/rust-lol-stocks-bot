@@ -8,9 +8,9 @@ use std::env;
 pub fn initialise() -> std::io::Result<()> {
     println!("Checking data files");
 
-    let data_location = location_of("data")?;
-    let users_location = location_of("data/users.json")?;
-    let teams_location = location_of("data/teams.json")?;
+    let data_location = location_of("data");
+    let users_location = location_of("data/users.json");
+    let teams_location = location_of("data/teams.json");
 
     if !location_exists(&data_location) {
         create_folder(&data_location)?
@@ -42,9 +42,12 @@ fn create_folder(path: &PathBuf) -> std::io::Result<()> {
     Ok(())
 }
 
-fn location_of(path: &str) -> io::Result<PathBuf> {
-    let mut dir = env::current_exe()?;
+fn location_of(path: &str) -> PathBuf {
+    let mut dir = match env::current_exe() {
+        Err(e) => panic!("Error: {}", e),
+        Ok(path) => path,
+    };
     dir.pop();
     dir.push(path);
-    Ok(dir)
+    dir
 }
