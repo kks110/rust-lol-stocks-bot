@@ -6,6 +6,9 @@ use std::io::Error;
 
 pub fn register_user(user: User) -> Result<(), Error> {
     let mut users = load_users()?;
+    if users.users.contains(&user) {
+        return Ok(())
+    }
     users.users.push(user);
     save_users(users)?;
     Ok(())

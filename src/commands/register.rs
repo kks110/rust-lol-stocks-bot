@@ -16,9 +16,13 @@ pub async fn register(ctx: &Context, msg: &Message) -> CommandResult {
         portfolio: Vec::new(),
     };
 
-    register_user(user)?;
-
-    msg.channel_id.say(&ctx.http, "User has been registered.").await?;
-
+    match register_user(user) {
+        Err(e) => { msg.channel_id.say(&ctx.http, e).await?; }
+        Ok(_) => {
+            let mut response = msg.author.name.clone();
+            response.push_str( " has been registered.");
+            msg.channel_id.say(&ctx.http, response).await?;
+        }
+    }
     Ok(())
 }
