@@ -1,9 +1,8 @@
 use std::fs;
 use std::fs::File;
-use std::io;
 use std::io::prelude::*;
 use std::path::{ Path, PathBuf };
-use std::env;
+use crate::file_io::data::location_of;
 
 pub fn initialise() -> std::io::Result<()> {
     println!("Checking data files");
@@ -40,14 +39,4 @@ fn create_file(path: &PathBuf) -> std::io::Result<()> {
 fn create_folder(path: &PathBuf) -> std::io::Result<()> {
     fs::create_dir(path)?;
     Ok(())
-}
-
-fn location_of(path: &str) -> PathBuf {
-    let mut dir = match env::current_exe() {
-        Err(e) => panic!("Error: {}", e),
-        Ok(path) => path,
-    };
-    dir.pop();
-    dir.push(path);
-    dir
 }
