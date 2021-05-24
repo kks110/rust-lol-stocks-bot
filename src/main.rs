@@ -1,4 +1,6 @@
 mod commands;
+mod models;
+mod file_io;
 
 use std::{
     collections::HashSet,
@@ -23,6 +25,8 @@ use commands::{
     register::*
 };
 
+use file_io::initialise::initialise;
+
 struct Handler;
 
 #[async_trait]
@@ -42,6 +46,9 @@ struct General;
 
 #[tokio::main]
 async fn main() {
+    println!("Service starting");
+    initialise();
+
     println!("Service Running");
     dotenv::dotenv().expect("Failed to load .env file");
 
