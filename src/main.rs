@@ -19,7 +19,8 @@ use serenity::{
 use tracing::{error, info};
 
 use commands::{
-    help::*
+    help::*,
+    register::*
 };
 
 struct Handler;
@@ -36,7 +37,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(help)]
+#[commands(help, register)]
 struct General;
 
 #[tokio::main]
