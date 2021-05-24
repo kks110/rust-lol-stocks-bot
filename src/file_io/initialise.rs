@@ -16,11 +16,11 @@ pub fn initialise() -> std::io::Result<()> {
     }
 
     if !location_exists(&users_location) {
-        create_file(&users_location)?
+        create_users_file(&users_location)?
     }
 
     if !location_exists(&teams_location) {
-        create_file(&teams_location)?
+        create_teams_file(&teams_location)?
     }
 
     Ok(())
@@ -30,9 +30,15 @@ fn location_exists(path: &PathBuf) -> bool {
     Path::new(&path).exists()
 }
 
-fn create_file(path: &PathBuf) -> std::io::Result<()> {
+fn create_users_file(path: &PathBuf) -> std::io::Result<()> {
     let mut file = File::create(path)?;
-    file.write_all(b"{}")?;
+    file.write_all(b"{ \"users\": []}")?;
+    Ok(())
+}
+
+fn create_teams_file(path: &PathBuf) -> std::io::Result<()> {
+    let mut file = File::create(path)?;
+    file.write_all(b"{ \"teams\": []}")?;
     Ok(())
 }
 

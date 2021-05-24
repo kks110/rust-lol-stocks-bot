@@ -1,4 +1,5 @@
 use crate::models::users::User;
+use crate::file_io::users::register_user;
 
 use serenity::prelude::*;
 use serenity::model::prelude::*;
@@ -15,9 +16,9 @@ pub async fn register(ctx: &Context, msg: &Message) -> CommandResult {
         portfolio: Vec::new(),
     };
 
-    let j = serde_json::to_string(&user)?;
+    register_user(user)?;
 
-    msg.channel_id.say(&ctx.http, j).await?;
+    msg.channel_id.say(&ctx.http, "User has been registered.").await?;
 
     Ok(())
 }
