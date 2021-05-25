@@ -1,6 +1,7 @@
 mod commands;
 mod models;
 mod file_io;
+mod elo;
 
 use std::{
     collections::HashSet,
@@ -22,7 +23,8 @@ use tracing::{error, info};
 
 use commands::{
     help::*,
-    register::*
+    register::*,
+    record_match::*,
 };
 
 use file_io::initialise::initialise;
@@ -41,7 +43,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(help, register)]
+#[commands(help, register, record_match)]
 struct General;
 
 #[tokio::main]
