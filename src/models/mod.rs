@@ -1,2 +1,2 @@
-pub mod teams;
+pub mod team;
 pub mod users;

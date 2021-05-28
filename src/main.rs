@@ -2,6 +2,11 @@ mod commands;
 mod models;
 mod file_io;
 mod elo;
+mod database;
+mod schema;
+
+#[macro_use]
+extern crate diesel;
 
 use std::{
     collections::HashSet,
@@ -24,10 +29,12 @@ use tracing::{error, info};
 use commands::{
     help::*,
     register::*,
-    record_match::*,
+    // record_match::*,
 };
 
 use file_io::initialise::initialise;
+
+use database::connection::establish_connection;
 
 struct Handler;
 
@@ -43,7 +50,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(help, register, record_match)]
+#[commands(help, register)]
 struct General;
 
 #[tokio::main]
@@ -56,6 +63,17 @@ async fn main() {
 
     println!("Service Running");
     dotenv::dotenv().expect("Failed to load .env file");
+
+    let connection = establish_connection();
+    let team_name = "FNC";
+    let elo = 500;
+    let new_elo = 510;
+
+    file_io::teams::load_teams();
+    file_io::teams::create_team(&connection, &team_name, &elo);
+    file_io::teams::load_teams();
+    file_io::teams::update_team(&connection, &team_name, new_elo);
+    file_io::teams::load_teams();
 
 
     let token = env::var("DISCORD_TOKEN")

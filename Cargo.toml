@@ -13,3 +13,4 @@ dotenv = "0.15"
 tracing = "0.1.26"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 serenity = { default-features = false, features = ["client", "framework", "standard_framework", "gateway", "model", "rustls_backend"], version = "0.10"}
+diesel = { version = "1.4", features = ["postgres"] }

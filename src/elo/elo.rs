@@ -1,4 +1,4 @@
-use crate::models::teams::Team;
+use crate::models::team::Team;
 
 pub fn calculate_elo(winning_team: &Team, loosing_team: &Team) ->  (i64, i64) {
     let winner_elo = winning_team.elo as f64;
