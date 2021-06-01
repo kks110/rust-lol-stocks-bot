@@ -1,6 +1,6 @@
 use crate::models::team::Team;
 
-pub fn calculate_elo(winning_team: &Team, loosing_team: &Team) ->  (i64, i64) {
+pub fn calculate_elo(winning_team: &Team, loosing_team: &Team) ->  (i32, i32) {
     let winner_elo = winning_team.elo as f64;
     let loser_elo = loosing_team.elo as f64;
 
@@ -16,10 +16,10 @@ fn expected_score(player_rating: f64, opponent_rating: f64) -> f64 {
     1.0/(1.0 + (10.0_f64.powf((opponent_rating - player_rating)/400.0)))
 }
 
-fn elo_calculation(player_elo: f64, expected_elo: f64, win: bool) -> i64 {
+fn elo_calculation(player_elo: f64, expected_elo: f64, win: bool) -> i32 {
     let mut i = 0.0;
     if win {
         i = 1.0;
     }
-    (player_elo + 16.0 * (i - expected_elo)) as i64
+    (player_elo + 16.0 * (i - expected_elo)) as i32
 }
