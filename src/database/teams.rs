@@ -9,6 +9,14 @@ pub fn load_teams() -> Vec<Team>  {
     teams.load::<Team>(&connection).expect("Error loading teams")
 }
 
+pub fn load_team(conn: &PgConnection, team_name: &str) -> Team {
+    use crate::schema::teams::dsl::*;
+
+    teams.filter(name.eq(team_name))
+        .first(conn)
+        .expect("Error loading team")
+}
+
 pub fn create_team<'a>(conn: &PgConnection, name: &'a str, elo: &'a i32) -> Team {
     use crate::schema::teams;
 

@@ -28,7 +28,7 @@ use tracing::{error, info};
 use commands::{
     help::*,
     register::*,
-    // record_match::*,
+    record_match::*,
 };
 
 struct Handler;
@@ -45,7 +45,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(help, register)]
+#[commands(help, register, record_match)]
 struct General;
 
 #[tokio::main]

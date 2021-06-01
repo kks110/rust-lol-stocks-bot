@@ -1,8 +1,8 @@
 use crate::models::team::Team;
 
-pub fn calculate_elo(winning_team: &Team, loosing_team: &Team) ->  (i32, i32) {
-    let winner_elo = winning_team.elo as f64;
-    let loser_elo = loosing_team.elo as f64;
+pub fn calculate_elo(winning_team_elo: i32, loosing_team_elo: i32) ->  (i32, i32) {
+    let winner_elo = winning_team_elo as f64;
+    let loser_elo = loosing_team_elo as f64;
 
     let winner_expected = expected_score(winner_elo, loser_elo);
     let loser_expected = expected_score(loser_elo, winner_elo);
