@@ -1,22 +1,15 @@
-use serde::{Deserialize, Serialize};
+use crate::schema::users;
 
-#[derive(Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct UsersList {
-    pub users: Vec<User>,
-}
-
-#[derive(Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
+#[derive(Queryable)]
 pub struct User {
-    pub username: String,
-    pub balance: i64,
-    pub portfolio: Vec<Stock>,
+    pub id: i32,
+    pub name: String,
+    pub balance: i32
 }
 
-#[derive(Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "camelCase")]
-pub struct Stock {
-    pub team: String,
-    pub amount: i64,
+#[derive(Insertable)]
+#[table_name="users"]
+pub struct NewUser<'a> {
+    pub name: &'a str,
+    pub balance: &'a i32,
 }

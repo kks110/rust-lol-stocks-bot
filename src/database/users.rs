@@ -1,0 +1,35 @@
+use crate::database::connection;
+use crate::diesel::prelude::*;
+use crate::models::users::{User, NewUser};
+
+pub fn load_users() -> Vec<User>  {
+    use crate::schema::users::dsl::*;
+
+    let connection = connection::establish_connection();
+    users.load::<User>(&connection).expect("Error loading users")
+}
+
+pub fn create_user<'a>(conn: &PgConnection, name: &'a str) -> User {
+    use crate::schema::users;
+
+    let new_user = NewUser {
+        name,
+        balance: &500,
+    };
+
+    diesel::insert_into(users::table)
+        .values(&new_user)
+        .get_result(conn)
+        .expect("Error saving new post")
+}
+
+pub fn update_user<'a>(conn: &PgConnection, user_name: &str, new_balance: i32) -> User {
+    use crate::schema::users::dsl::*;
+
+    let user = diesel::update(users.filter(name.eq(user_name)))
+        .set(balance.eq(new_balance))
+        .get_result::<User>(conn)
+        .expect(&format!("Unable to find user {}", user_name));
+    println!("Created user {}, starting balance is {}", user.name, user.balance);
+    return user;
+}
