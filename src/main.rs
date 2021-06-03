@@ -31,6 +31,8 @@ use commands::{
     record_match::*,
     buy::*,
     sell::*,
+    view_market::*,
+    view_portfolio::*,
 };
 
 struct Handler;
@@ -47,7 +49,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(help, register, record_match, buy, sell)]
+#[commands(help, register, record_match, buy, sell, view_market, view_portfolio)]
 struct General;
 
 #[tokio::main]

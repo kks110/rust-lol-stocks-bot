@@ -4,11 +4,10 @@ use crate::models::portfolio::{Portfolio, NewPortfolio};
 use crate::models::user::User;
 use crate::models::team::Team;
 
-pub fn load_portfolios() -> Vec<Portfolio>  {
+pub fn load_portfolios(conn: &PgConnection) -> Vec<Portfolio>  {
     use crate::schema::portfolios::dsl::*;
 
-    let connection = connection::establish_connection();
-    portfolios.load::<Portfolio>(&connection).expect("Error loading portfolios")
+    portfolios.load::<Portfolio>(conn).expect("Error loading portfolios")
 }
 
 pub fn load_users_portfolio(conn: &PgConnection, user: &User) -> Vec<Portfolio> {
@@ -62,12 +61,21 @@ pub fn user_portfolio_sell<'a>(conn: &PgConnection, selling_user: &User, team_be
 
     for portfolio in users_portfolio {
         if portfolio.team_id == team_being_sold.id {
-            return diesel::update(portfolios.filter(id.eq(portfolio.id)))
-                .set(amount.eq(portfolio.amount - amount_sold))
-                .get_result::<Portfolio>(conn)
-                .expect(&format!("Unable to find portfolio for user: {}", selling_user.name));
+            if portfolio.amount - amount_sold == 0 {
+                delete_portfolio(conn, portfolio.id);
+            } else {
+                return diesel::update(portfolios.filter(id.eq(portfolio.id)))
+                    .set(amount.eq(portfolio.amount - amount_sold))
+                    .get_result::<Portfolio>(conn)
+                    .expect(&format!("Unable to find portfolio for user: {}", selling_user.name));
+            }
         }
     }
 
     return port;
+}
+
+fn delete_portfolio(conn: &PgConnection, portfolio_id: i32) {
+    use crate::schema::portfolios::dsl::*;
+    diesel::delete(portfolios.filter(id.eq(portfolio_id))).execute(conn).expect("Could not delete");
 }

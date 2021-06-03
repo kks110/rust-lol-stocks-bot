@@ -2,11 +2,10 @@ use crate::database::connection;
 use crate::diesel::prelude::*;
 use crate::models::user::{User, NewUser};
 
-pub fn load_users() -> Vec<User>  {
+pub fn load_users(conn: &PgConnection) -> Vec<User>  {
     use crate::schema::users::dsl::*;
 
-    let connection = connection::establish_connection();
-    users.load::<User>(&connection).expect("Error loading users")
+    users.load::<User>(conn).expect("Error loading users")
 }
 
 pub fn load_user(conn: &PgConnection, user_name: &str) -> User {
@@ -38,6 +37,5 @@ pub fn update_user<'a>(conn: &PgConnection, user_name: &str, new_balance: i32) -
         .set(balance.eq(new_balance))
         .get_result::<User>(conn)
         .expect(&format!("Unable to find user {}", user_name));
-    println!("Created user {}, starting balance is {}", user.name, user.balance);
     return user;
 }
