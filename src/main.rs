@@ -29,6 +29,7 @@ use commands::{
     help::*,
     register::*,
     record_match::*,
+    buy::*
 };
 
 struct Handler;
@@ -45,7 +46,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(help, register, record_match)]
+#[commands(help, register, record_match, buy)]
 struct General;
 
 #[tokio::main]

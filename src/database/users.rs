@@ -1,6 +1,6 @@
 use crate::database::connection;
 use crate::diesel::prelude::*;
-use crate::models::users::{User, NewUser};
+use crate::models::user::{User, NewUser};
 
 pub fn load_users() -> Vec<User>  {
     use crate::schema::users::dsl::*;
@@ -9,12 +9,20 @@ pub fn load_users() -> Vec<User>  {
     users.load::<User>(&connection).expect("Error loading users")
 }
 
+pub fn load_user(conn: &PgConnection, user_name: &str) -> User {
+    use crate::schema::users::dsl::*;
+
+    users.filter(name.eq(user_name))
+        .first(conn)
+        .expect("Error loading team")
+}
+
 pub fn create_user<'a>(conn: &PgConnection, name: &'a str) -> User {
     use crate::schema::users;
 
     let new_user = NewUser {
         name,
-        balance: &500,
+        balance: &2000,
     };
 
     diesel::insert_into(users::table)

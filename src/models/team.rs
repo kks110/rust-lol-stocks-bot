@@ -1,6 +1,6 @@
 use crate::schema::teams;
 
-#[derive(Queryable)]
+#[derive(Identifiable, Queryable)]
 pub struct Team {
     pub id: i32,
     pub name: String,
