@@ -38,16 +38,36 @@ pub fn user_portfolio_purchase<'a>(conn: &PgConnection, purchasing_user: &User, 
     use crate::schema::portfolios::dsl::*;
 
     let users_portfolio: Vec<Portfolio> = Portfolio::belonging_to(purchasing_user).load::<Portfolio>(conn).expect("Error loading portfolios");
-    let mut port: Portfolio;
     for portfolio in users_portfolio {
         if portfolio.team_id == team_purchased.id {
-            port = diesel::update(portfolios.filter(id.eq(portfolio.id)))
+            return diesel::update(portfolios.filter(id.eq(portfolio.id)))
                 .set(amount.eq(portfolio.amount + amount_purchased))
                 .get_result::<Portfolio>(conn)
-                .expect(&format!("Unable to find portfolio for user: {}", purchasing_user.name));
+                .expect(&format!("Unable to find portfolio for user: {}", purchasing_user.name))
         }
     }
-    port = create_portfolio(conn, &team_purchased.id, &purchasing_user.id, &amount_purchased);
+    return create_portfolio(conn, &team_purchased.id, &purchasing_user.id, &amount_purchased);
+}
+
+pub fn user_portfolio_sell<'a>(conn: &PgConnection, selling_user: &User, team_being_sold: &Team, amount_sold: i32) -> Portfolio {
+    use crate::schema::portfolios::dsl::*;
+
+    let users_portfolio: Vec<Portfolio> = load_users_portfolio(conn, selling_user);
+    let mut port: Portfolio = Portfolio {
+        id: 0,
+        team_id: 0,
+        user_id: 0,
+        amount: 0
+    };
+
+    for portfolio in users_portfolio {
+        if portfolio.team_id == team_being_sold.id {
+            return diesel::update(portfolios.filter(id.eq(portfolio.id)))
+                .set(amount.eq(portfolio.amount - amount_sold))
+                .get_result::<Portfolio>(conn)
+                .expect(&format!("Unable to find portfolio for user: {}", selling_user.name));
+        }
+    }
 
     return port;
 }
