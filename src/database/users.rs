@@ -14,7 +14,7 @@ pub fn create_user<'a>(conn: &PgConnection, name: &'a str) -> User {
 
     let new_user = NewUser {
         name,
-        balance: &2000,
+        balance: &5000,
     };
 
     diesel::insert_into(users::table)
