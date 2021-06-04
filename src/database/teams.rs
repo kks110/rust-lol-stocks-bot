@@ -4,7 +4,7 @@ use crate::models::team::{Team};
 pub fn load_teams(conn: &PgConnection) -> Vec<Team>  {
     use crate::schema::teams::dsl::*;
 
-    teams.load::<Team>(conn).expect("Error loading teams")
+    teams.order(elo.desc()).load::<Team>(conn).expect("Error loading teams")
 }
 
 pub fn load_team(conn: &PgConnection, team_name: &str) -> Team {

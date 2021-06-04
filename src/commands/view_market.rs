@@ -17,7 +17,7 @@ pub async fn view_market(ctx: &Context, msg: &Message) -> CommandResult {
     let mut response: String = String::from("");
 
     for team in teams {
-        let team_line = format!("Team: {}, Price: {}\n", team.name, team.elo);
+        let team_line = format!("{}  -  {}\n", team.name, team.elo);
         response.push_str(&team_line);
     }
 
