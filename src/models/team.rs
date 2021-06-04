@@ -6,10 +6,3 @@ pub struct Team {
     pub name: String,
     pub elo: i32
 }
-
-#[derive(Insertable)]
-#[table_name="teams"]
-pub struct NewTeam<'a> {
-    pub name: &'a str,
-    pub elo: &'a i32,
-}

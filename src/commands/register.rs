@@ -5,8 +5,10 @@ use serenity::framework::standard::{
     macros::command,
 };
 
-use crate::database::connection::establish_connection;
-use crate::database::users::create_user;
+use crate::database::{
+    connection::establish_connection,
+    users::create_user
+};
 
 #[command]
 pub async fn register(ctx: &Context, msg: &Message) -> CommandResult {

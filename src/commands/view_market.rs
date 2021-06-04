@@ -4,7 +4,7 @@ use serenity::framework::standard::{CommandResult, macros::command};
 
 use crate::database::{
     connection::establish_connection,
-    teams::{load_teams}
+    teams::load_teams,
 };
 
 

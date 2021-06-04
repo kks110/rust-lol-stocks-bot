@@ -6,13 +6,13 @@ use serenity::framework::standard::{
     Args,
 };
 
-use crate::database::connection::establish_connection;
-use crate::database::users::load_user;
-use crate::database::users::update_user;
-use crate::database::teams::load_team;
-use crate::database::portfolios::load_users_portfolio;
-use crate::database::portfolios::user_portfolio_sell;
-use crate::database::locks::load_lock;
+use crate::database::{
+    connection::establish_connection,
+    users::{load_user, update_user},
+    teams::load_team,
+    portfolios::{load_users_portfolio, user_portfolio_sell},
+    locks::load_lock,
+};
 
 #[command]
 pub async fn sell(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -45,8 +45,6 @@ pub async fn sell(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
             }
         }
     }
-
-
 
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())

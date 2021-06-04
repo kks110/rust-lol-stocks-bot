@@ -7,10 +7,7 @@ mod schema;
 #[macro_use]
 extern crate diesel;
 
-use std::{
-    collections::HashSet,
-    env,
-};
+use std::env;
 
 use serenity::{
     async_trait,
@@ -20,7 +17,6 @@ use serenity::{
         StandardFramework,
         standard::macros::group,
     },
-    http::Http,
 };
 
 use tracing::{error, info};
@@ -62,22 +58,9 @@ async fn main() {
     let token = env::var("DISCORD_TOKEN")
         .expect("Expected a token in the environment");
 
-    let http = Http::new_with_token(&token);
-
-    let (owners, _bot_id) = match http.get_current_application_info().await {
-        Ok(info) => {
-            let mut owners = HashSet::new();
-            owners.insert(info.owner.id);
-
-            (owners, info.id)
-        },
-        Err(why) => panic!("Could not access application info: {:?}", why),
-    };
-
     let framework = StandardFramework::new()
         .configure(|c| c
-            .owners(owners)
-            .prefix("!!"))
+        .prefix("!!"))
         .group(&GENERAL_GROUP);
 
     let mut client = Client::builder(&token)
