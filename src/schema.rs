@@ -1,4 +1,11 @@
 table! {
+    locks (id) {
+        id -> Int4,
+        locked -> Bool,
+    }
+}
+
+table! {
     portfolios (id) {
         id -> Int4,
         team_id -> Int4,
@@ -27,6 +34,7 @@ joinable!(portfolios -> teams (team_id));
 joinable!(portfolios -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
+    locks,
     portfolios,
     teams,
     users,
