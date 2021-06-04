@@ -10,8 +10,15 @@ pub fn calculate_elo(winning_team_elo: i32, loosing_team_elo: i32) ->  (i32, i32
     return (new_winner_elo, new_looser_elo)
 }
 
+fn transform_elo(elo: &f64) -> f64 {
+    10.0_f64.powf(elo / 400.0)
+}
+
 fn expected_score(player_rating: f64, opponent_rating: f64) -> f64 {
-    1.0/(1.0 + (10.0_f64.powf((opponent_rating - player_rating)/400.0)))
+    let player_transformed = transform_elo(&player_rating);
+    let opponent_transformed = transform_elo(&opponent_rating);
+
+    player_transformed / (player_transformed + opponent_transformed)
 }
 
 fn elo_calculation(player_elo: f64, expected_elo: f64, win: bool) -> i32 {
