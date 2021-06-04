@@ -11,6 +11,7 @@ use crate::database::users::load_user;
 use crate::database::users::update_user;
 use crate::database::teams::load_team;
 use crate::database::portfolios::user_portfolio_purchase;
+use crate::database::locks::load_lock;
 
 #[command]
 pub async fn buy(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -18,15 +19,21 @@ pub async fn buy(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
     let amount = args.single::<i32>()?;
     let user_name = msg.author.name.clone();
     let conn = establish_connection();
+    let db_lock = load_lock(&conn);
+    let mut response= format!("");
 
-    let team = load_team(&conn, &team_name);
-    let user = load_user(&conn, &user_name);
-    let mut response = format!("Not enough funds!");
-    let cost: i32 = team.elo * amount;
-    if cost <= user.balance {
-        update_user(&conn, &user.name, user.balance - cost);
-        user_portfolio_purchase(&conn,&user, &team, amount);
-        response = format!("Purchase Made!");
+    if db_lock.locked {
+        response = format!("Sales are locked, wait for the games to finish!");
+    } else {
+        let team = load_team(&conn, &team_name);
+        let user = load_user(&conn, &user_name);
+        response = format!("Not enough funds!");
+        let cost: i32 = team.elo * amount;
+        if cost <= user.balance {
+            update_user(&conn, &user.name, user.balance - cost);
+            user_portfolio_purchase(&conn, &user, &team, amount);
+            response = format!("Purchase Made!");
+        }
     }
 
     msg.channel_id.say(&ctx.http, response).await?;
