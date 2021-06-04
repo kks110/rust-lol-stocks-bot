@@ -6,21 +6,23 @@ use serenity::framework::standard::{
 };
 
 const HELP_MESSAGE: &str = "
-Hello there, Human!
+Welcome to the Stock Market Summoner!
 
-You have summoned me. Let's see about getting you what you need.
+Here is a quick rundown of the things you can do:
 
-? Need technical help?
-=> Post in the <#845434690416148491> channel and other humans will assist you.
+All teams names are their abbreviations and in capitals.
 
-? Looking for the Code of Conduct?
-=> Here it is: <https://opensource.facebook.com/code-of-conduct>
+`!!register` > Register to play. This will create an account and give you a starting balance.
+`!!record_match <winning_team> <loosing_team>` > Records a match that has been played.
+`!!view_market` > Shows the market price of all the teams.
+`!!buy <team> <amount to buy>` > Buys 'Shares' in a team and add to your portfolio.
+`!!sell <team> <amount to buy>` > Sells 'Shares' in a team, removes from your portfolio and add to your balance.
+`!!view_portfolio` > Shows your portfolio and how much its worth.
 
-? Something wrong?
-=> You can flag an admin with @admin
+The ability to buy and sell will be locked over the weekend to make sure that the games have been updated before people try to buy and sell teams.
+This is achieved with the following commands:
+`!!sale_lock` and `!!sale_unlock`
 
-I hope that resolves your issue!
--- Helpbot
 
 ";
 
