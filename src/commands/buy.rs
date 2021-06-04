@@ -20,7 +20,7 @@ pub async fn buy(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
     let user_name = msg.author.name.clone();
     let conn = establish_connection();
     let db_lock = load_lock(&conn);
-    let mut response= format!("");
+    let mut response: String;
 
     if db_lock.locked {
         response = format!("Sales are locked, wait for the games to finish!");

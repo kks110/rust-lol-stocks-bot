@@ -1,20 +1,9 @@
-use crate::database::connection;
 use crate::diesel::prelude::*;
 use crate::models::portfolio::{Portfolio, NewPortfolio};
 use crate::models::user::User;
 use crate::models::team::Team;
 
-pub fn load_portfolios(conn: &PgConnection) -> Vec<Portfolio>  {
-    use crate::schema::portfolios::dsl::*;
-
-    portfolios.load::<Portfolio>(conn).expect("Error loading portfolios")
-}
-
 pub fn load_users_portfolio(conn: &PgConnection, user: &User) -> Vec<Portfolio> {
-    use crate::schema::portfolios::dsl::*;
-    use crate::schema::portfolios;
-    use crate::schema::users;
-
     Portfolio::belonging_to(user).load::<Portfolio>(conn).expect("Error loading portfolios")
 }
 
@@ -52,7 +41,7 @@ pub fn user_portfolio_sell<'a>(conn: &PgConnection, selling_user: &User, team_be
     use crate::schema::portfolios::dsl::*;
 
     let users_portfolio: Vec<Portfolio> = load_users_portfolio(conn, selling_user);
-    let mut port: Portfolio = Portfolio {
+    let port: Portfolio = Portfolio {
         id: 0,
         team_id: 0,
         user_id: 0,

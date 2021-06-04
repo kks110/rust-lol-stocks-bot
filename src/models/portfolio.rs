@@ -1,6 +1,5 @@
 use crate::schema::portfolios;
 use crate::models::user::User;
-use crate::models::team::Team;
 
 #[derive(Identifiable, Queryable, Associations)]
 #[belongs_to(User, Team)]

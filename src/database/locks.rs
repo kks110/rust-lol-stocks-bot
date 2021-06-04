@@ -1,6 +1,5 @@
 use crate::diesel::prelude::*;
 use crate::models::lock::{Lock};
-use crate::schema::locks::dsl::locks;
 
 pub fn load_lock(conn: &PgConnection) -> Lock {
     use crate::schema::locks::dsl::*;

@@ -10,7 +10,6 @@ use crate::database::connection::establish_connection;
 use crate::database::users::load_user;
 use crate::database::users::update_user;
 use crate::database::teams::load_team;
-use crate::database::portfolios::user_portfolio_purchase;
 use crate::database::portfolios::load_users_portfolio;
 use crate::database::portfolios::user_portfolio_sell;
 use crate::database::locks::load_lock;
@@ -22,7 +21,7 @@ pub async fn sell(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
     let user_name = msg.author.name.clone();
     let conn = establish_connection();
     let db_lock = load_lock(&conn);
-    let mut response= format!("");
+    let mut response: String;
 
     if db_lock.locked {
         response = format!("Sales are locked, wait for the games to finish!");
