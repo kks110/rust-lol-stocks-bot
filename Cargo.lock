@@ -178,19 +178,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "discord_bot"
-version = "0.1.0"
-dependencies = [
- "dotenv",
- "lol_stocks_core",
- "serde",
- "serde_json",
- "serenity",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "dotenv"
 version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -520,6 +507,19 @@ name = "lol_stocks_core"
 version = "0.1.0"
 dependencies = [
  "diesel",
+]
+
+[[package]]
+name = "lol_stocks_discord_bot"
+version = "0.1.0"
+dependencies = [
+ "dotenv",
+ "lol_stocks_core",
+ "serde",
+ "serde_json",
+ "serenity",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
