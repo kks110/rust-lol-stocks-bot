@@ -36,7 +36,7 @@ pub async fn buy(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
             response = format!("Purchase Made!");
         }
     }
-
+    println!("{} and purchased {} shares in {}", user_name, amount, team_name);
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
 }

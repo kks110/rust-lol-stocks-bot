@@ -45,7 +45,7 @@ pub async fn sell(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
             }
         }
     }
-
+    println!("{} and sold {} shares in {}", user_name, amount, team_name);
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
 }

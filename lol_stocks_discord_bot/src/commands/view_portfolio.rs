@@ -37,6 +37,7 @@ pub async fn view_portfolio(ctx: &Context, msg: &Message) -> CommandResult {
     let total_value = format!("Total Portfolio Value: {}", value);
     response.push_str(&total_value);
 
+    println!("{} has viewed their portfolio", user_name);
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
 }

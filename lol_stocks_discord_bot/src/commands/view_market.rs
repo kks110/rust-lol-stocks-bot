@@ -20,7 +20,7 @@ pub async fn view_market(ctx: &Context, msg: &Message) -> CommandResult {
         let team_line = format!("{}  -  {}\n", team.name, team.elo);
         response.push_str(&team_line);
     }
-
+    println!("Market displayed");
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
 }
