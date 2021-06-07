@@ -1,4 +1,4 @@
-use crate::diesel::prelude::*;
+use diesel::prelude::*;
 use crate::models::team::{Team};
 
 pub fn load_teams(conn: &PgConnection) -> Vec<Team>  {

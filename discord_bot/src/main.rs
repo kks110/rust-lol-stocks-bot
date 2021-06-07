@@ -1,37 +1,29 @@
-mod commands;
-mod models;
-mod elo;
-mod database;
-mod schema;
-
-#[macro_use]
-extern crate diesel;
-
 use std::env;
 
 use serenity::{
     async_trait,
+    framework::{
+        standard::macros::group,
+        StandardFramework,
+    },
     model::{event::ResumedEvent, gateway::Ready},
     prelude::*,
-    framework::{
-        StandardFramework,
-        standard::macros::group,
-    },
 };
-
 use tracing::{error, info};
 
 use commands::{
-    help::*,
-    register::*,
-    record_match::*,
     buy::*,
+    help::*,
+    record_match::*,
+    register::*,
+    sale_lock::*,
+    sale_unlock::*,
     sell::*,
     view_market::*,
     view_portfolio::*,
-    sale_lock::*,
-    sale_unlock::*,
 };
+
+mod commands;
 
 struct Handler;
 

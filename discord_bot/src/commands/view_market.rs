@@ -2,7 +2,7 @@ use serenity::prelude::*;
 use serenity::model::prelude::*;
 use serenity::framework::standard::{CommandResult, macros::command};
 
-use crate::database::{
+use lol_stocks_core::database::{
     connection::establish_connection,
     teams::load_teams,
 };

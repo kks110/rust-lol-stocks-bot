@@ -6,12 +6,12 @@ use serenity::framework::standard::{
     Args,
 };
 
-use crate::database::{
+use lol_stocks_core::database::{
     connection::establish_connection,
+    portfolios::user_portfolio_purchase,
+    locks::load_lock,
     users::{load_user, update_user},
     teams::load_team,
-    portfolios::user_portfolio_purchase,
-    locks::load_lock
 };
 
 #[command]

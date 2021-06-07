@@ -1,4 +1,4 @@
-use crate::diesel::prelude::*;
+use diesel::prelude::*;
 use crate::models::portfolio::{Portfolio, NewPortfolio};
 use crate::models::user::User;
 use crate::models::team::Team;

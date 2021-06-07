@@ -5,7 +5,7 @@ use serenity::framework::standard::{
     macros::command,
 };
 
-use crate::database::{
+use lol_stocks_core::database::{
     connection::establish_connection,
     users::create_user
 };

@@ -2,12 +2,12 @@ use serenity::prelude::*;
 use serenity::model::prelude::*;
 use serenity::framework::standard::{CommandResult, macros::command, Args};
 
-use crate::database::{
+use lol_stocks_core::database::{
     connection::establish_connection,
     teams::{update_team, load_team}
 };
 
-use crate::elo::elo::calculate_elo;
+use lol_stocks_core::elo::calculate_elo;
 
 #[command]
 pub async fn record_match(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {

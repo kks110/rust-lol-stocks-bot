@@ -6,7 +6,7 @@ use serenity::framework::standard::{
     Args,
 };
 
-use crate::database::{
+use lol_stocks_core::database::{
     connection::establish_connection,
     users::{load_user, update_user},
     teams::load_team,

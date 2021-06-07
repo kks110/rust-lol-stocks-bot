@@ -2,17 +2,17 @@ use serenity::prelude::*;
 use serenity::model::prelude::*;
 use serenity::framework::standard::{CommandResult, macros::command};
 
-use crate::database::{
+use lol_stocks_core::database::{
     connection::establish_connection,
-    locks::lock_database,
+    locks::unlock_database,
 };
 
 #[command]
-pub async fn sale_lock(ctx: &Context, msg: &Message) -> CommandResult {
+pub async fn sale_unlock(ctx: &Context, msg: &Message) -> CommandResult {
     let conn = establish_connection();
-    lock_database(&conn);
+    unlock_database(&conn);
 
-    let response = format!("Sales are locked");
+    let response = format!("Sales are unlocked");
 
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())

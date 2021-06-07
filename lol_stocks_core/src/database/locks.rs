@@ -1,4 +1,4 @@
-use crate::diesel::prelude::*;
+use diesel::prelude::*;
 use crate::models::lock::{Lock};
 
 pub fn load_lock(conn: &PgConnection) -> Lock {

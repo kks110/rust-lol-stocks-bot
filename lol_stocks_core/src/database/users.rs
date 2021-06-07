@@ -1,4 +1,4 @@
-use crate::diesel::prelude::*;
+use diesel::prelude::*;
 use crate::models::user::{User, NewUser};
 
 pub fn load_user(conn: &PgConnection, user_name: &str) -> User {
