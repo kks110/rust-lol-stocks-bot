@@ -3,4 +3,5 @@
 members = [
     "lol_stocks_core",
     "lol_stocks_discord_bot",
+    "lol_stocks_web_server",
 ]
