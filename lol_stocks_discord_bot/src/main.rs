@@ -20,6 +20,8 @@ use commands::{
     view_portfolio::*,
 };
 
+use lol_stocks_core::database::migrations::run_migrations;
+
 mod commands;
 
 struct Handler;
@@ -45,6 +47,8 @@ async fn main() {
 
     let token = env::var("DISCORD_TOKEN")
         .expect("Expected a token in the environment");
+
+    run_migrations();
 
     println!("Discord Bot Running");
     let framework = StandardFramework::new()

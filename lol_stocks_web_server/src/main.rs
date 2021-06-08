@@ -7,6 +7,8 @@ use models::{
     key::Key,
 };
 
+use lol_stocks_core::database::migrations::run_migrations;
+
 #[post("/register_match")]
 async fn register_matches(game_list: web::Json<Games>) -> impl Responder {
     endpoints::register_match::register_matches(game_list.into_inner());
@@ -32,6 +34,9 @@ async fn padlock(key: web::Json<Key>) -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().expect("Failed to load .env file");
+
+    run_migrations();
+
     println!("Webserver Running on 127.0.0.1:8080");
     HttpServer::new(|| {
         App::new()
