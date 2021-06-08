@@ -18,6 +18,7 @@ use commands::{
     sell::*,
     view_market::*,
     view_portfolio::*,
+    db_lock::*,
 };
 
 use lol_stocks_core::database::migrations::run_migrations;
@@ -38,7 +39,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(help, register, buy, sell, view_market, view_portfolio)]
+#[commands(help, register, buy, sell, view_market, view_portfolio, db_lock)]
 struct General;
 
 #[tokio::main]

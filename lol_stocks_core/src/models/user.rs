@@ -4,7 +4,8 @@ use crate::schema::users;
 pub struct User {
     pub id: i32,
     pub name: String,
-    pub balance: i32
+    pub balance: i32,
+    pub admin: bool,
 }
 
 #[derive(Insertable)]

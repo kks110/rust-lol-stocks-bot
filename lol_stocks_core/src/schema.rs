@@ -27,6 +27,7 @@ table! {
         id -> Int4,
         name -> Varchar,
         balance -> Int4,
+        admin -> Bool,
     }
 }
 
