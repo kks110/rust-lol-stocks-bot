@@ -19,7 +19,7 @@ All teams names are their abbreviations and in capitals.
 `!!view_portfolio` > Shows your portfolio and how much its worth.
 
 The ability to buy and sell will be locked over the weekend to make sure that the games have been updated before people try to buy and sell teams.
-
+`!!db_lock`  > Can be used by admins to lock and unlock the market.
 ";
 
 
