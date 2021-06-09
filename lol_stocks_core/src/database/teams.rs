@@ -9,8 +9,9 @@ pub fn load_teams(conn: &PgConnection) -> Vec<Team>  {
 
 pub fn load_team(conn: &PgConnection, team_name: &str) -> Team {
     use crate::schema::teams::dsl::*;
+    let uppercase_team_name = team_name.to_uppercase();
 
-    teams.filter(name.eq(team_name))
+    teams.filter(name.eq(&uppercase_team_name))
         .first(conn)
         .expect("Error loading team")
 }
@@ -25,8 +26,9 @@ pub fn load_team_by_id(conn: &PgConnection, team_id: &i32) -> Team {
 
 pub fn update_team<'a>(conn: &PgConnection, team_name: &str, new_elo: i32) -> Team {
     use crate::schema::teams::dsl::*;
+    let uppercase_team_name = team_name.to_uppercase();
 
-    let team = diesel::update(teams.filter(name.eq(team_name)))
+    let team = diesel::update(teams.filter(name.eq(&uppercase_team_name)))
         .set(elo.eq(new_elo))
         .get_result::<Team>(conn)
         .expect(&format!("Unable to find team {}", team_name));
