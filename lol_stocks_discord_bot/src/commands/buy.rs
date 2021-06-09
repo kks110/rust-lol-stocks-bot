@@ -23,19 +23,24 @@ pub async fn buy(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
     let db_lock = load_lock(&conn);
     let mut response: String;
 
-    if db_lock.locked {
-        response = format!("Sales are locked, wait for the games to finish!");
+    if amount <= 0 {
+        response = format!("Please enter a positive number!");
     } else {
-        let team = load_team(&conn, &team_name);
-        let user = load_user(&conn, &user_name);
-        response = format!("Not enough funds!");
-        let cost: i32 = team.elo * amount;
-        if cost <= user.balance {
-            update_user(&conn, &user.name, user.balance - cost);
-            user_portfolio_purchase(&conn, &user, &team, amount);
-            response = format!("Purchase Made!");
+        if db_lock.locked {
+            response = format!("Sales are locked, wait for the games to finish!");
+        } else {
+            let team = load_team(&conn, &team_name);
+            let user = load_user(&conn, &user_name);
+            response = format!("Not enough funds!");
+            let cost: i32 = team.elo * amount;
+            if cost <= user.balance {
+                update_user(&conn, &user.name, user.balance - cost);
+                user_portfolio_purchase(&conn, &user, &team, amount);
+                response = format!("Purchase Made!");
+            }
         }
     }
+
     println!("{} and purchased {} shares in {}", user_name, amount, team_name);
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
