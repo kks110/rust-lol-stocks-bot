@@ -33,7 +33,7 @@ async fn padlock(key: web::Json<Key>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv::dotenv().expect("Failed to load .env file");
+    dotenv::dotenv().ok();
 
     run_migrations();
 
