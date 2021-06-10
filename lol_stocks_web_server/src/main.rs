@@ -9,7 +9,7 @@ use models::{
 
 use lol_stocks_core::database::migrations::run_migrations;
 
-#[post("/register_match")]
+#[post("/register_matches")]
 async fn register_matches(game_list: web::Json<Games>) -> impl Responder {
     endpoints::register_match::register_matches(game_list.into_inner());
     println!("Matches logged");

@@ -1,6 +1,12 @@
 use diesel::prelude::*;
 use crate::models::user::{User, NewUser};
 
+pub fn load_users(conn: &PgConnection) -> Vec<User>  {
+    use crate::schema::users::dsl::*;
+
+    users.load::<User>(conn).expect("Error loading teams")
+}
+
 pub fn load_user(conn: &PgConnection, user_name: &str) -> User {
     use crate::schema::users::dsl::*;
 
