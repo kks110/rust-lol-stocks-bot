@@ -17,7 +17,7 @@ table! {
 table! {
     team_elo_histories (id) {
         id -> Int4,
-        week -> Int4,
+        date -> Date,
         elo -> Int4,
         team_id -> Int4,
     }
@@ -34,7 +34,7 @@ table! {
 table! {
     user_portfolio_histories (id) {
         id -> Int4,
-        week -> Int4,
+        date -> Date,
         value -> Int4,
         user_id -> Int4,
     }

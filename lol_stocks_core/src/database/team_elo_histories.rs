@@ -6,17 +6,16 @@ pub fn load_team_elo_history(conn: &PgConnection, team: &Team) -> Vec<TeamEloHis
     use crate::schema::team_elo_histories::dsl::*;
 
     TeamEloHistory::belonging_to(team)
-        .order(week.desc())
+        .order(date.desc())
         .limit(5)
         .load::<TeamEloHistory>(conn)
         .expect("Error loading team elo history")
 }
 
-pub fn create_team_elo_history<'a>(conn: &PgConnection, week: &'a i32, elo: &'a i32, team_id: &'a i32) -> TeamEloHistory {
+pub fn create_team_elo_history<'a>(conn: &PgConnection, elo: &'a i32, team_id: &'a i32) -> TeamEloHistory {
     use crate::schema::team_elo_histories;
 
     let new_team_elo_history = NewTeamEloHistory {
-        week,
         elo,
         team_id
     };
