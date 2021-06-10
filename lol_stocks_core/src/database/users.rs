@@ -4,7 +4,7 @@ use crate::models::user::{User, NewUser};
 pub fn load_users(conn: &PgConnection) -> Vec<User>  {
     use crate::schema::users::dsl::*;
 
-    users.load::<User>(conn).expect("Error loading teams")
+    users.load::<User>(conn).expect("Error loading users")
 }
 
 pub fn load_user(conn: &PgConnection, user_name: &str) -> User {
@@ -12,7 +12,7 @@ pub fn load_user(conn: &PgConnection, user_name: &str) -> User {
 
     users.filter(name.eq(user_name))
         .first(conn)
-        .expect("Error loading team")
+        .expect("Error loading user")
 }
 
 pub fn create_user<'a>(conn: &PgConnection, name: &'a str) -> User {
@@ -26,7 +26,7 @@ pub fn create_user<'a>(conn: &PgConnection, name: &'a str) -> User {
     diesel::insert_into(users::table)
         .values(&new_user)
         .get_result(conn)
-        .expect("Error saving new post")
+        .expect("Error saving user")
 }
 
 pub fn update_user<'a>(conn: &PgConnection, user_name: &str, new_balance: i32) -> User {

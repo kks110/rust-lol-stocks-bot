@@ -66,5 +66,5 @@ pub fn user_portfolio_sell<'a>(conn: &PgConnection, selling_user: &User, team_be
 
 fn delete_portfolio(conn: &PgConnection, portfolio_id: i32) {
     use crate::schema::portfolios::dsl::*;
-    diesel::delete(portfolios.filter(id.eq(portfolio_id))).execute(conn).expect("Could not delete");
+    diesel::delete(portfolios.filter(id.eq(portfolio_id))).execute(conn).expect("Could not delete portfolio");
 }
