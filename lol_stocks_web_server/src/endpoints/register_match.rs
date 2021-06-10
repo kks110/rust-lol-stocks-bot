@@ -4,10 +4,13 @@ use lol_stocks_core::{
         connection::establish_connection,
         teams::{ load_team, update_team },
     },
-    elo::calculate_elo
+    elo::calculate_elo,
+    histories::take_history_snapshot
 };
 
 pub fn register_matches(games: Games) {
+    take_history_snapshot();
+
     for game in games.matches {
         let winner =  game.winner;
         let loser = game.looser;
