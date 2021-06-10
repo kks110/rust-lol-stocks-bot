@@ -24,7 +24,6 @@ fn update_team_history() {
 }
 
 fn update_user_history() {
-    println!("updating users");
     let conn = establish_connection();
 
     let users = load_users(&conn);
