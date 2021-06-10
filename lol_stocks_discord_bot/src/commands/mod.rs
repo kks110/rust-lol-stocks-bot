@@ -6,4 +6,6 @@ pub mod view_market;
 pub mod view_portfolio;
 pub mod db_lock;
 pub mod ping;
+pub mod elo_history_for;
+pub mod portfolio_performance;
 

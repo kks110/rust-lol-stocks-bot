@@ -19,6 +19,8 @@ use commands::{
     view_market::*,
     view_portfolio::*,
     db_lock::*,
+    elo_history_for::*,
+    portfolio_performance::*,
     ping::*,
 };
 
@@ -40,7 +42,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(help, register, buy, sell, view_market, view_portfolio, db_lock, ping)]
+#[commands(help, register, buy, sell, view_market, view_portfolio, db_lock, ping, elo_history_for, portfolio_performance)]
 struct General;
 
 #[tokio::main]
