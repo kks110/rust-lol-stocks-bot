@@ -23,11 +23,11 @@ pub async fn db_lock(ctx: &Context, msg: &Message) -> CommandResult {
         if lock.locked {
             println!("Unlocking database");
             unlock_database(&conn);
-            response = String::from("Market unlocked! Happy Shopping")
+            response = String::from("Market is open! Happy Shopping")
         } else {
             println!("Locking database");
             lock_database(&conn);
-            response = String::from("Database locked! Time to watch some games")
+            response = String::from("Market is closed! Time to watch some games")
         }
     } else {
         response = String::from("Only admins can do this!")
