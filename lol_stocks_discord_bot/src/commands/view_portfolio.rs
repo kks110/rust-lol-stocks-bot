@@ -8,6 +8,7 @@ use lol_stocks_core::database::{
     portfolios::load_users_portfolio,
     teams::load_team_by_id
 };
+use lol_stocks_core::models::holding::Holding;
 
 
 #[command]
@@ -18,6 +19,14 @@ pub async fn view_portfolio(ctx: &Context, msg: &Message) -> CommandResult {
     let user = load_user(&conn, &user_name);
     let portfolio = load_users_portfolio(&conn, &user);
 
+    let mut holdings: Vec<Holding> = Vec::new();
+    for item in portfolio {
+        let team = load_team_by_id(&conn, &item.team_id);
+        let value = team.elo * item.amount;
+        holdings.push(Holding { team, value, amount: item.amount })
+    }
+    holdings.sort_by(|a, b| b.value.cmp(&a.value));
+
     let mut response: String = String::from("");
 
     let mut value = 0;
@@ -26,11 +35,9 @@ pub async fn view_portfolio(ctx: &Context, msg: &Message) -> CommandResult {
     value = value + user.balance;
     response.push_str(&user_balance);
 
-    for holding in portfolio {
-        let team = load_team_by_id(&conn, &holding.team_id);
-        let holding_value = team.elo * holding.amount;
-        value = value + holding_value;
-        let portfolio_line = format!("Team: {}, Amount: {}, Value: {}\n", team.name, holding.amount, holding_value);
+    for holding in holdings {
+        value = value + holding.value;
+        let portfolio_line = format!("Team: {}, Amount: {}, Value: {}\n", holding.team.name, holding.amount, holding.value);
         response.push_str(&portfolio_line);
     }
 
