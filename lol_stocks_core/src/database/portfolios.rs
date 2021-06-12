@@ -4,12 +4,7 @@ use crate::models::user::User;
 use crate::models::team::Team;
 
 pub fn load_users_portfolio(conn: &PgConnection, user: &User) -> Vec<Portfolio> {
-    use crate::schema::portfolios::dsl::*;
-
-    Portfolio::belonging_to(user)
-        .order(amount.desc())
-        .load::<Portfolio>(conn)
-        .expect("Error loading portfolios")
+    Portfolio::belonging_to(user).load::<Portfolio>(conn).expect("Error loading portfolios")
 }
 
 pub fn create_portfolio<'a>(conn: &PgConnection, team_id: &'a i32, user_id: &'a i32, amount: &'a i32) -> Portfolio {
