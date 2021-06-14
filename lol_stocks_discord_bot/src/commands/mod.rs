@@ -9,4 +9,4 @@ pub mod ping;
 pub mod elo_history_for;
 pub mod portfolio_performance;
 pub mod leaderboard;
-
+pub mod schedule;
