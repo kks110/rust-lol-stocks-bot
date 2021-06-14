@@ -33,7 +33,7 @@ pub async fn leaderboard(ctx: &Context, msg: &Message) -> CommandResult {
 
     leaderboard_entries.sort_by(|a, b| b.value.cmp(&a.value));
 
-    let mut response = String::from("Leader board:\n");
+    let mut response = String::from("Leaderboard:\n");
     for entry in leaderboard_entries {
         let entry_string = format!("{}: {}\n", entry.user_name, entry.value);
         response.push_str(&entry_string);
