@@ -30,6 +30,12 @@ Buys 'Shares' in a team and add to your portfolio.
 ```
 Sells 'Shares' in a team, removes from your portfolio and add to your balance.
 
+##### sell_all
+```
+!!sell_all <team?>
+```
+Sells all 'Shares' in a specified team, if no team is specified, will see your whole portfolio.
+
 ##### view_portfolio
 ```
 !!view_portfolio

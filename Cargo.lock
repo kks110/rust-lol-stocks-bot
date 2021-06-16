@@ -1050,7 +1050,7 @@ dependencies = [
 
 [[package]]
 name = "lol_stocks_discord_bot"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "dotenv",
  "lol_stocks_core",

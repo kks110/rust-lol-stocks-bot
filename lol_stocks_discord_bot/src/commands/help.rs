@@ -16,6 +16,7 @@ All teams names are their abbreviations and in capitals.
 `!!view_market` > Shows the market price of all the teams.
 `!!buy <team> <amount to buy>` > Buys 'Shares' in a team and add to your portfolio.
 `!!sell <team> <amount to buy>` > Sells 'Shares' in a team, removes from your portfolio and add to your balance.
+`!!sell_all <team?>` > Sells all 'Shares' in a specified team, if no team is specified, will see your whole portfolio.
 `!!view_portfolio` > Shows your portfolio and how much its worth.
 `!!elo_history_for <team>` > Shows the historic prices of the team.
 `!!portfolio_performance` > Shows your portfolios historic values.
