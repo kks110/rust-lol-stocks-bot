@@ -4,6 +4,7 @@ mod endpoints;
 
 use models::{
     game::Games,
+    team::Teams,
     key::Key,
 };
 
@@ -13,6 +14,13 @@ use lol_stocks_core::database::migrations::run_migrations;
 async fn register_matches(game_list: web::Json<Games>) -> impl Responder {
     endpoints::register_match::register_matches(game_list.into_inner());
     println!("Matches logged");
+    HttpResponse::Ok().body("")
+}
+
+#[post("/register_teams")]
+async fn register_teams(team_list: web::Json<Teams>) -> impl Responder {
+    endpoints::register_teams::register_teams(team_list.into_inner());
+    println!("Teams added to DB");
     HttpResponse::Ok().body("")
 }
 
@@ -37,10 +45,12 @@ async fn main() -> std::io::Result<()> {
 
     run_migrations();
 
-    println!("Webserver Running on 127.0.0.1:8080");
+    println!("Webserver Running on 127.0.0.1:8181");
+    println!("Webserver Running on 0.0.0.0:8080");
     HttpServer::new(|| {
         App::new()
             .service(register_matches)
+            .service(register_teams)
             .service(padlock)
     })
         .bind("127.0.0.1:8181")?

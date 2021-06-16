@@ -1,5 +1,5 @@
 use diesel::prelude::*;
-use crate::models::team::{Team};
+use crate::models::team::{Team, NewTeam};
 
 pub fn load_teams(conn: &PgConnection) -> Vec<Team>  {
     use crate::schema::teams::dsl::*;
@@ -33,4 +33,18 @@ pub fn update_team<'a>(conn: &PgConnection, team_name: &str, new_elo: i32) -> Te
         .get_result::<Team>(conn)
         .expect(&format!("Unable to find team {}", team_name));
     return team;
+}
+
+pub fn create_team<'a>(conn: &PgConnection, name: &'a str) -> Team {
+    use crate::schema::teams;
+
+    let new_team = NewTeam {
+        name,
+        elo: &500
+    };
+
+    diesel::insert_into(teams::table)
+        .values(&new_team)
+        .get_result(conn)
+        .expect("Error saving team")
 }
