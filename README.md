@@ -34,7 +34,7 @@ Sells 'Shares' in a team, removes from your portfolio and add to your balance.
 ```
 !!sell_all <team?>
 ```
-Sells all 'Shares' in a specified team, if no team is specified, will see your whole portfolio.
+Sells all 'Shares' in a specified team, if no team is specified, will sell your whole portfolio.
 
 ##### view_portfolio
 ```
