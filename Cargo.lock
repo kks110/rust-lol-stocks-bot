@@ -1041,7 +1041,7 @@ dependencies = [
 
 [[package]]
 name = "lol_stocks_core"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "diesel",
@@ -1050,7 +1050,7 @@ dependencies = [
 
 [[package]]
 name = "lol_stocks_discord_bot"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "dotenv",
  "lol_stocks_core",
@@ -1063,7 +1063,7 @@ dependencies = [
 
 [[package]]
 name = "lol_stocks_web_server"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "actix-web",
  "dotenv",
