@@ -23,6 +23,7 @@ use commands::{
     portfolio_performance::*,
     leaderboard::*,
     schedule::*,
+    weekly_report::*,
     ping::*,
 };
 
@@ -44,7 +45,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(help, register, buy, sell, view_market, view_portfolio, db_lock, ping, elo_history_for, portfolio_performance, leaderboard, schedule)]
+#[commands(help, register, buy, sell, view_market, view_portfolio, db_lock, ping, elo_history_for, portfolio_performance, leaderboard, schedule, weekly_report)]
 struct General;
 
 #[tokio::main]
