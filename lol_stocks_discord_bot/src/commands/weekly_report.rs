@@ -43,10 +43,18 @@ pub async fn weekly_report(ctx: &Context, msg: &Message) -> CommandResult {
             e.title("Weekly Report:");
             e.colour(Colour::from_rgb(94, 166, 96));
             for line in weekly_report_lines {
-                e.field(line.team_name, format!("{} ({})", line.current_elo, line.difference), true);
+                e.field(line.team_name, format!("{} ({}{})", line.current_elo, plus_sign(line.difference), line.difference), true);
             }
             e
         })
     }).await?;
     Ok(())
+}
+
+fn plus_sign(number: i32) -> String {
+    if number > 0 {
+        String::from("+")
+    } else {
+        String::from("")
+    }
 }
