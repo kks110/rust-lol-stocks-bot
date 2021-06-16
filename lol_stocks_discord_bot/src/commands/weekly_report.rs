@@ -14,7 +14,7 @@ use lol_stocks_core::{
     }
 };
 
-pub struct WeeklyReportLine {
+struct WeeklyReportLine {
     pub team_name: String,
     pub current_elo: i32,
     pub difference: i32

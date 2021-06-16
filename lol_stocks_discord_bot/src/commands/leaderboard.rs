@@ -12,8 +12,12 @@ use lol_stocks_core::{
         users::load_users,
         portfolios::load_users_portfolio,
     },
-    models::leaderboard_entry::LeaderboardEntry,
 };
+
+struct LeaderboardEntry {
+    pub user_name: String,
+    pub value: i32
+}
 
 #[command]
 pub async fn leaderboard(ctx: &Context, msg: &Message) -> CommandResult {

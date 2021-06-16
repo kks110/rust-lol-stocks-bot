@@ -8,8 +8,13 @@ use lol_stocks_core::database::{
     portfolios::load_users_portfolio,
     teams::load_team_by_id
 };
-use lol_stocks_core::models::holding::Holding;
+use lol_stocks_core::models::team::Team;
 
+struct Holding {
+    pub team: Team,
+    pub amount: i32,
+    pub value: i32
+}
 
 #[command]
 pub async fn view_portfolio(ctx: &Context, msg: &Message) -> CommandResult {
