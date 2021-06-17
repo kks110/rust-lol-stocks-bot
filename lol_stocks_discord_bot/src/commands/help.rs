@@ -15,6 +15,7 @@ All teams names are their abbreviations and in capitals.
 `!!register` > Register to play. This will create an account and give you a starting balance.
 `!!view_market` > Shows the market price of all the teams.
 `!!buy <team> <amount to buy>` > Buys 'Shares' in a team and add to your portfolio.
+`!!buy_all <team>` > Buys as many 'Shares' in a team as you can afford.
 `!!sell <team> <amount to buy>` > Sells 'Shares' in a team, removes from your portfolio and add to your balance.
 `!!sell_all <team?>` > Sells all 'Shares' in a specified team, if no team is specified, will see your whole portfolio.
 `!!view_portfolio` > Shows your portfolio and how much its worth.

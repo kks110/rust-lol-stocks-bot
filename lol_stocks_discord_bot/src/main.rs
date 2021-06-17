@@ -13,6 +13,7 @@ use tracing::{error, info};
 
 use commands::{
     buy::*,
+    buy_all::*,
     help::*,
     register::*,
     sell::*,
@@ -46,7 +47,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(help, register, buy, sell, view_market, view_portfolio, db_lock, ping, elo_history_for, portfolio_performance, leaderboard, schedule, weekly_report, sell_all)]
+#[commands(help, register, buy, sell, view_market, view_portfolio, db_lock, ping, elo_history_for, portfolio_performance, leaderboard, schedule, weekly_report, sell_all, buy_all)]
 struct General;
 
 #[tokio::main]

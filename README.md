@@ -24,6 +24,12 @@ Shows the market price of all the teams.
 ```
 Buys 'Shares' in a team and add to your portfolio.
 
+##### buy_all
+```
+!!buy_all <team>
+```
+Buys as many 'Shares' in a team as you can afford.
+
 ##### sell
 ```
 !!sell <team> <amount to buy>

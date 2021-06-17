@@ -12,3 +12,4 @@ pub mod leaderboard;
 pub mod schedule;
 pub mod weekly_report;
 pub mod sell_all;
+pub mod buy_all;
