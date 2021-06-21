@@ -31,12 +31,6 @@ The ability to buy and sell will be locked over the weekend to make sure that th
 
 #[command]
 pub async fn help(ctx: &Context, msg: &Message) -> CommandResult {
-    // msg.channel_id.say(&ctx.http, HELP_MESSAGE).await?;
-
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.add_file("./2.1.png")
-    }).await?;
-
-
+    msg.channel_id.say(&ctx.http, HELP_MESSAGE).await?;
     Ok(())
 }

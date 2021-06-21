@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 lol_stocks_core = { path = "../lol_stocks_core" }
+graph_builder = { path = "../graph_builder" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 dotenv = "0.15"
