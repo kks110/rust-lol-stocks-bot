@@ -21,6 +21,7 @@ All teams names are their abbreviations and in capitals.
 `!!view_portfolio` > Shows your portfolio and how much its worth.
 `!!elo_history_for <team>` > Shows the historic prices of the team.
 `!!portfolio_performance` > Shows your portfolios historic values.
+`!!portfolio_graph` > Generated a graph based on portfolio value and history.
 `!!leaderboard` > Shows all users and their portfolio values.
 `!!schedule` > Show links to the schedule sites.
 
@@ -32,6 +33,5 @@ The ability to buy and sell will be locked over the weekend to make sure that th
 #[command]
 pub async fn help(ctx: &Context, msg: &Message) -> CommandResult {
     msg.channel_id.say(&ctx.http, HELP_MESSAGE).await?;
-
     Ok(())
 }
