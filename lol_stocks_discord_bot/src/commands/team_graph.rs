@@ -29,9 +29,6 @@ pub async fn team_graph(ctx: &Context, msg: &Message, mut args: Args) -> Command
     let mut elo_history = load_team_elo_history(&conn, &team);
     elo_history.reverse();
 
-    // let portfolio = load_users_portfolio(&conn, &user);
-    // let current_value = calculate_portfolio_value(&conn, &user, &portfolio);
-
     let mut graph_points: Vec<GraphDataPoint> = Vec::new();
     let mut week_number = 1;
     for entry in &elo_history {
