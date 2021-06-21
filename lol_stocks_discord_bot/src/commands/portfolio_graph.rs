@@ -4,6 +4,7 @@ use serenity::framework::standard::{
     CommandResult,
     macros::command,
 };
+use std::env;
 
 use lol_stocks_core::{
     portfolio_calculations::calculate_portfolio_value,
@@ -52,9 +53,12 @@ pub async fn portfolio_graph(ctx: &Context, msg: &Message) -> CommandResult {
         }
     }
 
-    let file_name = format!("./images/{}s_portfolio.png", user.name);
+    let mut file_location = env::var("GRAPH_LOCATION").expect("GRAPH_LOCATION must be set");
+    let file_name = format!("/{}s_portfolio.png", user.name);
+    file_location.push_str(&file_name);
+
     let data = GraphData {
-        file_name: file_name.clone(),
+        file_name: file_location.clone(),
         graph_name: format!("{}s Portfolio", user.name),
         x_lower: 1,
         x_upper: (portfolio_history.len() + 1) as i32,
@@ -68,7 +72,7 @@ pub async fn portfolio_graph(ctx: &Context, msg: &Message) -> CommandResult {
     graph_builder::build(data);
 
     msg.channel_id.send_message(&ctx.http, |m| {
-        m.add_file(&file_name[..])
+        m.add_file(&file_location[..])
     }).await?;
 
     Ok(())
