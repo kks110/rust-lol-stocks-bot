@@ -33,9 +33,9 @@ pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandRe
                 let team = load_team(&conn, &team_name);
 
                 for portfolio in users_portfolio {
-                    let new_balance = team.elo * portfolio.amount + user.balance;
-                    update_user(&conn, &user.name, new_balance);
                     if portfolio.team_id == team.id {
+                        let new_balance = team.elo * portfolio.amount + user.balance;
+                        update_user(&conn, &user.name, new_balance);
                         user_portfolio_sell(&conn,&user, &team, portfolio.amount);
                     }
                 }
