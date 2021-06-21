@@ -6,12 +6,13 @@ use serenity::framework::standard::{
 };
 use std::env;
 
+use crate::helpers::user_graph_data::graph_data_for_user;
+
 use lol_stocks_core::{
     portfolio_calculations::calculate_portfolio_value,
     database::{
         connection::establish_connection,
         users::load_user,
-        user_portfolio_histories::load_user_portfolio_history,
         portfolios::load_users_portfolio,
     }
 };
@@ -27,22 +28,13 @@ pub async fn portfolio_graph(ctx: &Context, msg: &Message) -> CommandResult {
     let user_name = msg.author.name.clone();
 
     let user = load_user(&conn, &user_name);
-    let mut portfolio_history = load_user_portfolio_history(&conn, &user);
-    portfolio_history.reverse();
-
     let portfolio = load_users_portfolio(&conn, &user);
+    let graph_points: Vec<GraphDataPoint> = graph_data_for_user(&user);
+
     let current_value = calculate_portfolio_value(&conn, &user, &portfolio);
-
-    let mut graph_points: Vec<GraphDataPoint> = Vec::new();
-    let mut week_number = 1;
-    for entry in &portfolio_history {
-        graph_points.push(GraphDataPoint{ x: week_number, y: entry.value });
-        week_number += 1;
-    }
-    graph_points.push(GraphDataPoint{ x: week_number, y: current_value });
-
     let mut y_lowest_value: i32 = current_value - 50;
     let mut y_highest_value: i32 = current_value + 50;
+
 
     for point in &graph_points {
         if point.y - 50 < y_lowest_value {
@@ -61,7 +53,7 @@ pub async fn portfolio_graph(ctx: &Context, msg: &Message) -> CommandResult {
         file_name: file_location.clone(),
         graph_name: format!("{}s Portfolio", user.name),
         x_lower: 1,
-        x_upper: (portfolio_history.len() + 1) as i32,
+        x_upper: (graph_points.len()) as i32,
         x_description: "Week".to_string(),
         y_lower: y_lowest_value,
         y_upper: y_highest_value,

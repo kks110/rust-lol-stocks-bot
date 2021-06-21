@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 plotters = "0.3.1"
+rand = "0.8.4"

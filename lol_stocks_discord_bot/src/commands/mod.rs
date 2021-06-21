@@ -15,3 +15,4 @@ pub mod sell_all;
 pub mod buy_all;
 pub mod portfolio_graph;
 pub mod team_graph;
+pub mod leaderboard_graph;
