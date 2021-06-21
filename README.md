@@ -60,6 +60,12 @@ Generated a graph based on portfolio value and history.
 ```
 Shows the historic prices of the team.
 
+##### team_graph
+```
+!!team_graph <team>
+```
+Generated a graph based on elo and history of a team.
+
 ##### portfolio_performance
 ```
 !!portfolio_performance

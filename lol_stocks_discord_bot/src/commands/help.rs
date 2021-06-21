@@ -20,6 +20,7 @@ All teams names are their abbreviations and in capitals.
 `!!sell_all <team?>` > Sells all 'Shares' in a specified team, if no team is specified, will sell your whole portfolio.
 `!!view_portfolio` > Shows your portfolio and how much its worth.
 `!!elo_history_for <team>` > Shows the historic prices of the team.
+`!!team_graph <team>` > Generated a graph based on elo and history of a team.
 `!!portfolio_performance` > Shows your portfolios historic values.
 `!!portfolio_graph` > Generated a graph based on portfolio value and history.
 `!!leaderboard` > Shows all users and their portfolio values.

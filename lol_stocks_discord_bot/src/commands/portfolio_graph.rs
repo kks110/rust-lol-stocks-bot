@@ -41,15 +41,15 @@ pub async fn portfolio_graph(ctx: &Context, msg: &Message) -> CommandResult {
     }
     graph_points.push(GraphDataPoint{ x: week_number, y: current_value });
 
-    let mut y_lowest_value: i32 = 4900;
-    let mut y_highest_value: i32 = 5100;
+    let mut y_lowest_value: i32 = current_value - 50;
+    let mut y_highest_value: i32 = current_value + 50;
 
     for point in &graph_points {
-        if point.y - 100 < y_lowest_value {
-            y_lowest_value = point.y - 100;
+        if point.y - 50 < y_lowest_value {
+            y_lowest_value = point.y - 50;
         }
-        if point.y + 100 > y_highest_value {
-            y_highest_value = point.y + 100;
+        if point.y + 50 > y_highest_value {
+            y_highest_value = point.y + 50;
         }
     }
 
