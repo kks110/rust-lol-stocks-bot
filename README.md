@@ -48,6 +48,12 @@ Sells all 'Shares' in a specified team, if no team is specified, will sell your 
 ```
 Shows your portfolio and how much its worth.
 
+##### portfolio_graph
+```
+!!portfolio_graph
+``` 
+Generated a graph based on portfolio value and history.
+
 ##### elo_history_for
 ```
 !!elo_history_for <team>

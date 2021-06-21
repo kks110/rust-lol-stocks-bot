@@ -49,6 +49,7 @@ RestartPreventExitStatus=0
 TimeoutStopSec=10
 Environment="DATABASE_URL=ADD YOUR DB URL HERE"
 Environment="DISCORD_TOKEN=ADD YOUR DISCORD BOT TOKEN HERE"
+Environment="GRAPH_LOCATION=/location/for/graphs/here"
 
 [Install]
 WantedBy=multi-user.target
@@ -102,3 +103,8 @@ sudo systemctl enable lol-stocks-web-server@main
 ```
 11. To access the webserver, you will need to open port `8080`
 12. Last step is to seed the database with teams. An example JSON payload can be found [here](teams_db_seed.json) which contains all the teams from the LEC and LCS.
+13. If you wish to use the graphs `fontconfig` needs to be installed. If you have set up the Pi without a GUI, it might not be. To set it up, run:
+```shell
+sudo apt-get install fontconfig-config
+```
+14. Graphs also require for the `GRAPH_LOCATION` environmental variable key to be set.
