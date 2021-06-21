@@ -14,8 +14,6 @@ pub fn build(graph_data: GraphData) {
         .caption(graph_data.graph_name, ("Arial", 30))
         .y_label_area_size(40)
         .x_label_area_size(40)
-        // X - Week number. From 1 to however many performance histories there are
-        // Y - Portfolio value. From 100 less than lowers to 100 more than highest
         .build_cartesian_2d(graph_data.x_lower..graph_data.x_upper, graph_data.y_lower..graph_data.y_upper)
         .unwrap();
 
