@@ -78,6 +78,12 @@ Shows your portfolios historic values.
 ```
 Shows all users, and their portfolio values.
 
+##### leaderboard_graph
+```
+!!leaderboard_graph
+```
+Generated a graph based on all users portfolio value and history.
+
 ##### weekly_reports
 ```
 !!weekly_reports

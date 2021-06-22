@@ -1,8 +1,6 @@
 pub mod models;
 
-use rand::Rng;
 use plotters::prelude::*;
-use plotters::style::RGBColor;
 use models::graph_data::GraphData;
 use models::graph_data_multi_series::GraphDataMultiSeries;
 
@@ -59,12 +57,7 @@ pub fn build_multi_series(graph_data: GraphDataMultiSeries) {
         .draw()
         .unwrap();
 
-    for data_set in graph_data.data {
-        // let mut rng = rand::thread_rng();
-        // let r = rng.gen_range(0..256);
-        // let g = rng.gen_range(0..256);
-        // let b = rng.gen_range(0..256);
-        // let rgb_colour = RGBColor(r, g, b);
+    for (idx, data_set) in (0..).zip(graph_data.data) {
 
         let mut data: Vec<(i32, i32)> = vec![];
         for series in data_set.series {
@@ -72,15 +65,16 @@ pub fn build_multi_series(graph_data: GraphDataMultiSeries) {
         }
 
         chart.draw_series(
-            LineSeries::new(data, &BLUE),
+            LineSeries::new(data, &Palette99::pick(idx)),
         ).unwrap()
         .label(data_set.name)
-        .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &BLUE));
+        .legend(move |(x, y)| Rectangle::new([(x, y), (x + 20, y)], &Palette99::pick(idx)));
     }
 
     chart.configure_series_labels()
         .border_style(&BLACK)
         .background_style(&WHITE.mix(0.8))
+        .position(SeriesLabelPosition::LowerLeft)
         .draw()
         .unwrap();
 }
