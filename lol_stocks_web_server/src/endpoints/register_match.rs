@@ -7,8 +7,17 @@ use lol_stocks_core::{
     elo::calculate_elo,
     histories::take_history_snapshot
 };
+use actix_web::{post, web, Responder, HttpResponse};
 
-pub fn register_matches(games: Games) {
+
+#[post("/register_matches")]
+pub async fn register_matches(game_list: web::Json<Games>) -> impl Responder {
+    register(game_list.into_inner());
+    println!("Matches logged");
+    HttpResponse::Ok().body("")
+}
+
+fn register(games: Games) {
     take_history_snapshot();
 
     for game in games.matches {
