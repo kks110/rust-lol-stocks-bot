@@ -1,8 +1,8 @@
-use actix_web::{get, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{App, HttpServer};
 mod models;
 mod endpoints;
 use actix_web_static_files;
-use tera::{Tera, Context};
+use tera::Tera;
 
 include!(concat!(env!("OUT_DIR"), "/generated.rs"));
 
@@ -14,18 +14,8 @@ use endpoints::{
     index::index,
 };
 use crate::models::app_data::AppData;
+use std::env;
 
-#[get("/teams/graphs")]
-async fn render_tmpl(data: web::Data<AppData>, req:HttpRequest) -> impl Responder {
-
-
-    let name = req.match_info().get("name").unwrap();
-    let mut ctx = Context::new();
-    ctx.insert("name", name);
-    ctx.insert("products", &vec![1,2,3]);
-    let rendered = data.tera.render("loop.html", &ctx).unwrap();
-    HttpResponse::Ok().body(rendered)
-}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
