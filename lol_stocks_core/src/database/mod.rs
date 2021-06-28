@@ -6,3 +6,4 @@ pub mod locks;
 pub mod migrations;
 pub mod user_portfolio_histories;
 pub mod team_elo_histories;
+pub mod leagues;

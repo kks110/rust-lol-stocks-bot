@@ -1,24 +1,84 @@
 {
   "teams": [
-    "C9",
-    "G2",
-    "RGE",
-    "TL",
-    "TSM",
-    "MAD",
-    "100",
-    "FNC",
-    "EG",
-    "MSF",
-    "FLY",
-    "DIG",
-    "S04",
-    "AST",
-    "XL",
-    "SK",
-    "IMT",
-    "GG",
-    "VIT",
-    "CLG"
+    {
+      "name": "C9",
+      "league": "LCS"
+    },
+    {
+      "name": "G2",
+      "league": "LEC"
+    },
+    {
+      "name": "RGE",
+      "league": "LEC"
+    },
+    {
+      "name": "TL",
+      "league": "LCS"
+    },
+    {
+      "name": "TSM",
+      "league": "LCS"
+    },
+    {
+      "name": "MAD",
+      "league": "LEC"
+    },
+    {
+      "name": "100",
+      "league": "LCS"
+    },
+    {
+      "name": "FNC",
+      "league": "LEC"
+    },
+    {
+      "name": "EG",
+      "league": "LCS"
+    },
+    {
+      "name": "MSF",
+      "league": "LEC"
+    },
+    {
+      "name": "FLY",
+      "league": "LCS"
+    },
+    {
+      "name": "DIG",
+      "league": "LCS"
+    },
+    {
+      "name": "S04",
+      "league": "LEC"
+    },
+    {
+      "name": "AST",
+      "league": "LEC"
+    },
+    {
+      "name": "XL",
+      "league": "LEC"
+    },
+    {
+      "name": "SK",
+      "league": "LEC"
+    },
+    {
+      "name": "IMT",
+      "league": "LCS"
+    },
+    {
+      "name": "GG",
+      "league": "LCS"
+    },
+    {
+      "name": "VIT",
+      "league": "LEC"
+    },
+    {
+      "name": "CLG",
+      "league": "LCS"
+    }
   ]
 }

@@ -13,7 +13,7 @@ Here is a quick rundown of the things you can do:
 All teams names are their abbreviations and in capitals.
 
 `!!register` > Register to play. This will create an account and give you a starting balance.
-`!!view_market` > Shows the market price of all the teams.
+`!!view_market <league?>` > Shows the market price of all the teams with no args sent. Otherwise, will just show team in the specified league.
 `!!buy <team> <amount to buy>` > Buys 'Shares' in a team and add to your portfolio.
 `!!buy_all <team>` > Buys as many 'Shares' in a team as you can afford.
 `!!sell <team> <amount to buy>` > Sells 'Shares' in a team, removes from your portfolio and add to your balance.

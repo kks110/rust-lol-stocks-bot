@@ -14,9 +14,9 @@ Register to play. This will create an account and give you a starting balance.
 
 ##### view_market
 ```
-!!view_market
+!!view_market <league_name?>
 ```
-Shows the market price of all the teams.
+Shows the market price of all the teams with no args sent. Otherwise, will just show team in the specified league.
 
 ##### buy
 ```
@@ -136,9 +136,14 @@ For registering the teams initially. A ready to go payload with all the LEC and 
 ```JSON
 {
   "teams": [
-    "team_name",
-    "team_name",
-    "team_name"
+    {
+      "name": "TSM",
+      "league": "LCS"
+    },
+    {
+      "name": "FNC",
+      "league": "LEC"
+    }
   ]
 }
 ```

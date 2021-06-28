@@ -1,18 +1,36 @@
 use serenity::prelude::*;
 use serenity::model::prelude::*;
-use serenity::framework::standard::{CommandResult, macros::command};
+use serenity::framework::standard::{
+    CommandResult,
+    macros::command,
+    Args,
+};
 
 use lol_stocks_core::database::{
     connection::establish_connection,
     teams::load_teams,
+    teams::load_teams_be_league,
+    leagues::load_leagues,
 };
 
-
 #[command]
-pub async fn view_market(ctx: &Context, msg: &Message) -> CommandResult {
+pub async fn view_market(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let conn = establish_connection();
 
-    let teams = load_teams(&conn);
+    let mut teams = load_teams(&conn);
+    let leagues = load_leagues(&conn);
+
+    match args.single::<String>() {
+        Ok(league_name) => {
+            for league in leagues {
+                if league.name == league_name {
+                    println!("match");
+                    teams = load_teams_be_league(&conn, &league_name.to_uppercase());
+                }
+            }
+        }
+        Err(_) => {}
+    }
 
     let mut response: String = String::from("");
 
