@@ -9,12 +9,13 @@ pub fn load_teams(conn: &PgConnection) -> Vec<Team>  {
     teams.order(elo.desc()).load::<Team>(conn).expect("Error loading teams")
 }
 
-pub fn load_teams_be_league(conn: &PgConnection, league_name: &str) -> Vec<Team>  {
+pub fn load_teams_by_league(conn: &PgConnection, league_name: &str) -> Vec<Team>  {
     use crate::schema::teams::dsl::*;
 
     let league = load_league(&conn, league_name);
 
     teams.filter(league_id.eq(&league.id))
+        .order(elo.desc())
         .load::<Team>(conn)
         .expect("Error loading teams")
 }

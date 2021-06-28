@@ -9,7 +9,7 @@ use serenity::framework::standard::{
 use lol_stocks_core::database::{
     connection::establish_connection,
     teams::load_teams,
-    teams::load_teams_be_league,
+    teams::load_teams_by_league,
     leagues::load_leagues,
 };
 
@@ -24,7 +24,7 @@ pub async fn view_market(ctx: &Context, msg: &Message, mut args: Args) -> Comman
         Ok(league_name) => {
             for league in leagues {
                 if league.name == league_name.to_uppercase() {
-                    teams = load_teams_be_league(&conn, &league_name.to_uppercase());
+                    teams = load_teams_by_league(&conn, &league_name.to_uppercase());
                 }
             }
         }
