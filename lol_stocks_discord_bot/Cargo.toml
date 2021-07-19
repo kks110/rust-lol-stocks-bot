@@ -1,6 +1,6 @@
 [package]
 name = "lol_stocks_discord_bot"
-version = "1.7.5"
+version = "1.7.6"
 authors = ["Kelvin Samuel <kelvin@kks110.com>"]
 edition = "2018"
 
@@ -15,3 +15,4 @@ dotenv = "0.15"
 tracing = "0.1.26"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 serenity = { default-features = false, features = ["client", "framework", "standard_framework", "gateway", "model", "rustls_backend"], version = "0.10"}
+chrono = "0.4"

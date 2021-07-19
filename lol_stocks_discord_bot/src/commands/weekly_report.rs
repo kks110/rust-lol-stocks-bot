@@ -6,6 +6,8 @@ use serenity::framework::standard::{
     macros::command,
 };
 
+use crate::helpers::plus_sign::plus_sign;
+
 use lol_stocks_core::{
     database::{
         connection::establish_connection,
@@ -49,12 +51,4 @@ pub async fn weekly_report(ctx: &Context, msg: &Message) -> CommandResult {
         })
     }).await?;
     Ok(())
-}
-
-fn plus_sign(number: i32) -> String {
-    if number > 0 {
-        String::from("+")
-    } else {
-        String::from("")
-    }
 }

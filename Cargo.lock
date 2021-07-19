@@ -1300,8 +1300,9 @@ dependencies = [
 
 [[package]]
 name = "lol_stocks_discord_bot"
-version = "1.7.5"
+version = "1.7.6"
 dependencies = [
+ "chrono",
  "dotenv",
  "graph_builder",
  "lol_stocks_core",

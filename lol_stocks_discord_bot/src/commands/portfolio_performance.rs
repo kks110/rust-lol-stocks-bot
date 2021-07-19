@@ -5,6 +5,13 @@ use serenity::framework::standard::{
     macros::command,
 };
 
+use chrono::{
+    offset::Utc,
+    NaiveDate
+};
+
+use crate::helpers::plus_sign::plus_sign;
+
 use lol_stocks_core::{
     portfolio_calculations::calculate_portfolio_value,
     database::{
@@ -14,6 +21,12 @@ use lol_stocks_core::{
         portfolios::load_users_portfolio,
     }
 };
+
+struct HistoryData {
+    pub date: NaiveDate,
+    pub value: i32,
+    pub difference: i32
+}
 
 #[command]
 pub async fn portfolio_performance(ctx: &Context, msg: &Message) -> CommandResult {
@@ -25,10 +38,34 @@ pub async fn portfolio_performance(ctx: &Context, msg: &Message) -> CommandResul
     let portfolio = load_users_portfolio(&conn, &user);
     let current_value = calculate_portfolio_value(&conn, &user, &portfolio);
 
-    let mut response = format!("Date: Now, Value: {}\n", current_value);
+    let mut history_data: Vec<HistoryData> = Vec::new();
 
-    for entry in user_portfolio_history {
-        let response_line = format!("Date: {}, Value: {}\n", entry.date, entry.value);
+    history_data.push(HistoryData{
+        date: Utc::now().date().naive_utc(),
+        value: current_value,
+        difference: current_value - user_portfolio_history.first().unwrap().value
+    });
+
+    let mut counter = 1;
+
+    for portfolio_history in &user_portfolio_history {
+        let previous_value = match user_portfolio_history.get(counter) {
+            Some(history) => history.value,
+            None => portfolio_history.value
+        };
+
+        history_data.push(HistoryData{
+            date: portfolio_history.date,
+            value: portfolio_history.value,
+            difference: portfolio_history.value - previous_value
+        });
+        counter += 1;
+    }
+
+    let mut response = String::from("");
+
+    for entry in history_data {
+        let response_line = format!("Date: {}, Value: {} ({}{})\n", entry.date, entry.value, plus_sign(entry.difference), entry.difference);
         response.push_str(&response_line)
     }
 
