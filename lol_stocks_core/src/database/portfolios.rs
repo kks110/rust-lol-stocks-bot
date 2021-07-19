@@ -7,6 +7,12 @@ pub fn load_users_portfolio(conn: &PgConnection, user: &User) -> Vec<Portfolio> 
     Portfolio::belonging_to(user).load::<Portfolio>(conn).expect("Error loading portfolios")
 }
 
+pub fn load_all_portfolios(conn: &PgConnection) -> Vec<Portfolio> {
+    use crate::schema::portfolios::dsl::*;
+
+    portfolios.load::<Portfolio>(conn).expect("Error loading Portfolios")
+}
+
 pub fn create_portfolio<'a>(conn: &PgConnection, team_id: &'a i32, user_id: &'a i32, amount: &'a i32) -> Portfolio {
     use crate::schema::portfolios;
 

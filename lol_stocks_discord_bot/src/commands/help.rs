@@ -25,6 +25,7 @@ All teams names are their abbreviations and in capitals.
 `!!portfolio_graph` > Generated a graph based on portfolio value and history.
 `!!leaderboard` > Shows all users and their portfolio values.
 `!!leaderboard_graph` > Generated a graph based on all users portfolio value and history.
+`!!market_cap` > Show how many of what shares are owned.
 `!!schedule` > Show links to the schedule sites.
 
 The ability to buy and sell will be locked over the weekend to make sure that the games have been updated before people try to buy and sell teams.

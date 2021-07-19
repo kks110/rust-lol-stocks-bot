@@ -88,6 +88,14 @@ Generated a graph based on all users portfolio value and history.
 ```
 !!weekly_reports
 ```
+
+##### market_cap
+```
+!!market_cap
+```
+
+Show how many of what shares are owned.
+
 View the current price of all the teams, but also show the increase / decrease from last week.
 
 ##### schedule
