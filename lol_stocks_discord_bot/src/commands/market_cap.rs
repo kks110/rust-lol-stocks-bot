@@ -14,25 +14,41 @@ use lol_stocks_core::database::{
 
 };
 
+struct MarketCapEntry {
+    pub team_name: String,
+    pub amount: i32,
+    pub value: i32
+}
+
 #[command]
 pub async fn market_cap(ctx: &Context, msg: &Message) -> CommandResult {
     let conn = establish_connection();
 
     let portfolios = load_all_portfolios(&conn);
 
-    let mut amount_count: HashMap<String, i32> = HashMap::new();
+    let mut amount_count: HashMap<i32, i32> = HashMap::new();
 
     for portfolio in portfolios {
-        let team = load_team_by_id(&conn, &portfolio.team_id);
-        *amount_count.entry(team.name.to_owned()).or_insert(0) += portfolio.amount;
+        *amount_count.entry(portfolio.team_id).or_insert(0) += portfolio.amount;
     }
 
-    let mut amount_count_vec: Vec<(&String, &i32)> = amount_count.iter().collect();
-    amount_count_vec.sort_by(|a, b| b.1.cmp(a.1));
+    let mut market_cap_entries: Vec<MarketCapEntry> = Vec::new();
+
+    for (team_id, amount) in amount_count {
+        let team = load_team_by_id(&conn, &team_id);
+
+        market_cap_entries.push(MarketCapEntry{
+            team_name: team.name.to_owned(),
+            amount: amount,
+            value: amount * team.elo
+        })
+    }
+
+    market_cap_entries.sort_by(|a, b| b.value.cmp(&a.value));
 
     let mut response: String = String::from("");
-    for (team, amount) in amount_count_vec {
-        response.push_str(&format!("{}: {}\n", team, amount));
+    for entry in market_cap_entries {
+        response.push_str(&format!("{}: {} ({})\n", entry.team_name, entry.amount, entry.value));
     }
 
     msg.channel_id.say(&ctx.http, response).await?;

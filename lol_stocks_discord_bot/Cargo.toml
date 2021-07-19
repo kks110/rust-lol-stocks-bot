@@ -1,6 +1,6 @@
 [package]
 name = "lol_stocks_discord_bot"
-version = "1.7.4"
+version = "1.7.5"
 authors = ["Kelvin Samuel <kelvin@kks110.com>"]
 edition = "2018"
 
