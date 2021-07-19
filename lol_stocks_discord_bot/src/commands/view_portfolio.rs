@@ -1,6 +1,10 @@
 use serenity::prelude::*;
 use serenity::model::prelude::*;
-use serenity::framework::standard::{CommandResult, macros::command};
+use serenity::framework::standard::{
+    CommandResult,
+    macros::command,
+    Args,
+};
 
 use lol_stocks_core::database::{
     connection::establish_connection,
@@ -17,9 +21,13 @@ struct Holding {
 }
 
 #[command]
-pub async fn view_portfolio(ctx: &Context, msg: &Message) -> CommandResult {
+pub async fn view_portfolio(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let conn = establish_connection();
-    let user_name = msg.author.name.clone();
+
+    let user_name = match args.single::<String>() {
+        Ok(user) => user,
+        Err(_) => msg.author.name.clone()
+    };
 
     let user = load_user(&conn, &user_name);
     let portfolio = load_users_portfolio(&conn, &user);

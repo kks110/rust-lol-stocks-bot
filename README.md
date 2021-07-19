@@ -44,9 +44,9 @@ Sells all 'Shares' in a specified team, if no team is specified, will sell your 
 
 ##### view_portfolio
 ```
-!!view_portfolio
+!!view_portfolio <user?>
 ```
-Shows your portfolio and how much its worth.
+Shows a users portfolio and how much its worth. If no user is specified it will show your own.
 
 ##### portfolio_graph
 ```
