@@ -1291,7 +1291,7 @@ dependencies = [
 
 [[package]]
 name = "lol_stocks_core"
-version = "1.1.1"
+version = "1.2.0"
 dependencies = [
  "chrono",
  "diesel",
@@ -1300,7 +1300,7 @@ dependencies = [
 
 [[package]]
 name = "lol_stocks_discord_bot"
-version = "1.7.6"
+version = "1.8.0"
 dependencies = [
  "chrono",
  "dotenv",

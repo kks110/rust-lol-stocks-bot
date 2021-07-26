@@ -18,7 +18,7 @@ pub async fn elo_history_for(ctx: &Context, msg: &Message, mut args: Args) -> Co
 
     let conn = establish_connection();
     let team = load_team(&conn, &team_name);
-    let team_elo_history = load_team_elo_history(&conn, &team);
+    let team_elo_history = load_team_elo_history(&conn, &team, Option::from(true));
 
     let mut response = format!("Date: Now, Value: {}\n", team.elo);
 

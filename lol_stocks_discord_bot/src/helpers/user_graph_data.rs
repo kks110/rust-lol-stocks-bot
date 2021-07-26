@@ -16,7 +16,7 @@ use graph_builder::models::{
 pub fn graph_data_for_user(user: &User) -> Vec<GraphDataPoint> {
     let conn = establish_connection();
 
-    let mut portfolio_history = load_user_portfolio_history(&conn, &user);
+    let mut portfolio_history = load_user_portfolio_history(&conn, &user, None);
     portfolio_history.reverse();
 
     let portfolio = load_users_portfolio(&conn, &user);

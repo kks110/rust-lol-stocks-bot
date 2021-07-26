@@ -33,7 +33,7 @@ pub async fn portfolio_performance(ctx: &Context, msg: &Message) -> CommandResul
     let user_name = msg.author.name.clone();
     let conn = establish_connection();
     let user = load_user(&conn, &user_name);
-    let user_portfolio_history = load_user_portfolio_history(&conn, &user);
+    let user_portfolio_history = load_user_portfolio_history(&conn, &user, Option::from(true));
 
     let portfolio = load_users_portfolio(&conn, &user);
     let current_value = calculate_portfolio_value(&conn, &user, &portfolio);
