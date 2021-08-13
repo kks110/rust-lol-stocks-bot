@@ -2,23 +2,13 @@ use diesel::prelude::*;
 use crate::models::team_elo_history::{TeamEloHistory, NewTeamEloHistory};
 use crate::models::team::Team;
 
-pub fn load_team_elo_history(conn: &PgConnection, team: &Team, limit: Option<bool>) -> Vec<TeamEloHistory> {
+pub fn load_team_elo_history(conn: &PgConnection, team: &Team) -> Vec<TeamEloHistory> {
     use crate::schema::team_elo_histories::dsl::*;
 
-    let return_limit = limit.unwrap_or(false);
-
-    if return_limit {
-        TeamEloHistory::belonging_to(team)
-            .order(date.desc())
-            .limit(5)
-            .load::<TeamEloHistory>(conn)
-            .expect("Error loading team elo history")
-    } else {
-        TeamEloHistory::belonging_to(team)
-            .order(date.desc())
-            .load::<TeamEloHistory>(conn)
-            .expect("Error loading team elo history")
-    }
+    TeamEloHistory::belonging_to(team)
+        .order(date.desc())
+        .load::<TeamEloHistory>(conn)
+        .expect("Error loading team elo history")
 }
 
 pub fn create_team_elo_history<'a>(conn: &PgConnection, elo: &'a i32, team_id: &'a i32) -> TeamEloHistory {

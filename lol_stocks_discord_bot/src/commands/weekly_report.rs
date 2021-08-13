@@ -32,7 +32,7 @@ pub async fn weekly_report(ctx: &Context, msg: &Message) -> CommandResult {
 
     for team in teams {
         let current_price = team.elo;
-        let previous_price = load_team_elo_history(&conn, &team, Option::from(true)).first().unwrap().elo;
+        let previous_price = load_team_elo_history(&conn, &team).first().unwrap().elo;
         weekly_report_lines.push(WeeklyReportLine {
             team_name: team.name,
             current_elo: team.elo,

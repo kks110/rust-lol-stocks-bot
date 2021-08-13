@@ -26,7 +26,7 @@ pub async fn team_graph(ctx: &Context, msg: &Message, mut args: Args) -> Command
     let team_name = args.single::<String>()?;
 
     let team = load_team(&conn, &team_name);
-    let mut elo_history = load_team_elo_history(&conn, &team, None);
+    let mut elo_history = load_team_elo_history(&conn, &team);
     elo_history.reverse();
 
     let mut graph_points: Vec<GraphDataPoint> = Vec::new();
