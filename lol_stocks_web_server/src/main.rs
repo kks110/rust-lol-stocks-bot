@@ -7,6 +7,7 @@ use endpoints::{
     padlock::padlock,
     register_match::register_matches,
     register_teams::register_teams,
+    teams
 };
 
 #[actix_web::main]
@@ -22,6 +23,8 @@ async fn main() -> std::io::Result<()> {
             .service(register_matches)
             .service(register_teams)
             .service(padlock)
+            .service(teams::list)
+            .service(teams::get)
     })
         .bind("127.0.0.1:8181")?
         .bind("0.0.0.0:8080")?
