@@ -9,25 +9,22 @@ use crate::models::key::Key;
 
 #[post("/padlock")]
 pub async fn padlock(key: web::Json<Key>) -> impl Responder {
-    use_padlock(key.unlock);
-    let mut response = String::from("Database has been ");
-    response.push_str(
-        if key.unlock {
-            "unlocked"
-        } else {
-            "locked"
-        }
-    );
-    println!("{}", response);
-    HttpResponse::Ok().body(response)
-}
+    let response: String;
 
-fn use_padlock(unlock: bool) {
     let conn = establish_connection();
 
-    if unlock {
-        unlock_database(&conn);
+    if key.unlock {
+        match unlock_database(&conn) {
+            Ok(_) => response = String::from("Database has been unlocked"),
+            Err(e) => response = e
+        };
     } else {
-        lock_database(&conn);
+        match lock_database(&conn) {
+            Ok(_) => response = String::from("Database has been locked"),
+            Err(e) => response = e
+        };
     }
+
+    println!("{}", response);
+    HttpResponse::Ok().body(response)
 }
