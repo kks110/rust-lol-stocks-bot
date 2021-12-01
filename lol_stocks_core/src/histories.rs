@@ -9,28 +9,44 @@ use crate::database::{
 
 use crate::portfolio_calculations::calculate_portfolio_value;
 
-pub fn take_history_snapshot() {
-    update_team_history();
-    update_user_history()
+pub fn take_history_snapshot() -> Result<String, String> {
+    match update_team_history() {
+        Ok(_) => {},
+        Err(e) => return Err(e)
+    };
+    match update_user_history() {
+        Ok(_) => {},
+        Err(e) => return Err(e)
+    };
+    Ok("".to_string())
 }
 
-fn update_team_history() {
+fn update_team_history() -> Result<String, String> {
     let conn = establish_connection();
 
-    let teams = load_teams(&conn);
+    let teams = match load_teams(&conn) {
+        Ok(t) => t,
+        Err(e) => return Err(e)
+    };
+
     for team in teams {
         create_team_elo_history(&conn, &team.elo, &team.id);
     }
+    Ok("".to_string())
 }
 
-fn update_user_history() {
+fn update_user_history() -> Result<String, String> {
     let conn = establish_connection();
 
     let users = load_users(&conn);
     for user in users {
         let portfolio = load_users_portfolio(&conn, &user);
-        let portfolio_value = calculate_portfolio_value(&conn, &user, &portfolio);
+        let portfolio_value = match calculate_portfolio_value(&conn, &user, &portfolio) {
+            Ok(value) => value,
+            Err(e) => return Err(e)
+        };
 
         create_user_portfolio_history(&conn, &portfolio_value, &user.id);
     }
+    Ok("".to_string())
 }

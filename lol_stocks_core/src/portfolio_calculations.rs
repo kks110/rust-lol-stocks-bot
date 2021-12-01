@@ -9,14 +9,17 @@ use crate::database::{
 
 use diesel::PgConnection;
 
-pub fn calculate_portfolio_value(conn: &PgConnection, user: &User, portfolio: &Vec<Portfolio>) -> i32 {
+pub fn calculate_portfolio_value(conn: &PgConnection, user: &User, portfolio: &Vec<Portfolio>) -> Result<i32, String> {
     let mut value = 0;
     value = value + user.balance;
 
     for holding in portfolio {
-        let team = load_team_by_id(&conn, &holding.team_id);
+        let team = match load_team_by_id(&conn, &holding.team_id) {
+            Ok(t) => t,
+            Err(e) => return Err(e)
+        };
         let holding_value = team.elo * holding.amount;
         value = value + holding_value;
     }
-    value
+    Ok(value)
 }

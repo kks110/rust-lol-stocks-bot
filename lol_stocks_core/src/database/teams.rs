@@ -3,10 +3,13 @@ use crate::models::team::{Team, NewTeam};
 use crate::database::leagues::load_league;
 use crate::database::leagues::find_or_create_league;
 
-pub fn load_teams(conn: &PgConnection) -> Vec<Team>  {
+pub fn load_teams(conn: &PgConnection) -> Result<Vec<Team>, String>  {
     use crate::schema::teams::dsl::*;
 
-    teams.order(elo.desc()).load::<Team>(conn).expect("Error loading teams")
+    match teams.order(elo.desc()).load::<Team>(conn) {
+        Ok(ts) => Ok(ts),
+        Err(e) => Err(e.to_string())
+    }
 }
 
 pub fn load_teams_by_league(conn: &PgConnection, league_name: &str) -> Result<Vec<Team>, String>  {
@@ -25,32 +28,37 @@ pub fn load_teams_by_league(conn: &PgConnection, league_name: &str) -> Result<Ve
     }
 }
 
-pub fn load_team(conn: &PgConnection, team_name: &str) -> Team {
+pub fn load_team(conn: &PgConnection, team_name: &str) -> Result<Team, String> {
     use crate::schema::teams::dsl::*;
     let uppercase_team_name = team_name.to_uppercase();
 
-    teams.filter(name.eq(&uppercase_team_name))
-        .first(conn)
-        .expect("Error loading team")
+    match teams.filter(name.eq(&uppercase_team_name))
+        .first(conn) {
+        Ok(team) => Ok(team),
+        Err(e) => Err(e.to_string())
+    }
 }
 
-pub fn load_team_by_id(conn: &PgConnection, team_id: &i32) -> Team {
+pub fn load_team_by_id(conn: &PgConnection, team_id: &i32) -> Result<Team, String> {
     use crate::schema::teams::dsl::*;
 
-    teams.filter(id.eq(team_id))
-        .first(conn)
-        .expect("Error loading team")
+    match teams.filter(id.eq(team_id))
+        .first(conn) {
+        Ok(team) => Ok(team),
+        Err(e) => Err(e.to_string())
+    }
 }
 
-pub fn update_team<'a>(conn: &PgConnection, team_name: &str, new_elo: i32) -> Team {
+pub fn update_team<'a>(conn: &PgConnection, team_name: &str, new_elo: i32) -> Result<Team, String> {
     use crate::schema::teams::dsl::*;
     let uppercase_team_name = team_name.to_uppercase();
 
-    let team = diesel::update(teams.filter(name.eq(&uppercase_team_name)))
+    match diesel::update(teams.filter(name.eq(&uppercase_team_name)))
         .set(elo.eq(new_elo))
-        .get_result::<Team>(conn)
-        .expect(&format!("Unable to find team {}", team_name));
-    return team;
+        .get_result::<Team>(conn) {
+        Ok(team) => Ok(team),
+        Err(e) => Err(e.to_string())
+    }
 }
 
 pub fn create_team<'a>(conn: &PgConnection, name: &'a str, league_name: &'a str) -> Result<Team, String> {

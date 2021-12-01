@@ -14,6 +14,7 @@ use lol_stocks_core::database::{
     locks::load_lock,
 };
 use lol_stocks_core::models::lock::Lock;
+use lol_stocks_core::models::team::Team;
 use lol_stocks_core::portfolio_calculations::calculate_portfolio_value;
 
 #[command]
@@ -40,13 +41,21 @@ pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandRe
 
             match args.single::<String>() {
                 Ok(team_name) => {
-                    let team = load_team(&conn, &team_name);
-
-                    for portfolio in users_portfolio {
-                        if portfolio.team_id == team.id {
-                            let new_balance = team.elo * portfolio.amount + user.balance;
-                            update_user(&conn, &user.name, new_balance);
-                            user_portfolio_sell(&conn,&user, &team, portfolio.amount);
+                    let team: Option<Team>;
+                    match load_team(&conn, &team_name) {
+                        Ok(t) => team = Some(t),
+                        Err(e) => {
+                            response.push_str(&e);
+                            team = None
+                        }
+                    };
+                    if team.is_some() {
+                        for portfolio in users_portfolio {
+                            if portfolio.team_id == team.id {
+                                let new_balance = team.unwrap().elo * portfolio.amount + user.balance;
+                                update_user(&conn, &user.name, new_balance);
+                                user_portfolio_sell(&conn,&user, &team.unwrap(), portfolio.amount);
+                            }
                         }
                     }
                 }
@@ -54,8 +63,17 @@ pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandRe
                     let new_balance = calculate_portfolio_value(&conn, &user, &users_portfolio);
                     update_user(&conn, &user.name, new_balance);
                     for portfolio in users_portfolio {
-                        let team = load_team_by_id(&conn, &portfolio.team_id);
-                        user_portfolio_sell(&conn, &user, &team, portfolio.amount);
+                        let team: Option<Team>;
+                        match load_team_by_id(&conn, &portfolio.team_id) {
+                            Ok(t) => team = Some(t),
+                            Err(e) => {
+                                response.push_str(&e);
+                                team = None
+                            }
+                        };
+                        if team.is_some() {
+                            user_portfolio_sell(&conn, &user, &team.unwrap(), portfolio.amount);
+                        }
                     }
                 }
             }

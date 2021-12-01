@@ -14,6 +14,7 @@ use lol_stocks_core::database::{
     teams::load_team,
 };
 use lol_stocks_core::models::lock::Lock;
+use lol_stocks_core::models::team::Team;
 
 #[command]
 pub async fn buy(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -39,14 +40,23 @@ pub async fn buy(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
             if db_lock.unwrap().locked {
                 response = format!("Sales are locked, wait for the games to finish!");
             } else {
-                let team = load_team(&conn, &team_name);
-                let user = load_user(&conn, &user_name);
-                response = format!("Not enough funds!");
-                let cost: i32 = team.elo * amount;
-                if cost <= user.balance {
-                    update_user(&conn, &user.name, user.balance - cost);
-                    user_portfolio_purchase(&conn, &user, &team, amount);
-                    response = format!("Purchase Made!");
+                let team: Option<Team>;
+                match load_team(&conn, &team_name) {
+                    Ok(t) => team = Some(t),
+                    Err(e) => {
+                        response.push_str(&e);
+                        team = None
+                    }
+                };
+                if team.is_some() {
+                    let user = load_user(&conn, &user_name);
+                    response = format!("Not enough funds!");
+                    let cost: i32 = team.unwrap().elo * amount;
+                    if cost <= user.balance {
+                        update_user(&conn, &user.name, user.balance - cost);
+                        user_portfolio_purchase(&conn, &user, &team.unwrap(), amount);
+                        response = format!("Purchase Made!");
+                    }
                 }
             }
         }
