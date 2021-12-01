@@ -12,26 +12,39 @@ use lol_stocks_core::database::{
     teams::load_teams_by_league,
     leagues::load_leagues,
 };
+use lol_stocks_core::models::league::League;
 
 #[command]
 pub async fn view_market(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let conn = establish_connection();
 
+    let mut response: String = String::from("");
     let mut teams = load_teams(&conn);
-    let leagues = load_leagues(&conn);
+    let leagues: Option<Vec<League>>;
 
-    match args.single::<String>() {
-        Ok(league_name) => {
-            for league in leagues {
-                if league.name == league_name.to_uppercase() {
-                    teams = load_teams_by_league(&conn, &league_name.to_uppercase());
+    match load_leagues(&conn){
+        Ok(l) => leagues = Some(l),
+        Err(e) => {
+            leagues = None;
+            response.push_str(&e)
+        }
+    };
+
+    if leagues.is_some() {
+        match args.single::<String>() {
+            Ok(league_name) => {
+                for league in leagues.unwrap() {
+                    if league.name == league_name.to_uppercase() {
+                        match load_teams_by_league(&conn, &league_name.to_uppercase()) {
+                            Ok(t) => teams = t,
+                            Err(e) => response.push_str(&e)
+                        };
+                    }
                 }
             }
+            Err(_) => {}
         }
-        Err(_) => {}
     }
-
-    let mut response: String = String::from("");
 
     for team in teams {
         let team_line = format!("{}  -  {}\n", team.name, team.elo);

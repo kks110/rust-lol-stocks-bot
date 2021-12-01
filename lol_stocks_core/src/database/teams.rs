@@ -9,15 +9,20 @@ pub fn load_teams(conn: &PgConnection) -> Vec<Team>  {
     teams.order(elo.desc()).load::<Team>(conn).expect("Error loading teams")
 }
 
-pub fn load_teams_by_league(conn: &PgConnection, league_name: &str) -> Vec<Team>  {
+pub fn load_teams_by_league(conn: &PgConnection, league_name: &str) -> Result<Vec<Team>, String>  {
     use crate::schema::teams::dsl::*;
 
-    let league = load_league(&conn, league_name);
+    let league = match load_league(&conn, league_name) {
+        Ok(l) => l,
+        Err(e) => return Err(e)
+    };
 
-    teams.filter(league_id.eq(&league.id))
+    match teams.filter(league_id.eq(&league.id))
         .order(elo.desc())
-        .load::<Team>(conn)
-        .expect("Error loading teams")
+        .load::<Team>(conn) {
+        Ok(team) => Ok(team),
+        Err(e) => Err(e.to_string())
+    }
 }
 
 pub fn load_team(conn: &PgConnection, team_name: &str) -> Team {
@@ -48,10 +53,13 @@ pub fn update_team<'a>(conn: &PgConnection, team_name: &str, new_elo: i32) -> Te
     return team;
 }
 
-pub fn create_team<'a>(conn: &PgConnection, name: &'a str, league_name: &'a str) -> Team {
+pub fn create_team<'a>(conn: &PgConnection, name: &'a str, league_name: &'a str) -> Result<Team, String> {
     use crate::schema::teams;
 
-    let league = find_or_create_league(&conn, league_name);
+    let league = match find_or_create_league(&conn, league_name) {
+        Ok(l) => l,
+        Err(e) => return Err(e)
+    };
 
     let new_team = NewTeam {
         name,
@@ -59,8 +67,10 @@ pub fn create_team<'a>(conn: &PgConnection, name: &'a str, league_name: &'a str)
         league_id: &league.id
     };
 
-    diesel::insert_into(teams::table)
+    return match diesel::insert_into(teams::table)
         .values(&new_team)
-        .get_result(conn)
-        .expect("Error saving team")
+        .get_result(conn) {
+        Ok(team) => Ok(team),
+        Err(e) => Err(e.to_string())
+    }
 }
