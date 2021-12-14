@@ -1,21 +1,21 @@
 use diesel::prelude::*;
 use crate::models::user::{User, NewUser};
+use std::error::Error;
 
-pub fn load_users(conn: &PgConnection) -> Vec<User>  {
+pub fn load_users(conn: &PgConnection) -> Result<Vec<User>, Box<dyn Error>>  {
     use crate::schema::users::dsl::*;
 
-    users.load::<User>(conn).expect("Error loading users")
+    Ok(users.load::<User>(conn)?)
 }
 
-pub fn load_user(conn: &PgConnection, user_name: &str) -> User {
+pub fn load_user(conn: &PgConnection, user_name: &str) -> Result<User, Box<dyn Error>> {
     use crate::schema::users::dsl::*;
 
-    users.filter(name.eq(user_name))
-        .first(conn)
-        .expect("Error loading user")
+    Ok(users.filter(name.eq(user_name))
+        .first(conn)?)
 }
 
-pub fn create_user<'a>(conn: &PgConnection, name: &'a str) -> User {
+pub fn create_user<'a>(conn: &PgConnection, name: &'a str) -> Result<User, Box<dyn Error>> {
     use crate::schema::users;
 
     let new_user = NewUser {
@@ -23,18 +23,17 @@ pub fn create_user<'a>(conn: &PgConnection, name: &'a str) -> User {
         balance: &5000,
     };
 
-    diesel::insert_into(users::table)
+    Ok(diesel::insert_into(users::table)
         .values(&new_user)
-        .get_result(conn)
-        .expect("Error saving user")
+        .get_result(conn)?
+    )
 }
 
-pub fn update_user<'a>(conn: &PgConnection, user_name: &str, new_balance: i32) -> User {
+pub fn update_user<'a>(conn: &PgConnection, user_name: &str, new_balance: i32) -> Result<User, Box<dyn Error>> {
     use crate::schema::users::dsl::*;
 
-    let user = diesel::update(users.filter(name.eq(user_name)))
+    Ok(diesel::update(users.filter(name.eq(user_name)))
         .set(balance.eq(new_balance))
-        .get_result::<User>(conn)
-        .expect(&format!("Unable to find user {}", user_name));
-    return user;
+        .get_result::<User>(conn)?
+    )
 }

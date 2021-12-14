@@ -1,27 +1,21 @@
 use diesel::prelude::*;
 use crate::models::league::{League, NewLeague};
+use std::error::Error;
 
-pub fn load_leagues(conn: &PgConnection) -> Result<Vec<League>, String>  {
+pub fn load_leagues(conn: &PgConnection) -> Result<Vec<League>, Box<dyn Error>>  {
     use crate::schema::leagues::dsl::*;
 
-    match leagues.load::<League>(conn) {
-        Ok(returned_leagues) => Ok(returned_leagues),
-        Err(_) => Err("Could not load leagues".to_string())
-    }
+    Ok(leagues.load::<League>(conn)?)
 }
 
-pub fn load_league(conn: &PgConnection, league_name: &str) -> Result<League, String> {
+pub fn load_league(conn: &PgConnection, league_name: &str) -> Result<League, Box<dyn Error>> {
     use crate::schema::leagues::dsl::*;
     let uppercase_league_name = league_name.to_uppercase();
 
-    match leagues.filter(name.eq(&uppercase_league_name)).first(conn) {
-        Ok(league) => Ok(league),
-        Err(error) => Err(error.to_string())
-    }
-
+    Ok(leagues.filter(name.eq(&uppercase_league_name)).first(conn)?)
 }
 
-pub fn create_league<'a>(conn: &PgConnection, name: &'a str) -> Result<League, String> {
+pub fn create_league<'a>(conn: &PgConnection, name: &'a str) -> Result<League, Box<dyn Error>> {
     use crate::schema::leagues;
 
     let uppercase_league_name = name.to_uppercase();
@@ -30,27 +24,20 @@ pub fn create_league<'a>(conn: &PgConnection, name: &'a str) -> Result<League, S
         name: &uppercase_league_name,
     };
 
-    match diesel::insert_into(leagues::table)
+    Ok(diesel::insert_into(leagues::table)
         .values(&new_league)
-        .get_result(conn) {
-        Ok(league) => Ok(league),
-        Err(error) => Err(error.to_string())
-    }
+        .get_result(conn)?
+    )
 
 }
 
-pub fn find_or_create_league(conn: &PgConnection, name: &str) -> Result<League, String> {
-    let league_list = match load_leagues(conn) {
-        Ok(l) => l,
-        Err(e) => return Err(e)
-    };
+pub fn find_or_create_league(conn: &PgConnection, name: &str) -> Result<League, Box<dyn Error>> {
+    let league_list = load_leagues(conn)?;
+
     for league in league_list {
         if league.name == name.to_uppercase() {
             return Ok(league)
         }
     }
-    return match create_league(conn, name) {
-        Ok(l) => Ok(l),
-        Err(e) => Err(e)
-    }
+    Ok(create_league(conn, name)?)
 }

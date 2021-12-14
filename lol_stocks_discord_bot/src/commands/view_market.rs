@@ -26,7 +26,7 @@ pub async fn view_market(ctx: &Context, msg: &Message, mut args: Args) -> Comman
         Ok(l) => leagues = Some(l),
         Err(e) => {
             leagues = None;
-            response.push_str(&e)
+            response.push_str(&e.to_string())
         }
     };
 

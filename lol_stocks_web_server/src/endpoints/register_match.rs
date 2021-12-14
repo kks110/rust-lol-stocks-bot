@@ -1,3 +1,4 @@
+use std::error::Error;
 use crate::models::game::Games;
 use lol_stocks_core::{
     database::{
@@ -12,13 +13,21 @@ use actix_web::{post, web, Responder, HttpResponse};
 
 #[post("/register_matches")]
 pub async fn register_matches(game_list: web::Json<Games>) -> impl Responder {
-    register(game_list.into_inner());
-    println!("Matches logged");
-    HttpResponse::Ok().body("")
+    match register(game_list.into_inner()) {
+        Ok(_) => {
+            println!("Matches logged");
+            HttpResponse::Ok().body("")
+        },
+        Err(e) => {
+            println!("An error occurred: {}", e.to_string());
+            HttpResponse::InternalServerError().body(e.to_string())
+        }
+    }
+
 }
 
-fn register(games: Games) {
-    take_history_snapshot();
+fn register(games: Games) -> Result<(), Box<dyn Error>> {
+    take_history_snapshot()?;
 
     for game in games.matches {
         let winner =  game.winner;
@@ -26,11 +35,13 @@ fn register(games: Games) {
 
         let conn = establish_connection();
 
-        let winning_team = load_team(&conn, &winner);
-        let losing_team = load_team(&conn, &loser);
+        let winning_team = load_team(&conn, &winner)?;
+        let losing_team = load_team(&conn, &loser)?;
 
         let (winning_elo, losing_elo) = calculate_elo(winning_team.elo.clone(), losing_team.elo.clone());
-        update_team(&conn, &winning_team.name, winning_elo);
-        update_team(&conn, &losing_team.name, losing_elo);
+        update_team(&conn, &winning_team.name, winning_elo)?;
+        update_team(&conn, &losing_team.name, losing_elo)?;
     }
+
+    Ok(())
 }

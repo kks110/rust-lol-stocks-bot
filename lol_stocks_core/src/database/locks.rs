@@ -1,41 +1,29 @@
 use diesel::prelude::*;
+use std::error::Error;
 use crate::models::lock::{Lock};
 
-pub fn load_lock(conn: &PgConnection) -> Result<Lock, String> {
+pub fn load_lock(conn: &PgConnection) -> Result<Lock, Box<dyn Error>> {
     use crate::schema::locks::dsl::*;
 
-    match locks.first(conn) {
-        Ok(lock) => Ok(lock),
-        Err(e) => Err(e.to_string())
-    }
+    Ok(locks.first(conn)?)
 }
 
-pub fn lock_database<'a>(conn: &PgConnection) -> Result<Lock, String> {
+pub fn lock_database<'a>(conn: &PgConnection) -> Result<Lock, Box<dyn Error>> {
     use crate::schema::locks::dsl::*;
-    let lock =  match load_lock(&conn) {
-        Ok(l) => l,
-        Err(e) => return Err(e)
-    };
+    let lock = load_lock(&conn)?;
 
-    return match diesel::update(locks.filter(id.eq(lock.id)))
+    Ok(diesel::update(locks.filter(id.eq(lock.id)))
         .set(locked.eq(true))
-        .get_result::<Lock>(conn) {
-        Ok(l) => Ok(l),
-        Err(e) => Err(e.to_string())
-    };
+        .get_result::<Lock>(conn)?
+    )
 }
 
-pub fn unlock_database<'a>(conn: &PgConnection) -> Result<Lock, String> {
+pub fn unlock_database<'a>(conn: &PgConnection) -> Result<Lock, Box<dyn Error>> {
     use crate::schema::locks::dsl::*;
-    let lock = match load_lock(&conn) {
-        Ok(l) => l,
-        Err(e) => return Err(e)
-    };
+    let lock = load_lock(&conn)?;
 
-    return match diesel::update(locks.filter(id.eq(lock.id)))
+    Ok(diesel::update(locks.filter(id.eq(lock.id)))
         .set(locked.eq(false))
-        .get_result::<Lock>(conn) {
-        Ok(l) => Ok(l),
-        Err(e) => Err(e.to_string())
-    };
+        .get_result::<Lock>(conn)?
+    )
 }

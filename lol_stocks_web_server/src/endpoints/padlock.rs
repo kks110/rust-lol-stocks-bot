@@ -16,12 +16,12 @@ pub async fn padlock(key: web::Json<Key>) -> impl Responder {
     if key.unlock {
         match unlock_database(&conn) {
             Ok(_) => response = String::from("Database has been unlocked"),
-            Err(e) => response = e
+            Err(e) => response = e.to_string()
         };
     } else {
         match lock_database(&conn) {
             Ok(_) => response = String::from("Database has been locked"),
-            Err(e) => response = e
+            Err(e) => response = e.to_string()
         };
     }
 

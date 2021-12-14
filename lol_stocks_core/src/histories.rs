@@ -6,47 +6,36 @@ use crate::database::{
     user_portfolio_histories::create_user_portfolio_history,
     portfolios::load_users_portfolio,
 };
+use std::error::Error;
 
 use crate::portfolio_calculations::calculate_portfolio_value;
 
-pub fn take_history_snapshot() -> Result<String, String> {
-    match update_team_history() {
-        Ok(_) => {},
-        Err(e) => return Err(e)
-    };
-    match update_user_history() {
-        Ok(_) => {},
-        Err(e) => return Err(e)
-    };
-    Ok("".to_string())
+pub fn take_history_snapshot() -> Result<(), Box<dyn Error>> {
+    update_team_history()?;
+    update_user_history()?;
+    Ok(())
 }
 
-fn update_team_history() -> Result<String, String> {
+fn update_team_history() -> Result<(), Box<dyn Error>> {
     let conn = establish_connection();
 
-    let teams = match load_teams(&conn) {
-        Ok(t) => t,
-        Err(e) => return Err(e)
-    };
+    let teams = load_teams(&conn)?;
 
     for team in teams {
-        create_team_elo_history(&conn, &team.elo, &team.id);
+        create_team_elo_history(&conn, &team.elo, &team.id)?;
     }
-    Ok("".to_string())
+    Ok(())
 }
 
-fn update_user_history() -> Result<String, String> {
+fn update_user_history() -> Result<(), Box<dyn Error>> {
     let conn = establish_connection();
 
-    let users = load_users(&conn);
+    let users = load_users(&conn)?;
     for user in users {
-        let portfolio = load_users_portfolio(&conn, &user);
-        let portfolio_value = match calculate_portfolio_value(&conn, &user, &portfolio) {
-            Ok(value) => value,
-            Err(e) => return Err(e)
-        };
+        let portfolio = load_users_portfolio(&conn, &user)?;
+        let portfolio_value = calculate_portfolio_value(&conn, &user, &portfolio)?;
 
-        create_user_portfolio_history(&conn, &portfolio_value, &user.id);
+        create_user_portfolio_history(&conn, &portfolio_value, &user.id)?;
     }
-    Ok("".to_string())
+    Ok(())
 }
