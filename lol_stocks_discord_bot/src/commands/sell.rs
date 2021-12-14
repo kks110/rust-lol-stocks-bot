@@ -6,6 +6,8 @@ use serenity::framework::standard::{
     Args,
 };
 
+use std::error::Error;
+
 use lol_stocks_core::database::{
     connection::establish_connection,
     users::{load_user, update_user},
@@ -13,55 +15,72 @@ use lol_stocks_core::database::{
     portfolios::{load_users_portfolio, user_portfolio_sell},
     locks::load_lock,
 };
-use lol_stocks_core::models::lock::Lock;
+use lol_stocks_core::models::{
+    team::Team,
+    user::User
+};
 
 #[command]
 pub async fn sell(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let team_name = args.single::<String>()?;
     let amount = args.single::<i32>()?;
     let user_name = msg.author.name.clone();
-    let conn = establish_connection();
-    let db_lock: Option<Lock>;
-    let mut response= String::from("");
 
-    match load_lock(&conn) {
-        Ok(l) => db_lock = Some(l),
+    let response: String;
+
+    match sell_shares(amount, &team_name, &user_name) {
+        Ok(message) => {
+            println!("{} and purchased {} shares in {}", user_name, amount, team_name);
+            response = message
+        },
         Err(e) => {
-            response.push_str(&e);
-            db_lock = None
+            response = format!("An error as occurred {}", e.to_string());
+            println!("{}", response);
         }
     }
 
-    if db_lock.is_some() {
-        if amount <= 0 {
-            response = format!("Please enter a positive number!");
-        } else {
-            if db_lock.unwrap().locked {
-                response = format!("Sales are locked, wait for the games to finish!");
-            } else {
-                let team = load_team(&conn, &team_name);
-                let user = load_user(&conn, &user_name);
-                response = format!("You don't own these shares");
+    msg.channel_id.say(&ctx.http, response).await?;
+    Ok(())
+}
 
-                let users_portfolio = load_users_portfolio(&conn, &user);
+fn sell_shares(amount: i32, team_name: &str, user_name: &str) -> Result<String, Box<dyn Error>> {
+    let conn = establish_connection();
 
-                let new_balance = team.elo * amount + user.balance;
+    let db_lock = load_lock(&conn)?;
 
-                for portfolio in users_portfolio {
-                    if portfolio.team_id == team.id {
-                        response = format!("You don't have that many shares");
-                        if amount <= portfolio.amount {
-                            update_user(&conn, &user.name, new_balance);
-                            user_portfolio_sell(&conn,&user, &team, amount);
-                            response = format!("Sale Made!");
-                        }
-                    }
+    if db_lock.locked {
+        return Ok("Market is closed".to_string())
+    }
+
+    if amount <= 0 {
+        return Ok("Please enter a positive number!".to_string())
+    }
+
+    let team = load_team(&conn, team_name)?;
+    let user = load_user(&conn, &user_name)?;
+    let users_portfolio = load_users_portfolio(&conn, &user)?;
+
+    let new_balance = team.elo * amount + user.balance;
+
+    for portfolio in users_portfolio {
+        if portfolio.team_id == team.id {
+            return if amount <= portfolio.amount {
+                match update_portfolio(new_balance, &user, &team, amount) {
+                    Ok(s) => Ok(s),
+                    Err(e) => Err(e)
                 }
+            } else {
+                Ok("You don't have that many shares".to_string())
             }
         }
     }
 
-    println!("{} and sold {} shares in {}", user_name, amount, team_name);
-    msg.channel_id.say(&ctx.http, response).await?;
-    Ok(())
+    Ok("You don't own those shares".to_string())
+}
+
+fn update_portfolio(new_balance: i32, user: &User, team: &Team, amount: i32) -> Result<String, Box<dyn Error>> {
+    let conn = establish_connection();
+    update_user(&conn, &user.name, new_balance)?;
+    user_portfolio_sell(&conn,&user, &team, amount)?;
+    Ok("Sale Made!".to_string())
 }

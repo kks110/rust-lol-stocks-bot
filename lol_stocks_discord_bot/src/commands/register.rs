@@ -15,19 +15,19 @@ use lol_stocks_core::models::user::User;
 
 #[command]
 pub async fn register(ctx: &Context, msg: &Message) -> CommandResult {
+    let response: String;
 
     match create_new_user(&msg.author.name) {
         Ok(user) => {
             println!("{} has registered", user.name);
-            let response = format!("Updated user {}. Starting Balance is {}", user.name, user.balance);
-            msg.channel_id.say(&ctx.http, response).await?;
+            response = format!("Updated user {}. Starting Balance is {}", user.name, user.balance);
         },
         Err(e) => {
             println!("There was an error creating the new user: {}", e.to_string());
-            let response = format!("There was an error creating the new user: {}", e.to_string());
-            msg.channel_id.say(&ctx.http, response).await?;
+            response = format!("There was an error creating the new user: {}", e.to_string());
         }
     }
+    msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
 }
 

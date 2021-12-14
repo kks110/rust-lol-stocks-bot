@@ -6,6 +6,8 @@ use serenity::framework::standard::{
     Args,
 };
 
+use std::error::Error;
+
 use lol_stocks_core::database::{
     connection::establish_connection,
     users::{load_user, update_user},
@@ -13,75 +15,57 @@ use lol_stocks_core::database::{
     portfolios::{load_users_portfolio, user_portfolio_sell},
     locks::load_lock,
 };
-use lol_stocks_core::models::lock::Lock;
-use lol_stocks_core::models::team::Team;
 use lol_stocks_core::portfolio_calculations::calculate_portfolio_value;
 
 #[command]
 pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let user_name = msg.author.name.clone();
-    let conn = establish_connection();
-    let db_lock: Option<Lock>;
-    let mut response= String::from("");
+    let team_name: Option<String>;
 
-    match load_lock(&conn) {
-        Ok(l) => db_lock = Some(l),
-        Err(e) => {
-            response.push_str(&e);
-            db_lock = None
-        }
+    match args.single::<String>() {
+        Ok(team) => team_name = Some(team),
+        Err(_) => team_name = None
     }
 
-    if db_lock.is_some() {
-        if db_lock.unwrap().locked {
-            response = format!("Sales are locked, wait for the games to finish!");
-        } else {
-            let user = load_user(&conn, &user_name);
-            let users_portfolio = load_users_portfolio(&conn, &user);
+    let response: String;
 
-            match args.single::<String>() {
-                Ok(team_name) => {
-                    let team: Option<Team>;
-                    match load_team(&conn, &team_name) {
-                        Ok(t) => team = Some(t),
-                        Err(e) => {
-                            response.push_str(&e);
-                            team = None
-                        }
-                    };
-                    if team.is_some() {
-                        for portfolio in users_portfolio {
-                            if portfolio.team_id == team.id {
-                                let new_balance = team.unwrap().elo * portfolio.amount + user.balance;
-                                update_user(&conn, &user.name, new_balance);
-                                user_portfolio_sell(&conn,&user, &team.unwrap(), portfolio.amount);
-                            }
-                        }
-                    }
-                }
-                Err(_) => {
-                    let new_balance = calculate_portfolio_value(&conn, &user, &users_portfolio);
-                    update_user(&conn, &user.name, new_balance);
-                    for portfolio in users_portfolio {
-                        let team: Option<Team>;
-                        match load_team_by_id(&conn, &portfolio.team_id) {
-                            Ok(t) => team = Some(t),
-                            Err(e) => {
-                                response.push_str(&e);
-                                team = None
-                            }
-                        };
-                        if team.is_some() {
-                            user_portfolio_sell(&conn, &user, &team.unwrap(), portfolio.amount);
-                        }
-                    }
-                }
-            }
-            response = format!("Sale Made!");
-        }
+    match perform_sell_all(team_name, &user_name) {
+        Ok(message) => { response = message },
+        Err(e) => { response = format!("An error has occurred: {}", e) }
     }
 
-    println!("{} sold all their portfolio", user_name);
+    println!("{} sold all of one team or all their portfolio", user_name);
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
+}
+
+fn perform_sell_all(team_name: Option<String>, user_name: &str) -> Result<String, Box<dyn Error>> {
+    let conn = establish_connection();
+    let db_lock = load_lock(&conn)?;
+
+    if db_lock.locked {
+        return Ok("Sales are locked, wait for the games to finish!".to_string())
+    }
+
+    let user = load_user(&conn, &user_name)?;
+    let users_portfolio = load_users_portfolio(&conn, &user)?;
+
+    if team_name.is_some() {
+        let team = load_team(&conn, &team_name.unwrap())?;
+        for portfolio in users_portfolio {
+            if portfolio.team_id == team.id {
+                let new_balance = team.elo * portfolio.amount + user.balance;
+                update_user(&conn, &user.name, new_balance)?;
+                user_portfolio_sell(&conn, &user, &team, portfolio.amount)?;
+            }
+        }
+    } else {
+        let new_balance = calculate_portfolio_value(&conn, &user, &users_portfolio)?;
+        update_user(&conn, &user.name, new_balance)?;
+        for portfolio in users_portfolio {
+            let team = load_team_by_id(&conn, &portfolio.team_id)?;
+            user_portfolio_sell(&conn, &user, &team, portfolio.amount)?;
+        }
+    }
+    Ok("Sale Made!".to_string())
 }
