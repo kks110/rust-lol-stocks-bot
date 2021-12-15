@@ -8,50 +8,45 @@ use serenity::framework::standard::{
 
 use std::error::Error;
 
+use lol_stocks_core::models::team::Team;
+
 use lol_stocks_core::database::{
     connection::establish_connection,
     teams::load_teams,
     teams::load_teams_by_league,
-    leagues::load_leagues,
+    leagues::load_league
 };
 
 #[command]
-pub async fn view_market(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+pub async fn view_market(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let response: String;
+    let market: Option<String>;
 
-    match parse_args(args) {
-        Ok(m) => {
-            let market = m;
+    match args.single::<String>() {
+        Ok(market_name) => market = Some(market_name),
+        Err(_) => market = None
+    }
 
-            match make_view_market(&market) {
-                Ok(message) => { response = message },
-                Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
-            }
-
-            println!("Market displayed");
-        },
-        Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
+    match make_view_market(market) {
+        Ok(message) => { response = message },
+        Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
     }
 
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
 }
 
-fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
-    let market = args.single::<String>()?;
-    Ok(market)
-}
-
-fn make_view_market(market: &str) -> Result<String, Box<dyn Error>> {
+fn make_view_market(market: Option<String>) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
 
-    let mut teams = load_teams(&conn)?;
-    let leagues = load_leagues(&conn)?;
+    let teams: Vec<Team>;
 
-    for league in leagues {
-        if league.name == market.to_uppercase() {
-            teams = load_teams_by_league(&conn, &market.to_uppercase())?
-        }
+    if market.is_some() {
+        let market_u = market.unwrap();
+        load_league(&conn, &market_u)?;
+        teams = load_teams_by_league(&conn, &market_u.to_uppercase())?
+    } else {
+        teams = load_teams(&conn)?
     }
 
     let mut message: String = "".to_string();
