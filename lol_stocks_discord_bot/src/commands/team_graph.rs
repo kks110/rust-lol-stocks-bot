@@ -24,12 +24,12 @@ use graph_builder::models::{
 #[command]
 pub async fn team_graph(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let response: String;
+    let mut file_location = "".to_string();
 
     match parse_args(args) {
         Ok(team) => {
             let team_name = team;
 
-            let mut file_location = "".to_string();
 
             match make_team_graph(&team_name) {
                 Ok(location) => {
