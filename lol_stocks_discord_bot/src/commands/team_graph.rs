@@ -7,6 +7,7 @@ use serenity::framework::standard::{
 };
 use std::env;
 use std::error::Error;
+use std::result::Result;
 
 use lol_stocks_core::{
     database::{

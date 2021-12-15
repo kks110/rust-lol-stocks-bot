@@ -6,6 +6,7 @@ use serenity::framework::standard::{
 };
 
 use std::error::Error;
+use std::result::Result;
 
 use lol_stocks_core::{
     portfolio_calculations::calculate_portfolio_value,

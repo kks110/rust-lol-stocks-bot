@@ -6,6 +6,7 @@ use serenity::framework::standard::{
 };
 
 use std::error::Error;
+use std::result::Result;
 
 use std::collections::HashMap;
 
