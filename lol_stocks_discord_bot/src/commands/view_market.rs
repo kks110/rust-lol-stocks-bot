@@ -16,19 +16,30 @@ use lol_stocks_core::database::{
 };
 
 #[command]
-pub async fn view_market(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let market = args.single::<String>()?;
-
+pub async fn view_market(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let response: String;
 
-    match make_view_market(&market) {
-        Ok(message) => { response = message },
-        Err(e) => { response = format!("An error has occured: {}", e.to_string())}
+    match parse_args(args) {
+        Ok(m) => {
+            let market = m;
+
+            match make_view_market(&market) {
+                Ok(message) => { response = message },
+                Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
+            }
+
+            println!("Market displayed");
+        },
+        Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
     }
 
-    println!("Market displayed");
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
+}
+
+fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
+    let market = args.single::<String>()?;
+    Ok(market)
 }
 
 fn make_view_market(market: &str) -> Result<String, Box<dyn Error>> {

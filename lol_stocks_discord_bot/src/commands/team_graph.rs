@@ -22,18 +22,24 @@ use graph_builder::models::{
 };
 
 #[command]
-pub async fn team_graph(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let team_name = args.single::<String>()?;
-
+pub async fn team_graph(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let response: String;
-    let mut file_location = "".to_string();
 
-    match make_team_graph(&team_name) {
-        Ok(location) => {
-            response = "".to_string();
-            file_location.push_str(&location)
+    match parse_args(args) {
+        Ok(team) => {
+            let team_name = team;
+
+            let mut file_location = "".to_string();
+
+            match make_team_graph(&team_name) {
+                Ok(location) => {
+                    response = "".to_string();
+                    file_location.push_str(&location)
+                },
+                Err(e) => { response = format!("An error has occurred: {}", e.to_string()) }
+            }
         },
-        Err(e) => { response = format!("An error has occurred: {}", e.to_string()) }
+        Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
     }
 
     msg.channel_id.send_message(&ctx.http, |m| {
@@ -43,6 +49,12 @@ pub async fn team_graph(ctx: &Context, msg: &Message, mut args: Args) -> Command
 
     Ok(())
 }
+
+fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
+    let team_name = args.single::<String>()?;
+    Ok(team_name)
+}
+
 
 fn make_team_graph(team_name: &str) ->Result<String, Box<dyn Error>> {
     let conn = establish_connection();

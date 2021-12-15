@@ -21,26 +21,39 @@ use lol_stocks_core::models::{
 };
 
 #[command]
-pub async fn sell(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let team_name = args.single::<String>()?;
-    let amount = args.single::<i32>()?;
-    let user_name = msg.author.name.clone();
-
+pub async fn sell(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let response: String;
 
-    match sell_shares(amount, &team_name, &user_name) {
-        Ok(message) => {
-            println!("{} and purchased {} shares in {}", user_name, amount, team_name);
-            response = message
+    match parse_args(args) {
+        Ok(team_and_amount) => {
+            let (team_name, amount) = team_and_amount;
+            let user_name = msg.author.name.clone();
+
+
+            match sell_shares(amount, &team_name, &user_name) {
+                Ok(message) => {
+                    println!("{} and purchased {} shares in {}", user_name, amount, team_name);
+                    response = message
+                },
+                Err(e) => {
+                    response = format!("An error as occurred {}", e.to_string());
+                    println!("{}", response);
+                }
+            }
         },
         Err(e) => {
             response = format!("An error as occurred {}", e.to_string());
-            println!("{}", response);
         }
     }
 
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
+}
+
+fn parse_args(mut args: Args) -> Result<(String, i32), Box<dyn Error>> {
+    let team_name = args.single::<String>()?;
+    let amount = args.single::<i32>()?;
+    Ok((team_name, amount))
 }
 
 fn sell_shares(amount: i32, team_name: &str, user_name: &str) -> Result<String, Box<dyn Error>> {
