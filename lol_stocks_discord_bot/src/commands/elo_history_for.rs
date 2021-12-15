@@ -15,18 +15,29 @@ use lol_stocks_core::database::{
 };
 
 #[command]
-pub async fn elo_history_for(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let team_name = args.single::<String>()?;
-
+pub async fn elo_history_for(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let response: String;
 
-    match load_elo_history(&team_name) {
-        Ok(message) => { response = message },
-        Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
+    match parse_args(args) {
+        Ok(t) => {
+            let team_name = t;
+            match load_elo_history(&team_name) {
+                Ok(message) => { response = message },
+                Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
+            }
+
+        },
+        Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
     }
+
 
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
+}
+
+fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
+    let team_name = args.single::<String>()?;
+    Ok(team_name)
 }
 
 fn load_elo_history(team_name: &str) -> Result<String, Box<dyn Error>> {

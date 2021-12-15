@@ -41,9 +41,7 @@ pub async fn sell(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                 }
             }
         },
-        Err(e) => {
-            response = format!("An error as occurred {}", e.to_string());
-        }
+        Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
     }
 
     msg.channel_id.say(&ctx.http, response).await?;

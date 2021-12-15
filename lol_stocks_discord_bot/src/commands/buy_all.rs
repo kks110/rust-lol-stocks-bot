@@ -18,19 +18,29 @@ use lol_stocks_core::database::{
 
 #[command]
 pub async fn buy_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let team_name = args.single::<String>()?;
     let user_name = msg.author.name.clone();
 
     let response: String;
 
-    match perform_buy_all(&team_name, &user_name) {
-        Ok(message) => { response = message },
-        Err(e) => { response = format!("An error has occurred: {}", e)}
+    match parse_args(args) {
+        Ok(t) => {
+            let team_name = t;
+            match perform_buy_all(&team_name, &user_name) {
+                Ok(message) => { response = message },
+                Err(e) => { response = format!("An error has occurred: {}", e)}
+            }
+        },
+        Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
     }
 
     println!("{} and purchased shares in {}", user_name, team_name);
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
+}
+
+fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
+    let team_name = args.single::<String>()?;
+    Ok(team_name)
 }
 
 fn perform_buy_all(team_name: &str, user_name: &str) -> Result<String, Box<dyn Error>> {
