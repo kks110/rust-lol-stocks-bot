@@ -49,9 +49,7 @@ pub async fn buy(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 }
 
 fn parse_args(mut args: Args) -> Result<(String, i32), Box<dyn Error>> {
-    let team_name = args.single::<String>()?;
-    let amount = args.single::<i32>()?;
-    Ok((team_name, amount))
+    Ok((args.single::<String>()?, args.single::<i32>()?))
 }
 
 fn buy_shares(amount: i32, team_name: &str, user_name: &str) -> Result<String, Box<dyn Error>> {

@@ -38,8 +38,7 @@ pub async fn buy_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
 }
 
 fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
-    let team_name = args.single::<String>()?;
-    Ok(team_name)
+    Ok(args.single::<String>()?)
 }
 
 fn perform_buy_all(team_name: &str, user_name: &str) -> Result<String, Box<dyn Error>> {

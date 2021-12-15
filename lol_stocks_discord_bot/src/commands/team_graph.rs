@@ -51,8 +51,7 @@ pub async fn team_graph(ctx: &Context, msg: &Message, args: Args) -> CommandResu
 }
 
 fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
-    let team_name = args.single::<String>()?;
-    Ok(team_name)
+    Ok(args.single::<String>()?)
 }
 
 

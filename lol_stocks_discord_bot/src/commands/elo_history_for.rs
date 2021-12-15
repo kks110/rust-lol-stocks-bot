@@ -36,8 +36,7 @@ pub async fn elo_history_for(ctx: &Context, msg: &Message, args: Args) -> Comman
 }
 
 fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
-    let team_name = args.single::<String>()?;
-    Ok(team_name)
+    Ok(args.single::<String>()?)
 }
 
 fn load_elo_history(team_name: &str) -> Result<String, Box<dyn Error>> {
