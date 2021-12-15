@@ -20,7 +20,7 @@ use lol_stocks_core::models::{
 };
 
 #[command]
-pub async fn buy(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn buy(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let response: String;
 
     match parse_args(args) {

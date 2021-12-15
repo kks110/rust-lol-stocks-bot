@@ -17,7 +17,7 @@ use lol_stocks_core::database::{
 };
 
 #[command]
-pub async fn buy_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn buy_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let user_name = msg.author.name.clone();
 
     let response: String;
