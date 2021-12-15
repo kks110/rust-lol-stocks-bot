@@ -33,7 +33,6 @@ pub async fn buy_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandRes
         Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
     }
 
-    println!("{} and purchased shares in {}", user_name, team_name);
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
 }
