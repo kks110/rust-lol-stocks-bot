@@ -54,15 +54,11 @@ fn perform_sell_all(team_name: Option<String>, user_name: &str) -> Result<String
     if team_name.is_some() {
         let team = load_team(&conn, &team_name.unwrap())?;
         for portfolio in users_portfolio {
-            let mut sale_made = false;
             if portfolio.team_id == team.id {
-                sale_made = true;
                 let new_balance = team.elo * portfolio.amount + user.balance;
                 update_user(&conn, &user.name, new_balance)?;
                 user_portfolio_sell(&conn, &user, &team, portfolio.amount)?;
-            }
-            if !sale_made {
-                return Ok("You do not own those shares".to_string())
+                return Ok("Sale Made!".to_string())
             }
         }
     } else {
@@ -71,7 +67,8 @@ fn perform_sell_all(team_name: Option<String>, user_name: &str) -> Result<String
         for portfolio in users_portfolio {
             let team = load_team_by_id(&conn, &portfolio.team_id)?;
             user_portfolio_sell(&conn, &user, &team, portfolio.amount)?;
+            return Ok("Full portfolio sold".to_string())
         }
     }
-    Ok("Sale Made!".to_string())
+    Ok("You do not own those shares".to_string())
 }
