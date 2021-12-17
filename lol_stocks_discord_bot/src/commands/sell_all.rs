@@ -54,14 +54,16 @@ fn perform_sell_all(team_name: Option<String>, user_name: &str) -> Result<String
     if team_name.is_some() {
         let team = load_team(&conn, &team_name.unwrap())?;
         for portfolio in users_portfolio {
-            let sale_made: bool;
+            let mut sale_made = false;
             if portfolio.team_id == team.id {
                 sale_made = true;
                 let new_balance = team.elo * portfolio.amount + user.balance;
                 update_user(&conn, &user.name, new_balance)?;
                 user_portfolio_sell(&conn, &user, &team, portfolio.amount)?;
             }
-            return Ok("You do not own those shares".to_string())
+            if !sale_made {
+                return Ok("You do not own those shares".to_string())
+            }
         }
     } else {
         let new_balance = calculate_portfolio_value(&conn, &user, &users_portfolio)?;
