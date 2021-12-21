@@ -15,7 +15,7 @@ pub fn load_user(conn: &PgConnection, user_name: &str) -> Result<User, Box<dyn E
         .first(conn)?)
 }
 
-pub fn create_user<'a>(conn: &PgConnection, name: &'a str) -> Result<User, Box<dyn Error>> {
+pub fn create_user(conn: &PgConnection, name: &str) -> Result<User, Box<dyn Error>> {
     use crate::schema::users;
 
     let new_user = NewUser {
@@ -29,7 +29,7 @@ pub fn create_user<'a>(conn: &PgConnection, name: &'a str) -> Result<User, Box<d
     )
 }
 
-pub fn update_user<'a>(conn: &PgConnection, user_name: &str, new_balance: i32) -> Result<User, Box<dyn Error>> {
+pub fn update_user(conn: &PgConnection, user_name: &str, new_balance: i32) -> Result<User, Box<dyn Error>> {
     use crate::schema::users::dsl::*;
 
     Ok(diesel::update(users.filter(name.eq(user_name)))

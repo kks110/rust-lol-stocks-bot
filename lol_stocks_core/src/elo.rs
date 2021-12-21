@@ -7,7 +7,7 @@ pub fn calculate_elo(winning_team_elo: i32, loosing_team_elo: i32) ->  (i32, i32
 
     let new_winner_elo =  elo_calculation(winner_elo, winner_expected, true);
     let new_looser_elo = elo_calculation(loser_elo, loser_expected, false);
-    return (new_winner_elo, new_looser_elo)
+    (new_winner_elo, new_looser_elo)
 }
 
 fn transform_elo(elo: &f64) -> f64 {

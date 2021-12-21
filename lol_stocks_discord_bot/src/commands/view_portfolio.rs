@@ -44,7 +44,7 @@ pub async fn view_portfolio(ctx: &Context, msg: &Message, mut args: Args) -> Com
 
 fn make_portfolio_view(user_name: &str) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
-    let user = load_user(&conn, &user_name)?;
+    let user = load_user(&conn, user_name)?;
     let portfolio = load_users_portfolio(&conn, &user)?;
 
     let mut holdings: Vec<Holding> = Vec::new();
@@ -60,11 +60,11 @@ fn make_portfolio_view(user_name: &str) -> Result<String, Box<dyn Error>> {
     let mut value = 0;
 
     let user_balance = format!("User: {}, Balance: {}\n", user.name, user.balance);
-    value = value + user.balance;
+    value += user.balance;
     response.push_str(&user_balance);
 
     for holding in holdings {
-        value = value + holding.value;
+        value += holding.value;
         let portfolio_line = format!("Team: {}, Amount: {}, Value: {}\n", holding.team.name, holding.amount, holding.value);
         response.push_str(&portfolio_line);
     }

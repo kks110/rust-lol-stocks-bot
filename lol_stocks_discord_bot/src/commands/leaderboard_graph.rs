@@ -7,7 +7,6 @@ use serenity::framework::standard::{
 use std::env;
 use std::error::Error;
 use std::result::Result;
-
 use crate::helpers::user_graph_data::graph_data_for_user;
 
 use lol_stocks_core::{
@@ -40,8 +39,8 @@ pub async fn leaderboard_graph(ctx: &Context, msg: &Message) -> CommandResult {
     }
 
     msg.channel_id.send_message(&ctx.http, |m| {
-        if response.is_some() {
-            m.content(response.unwrap());
+        if let Some(response) = response {
+            m.content(response);
         }
         if file_location.is_some() {
             m.add_file(&file_location.as_ref().unwrap()[..]);

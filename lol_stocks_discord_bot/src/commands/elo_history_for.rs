@@ -42,7 +42,7 @@ fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
 
 fn load_elo_history(team_name: &str) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
-    let team = load_team(&conn, &team_name)?;
+    let team = load_team(&conn, team_name)?;
     let team_elo_history = load_team_elo_history(&conn, &team)?;
 
     let mut message = format!("Date: Now, Value: {}\n", team.elo);

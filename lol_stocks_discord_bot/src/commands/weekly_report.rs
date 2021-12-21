@@ -42,8 +42,8 @@ pub async fn weekly_report(ctx: &Context, msg: &Message) -> CommandResult {
     }
 
     msg.channel_id.send_message(&ctx.http, |m| {
-        if response.is_some() {
-            m.content(response.unwrap());
+        if let Some(response) = response {
+            m.content(response);
         }
         if weekly_lines.is_some() {
             m.embed(|e| {

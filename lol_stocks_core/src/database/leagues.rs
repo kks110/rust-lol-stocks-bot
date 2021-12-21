@@ -15,7 +15,7 @@ pub fn load_league(conn: &PgConnection, league_name: &str) -> Result<League, Box
     Ok(leagues.filter(name.eq(&uppercase_league_name)).first(conn)?)
 }
 
-pub fn create_league<'a>(conn: &PgConnection, name: &'a str) -> Result<League, Box<dyn Error>> {
+pub fn create_league(conn: &PgConnection, name: &str) -> Result<League, Box<dyn Error>> {
     use crate::schema::leagues;
 
     let uppercase_league_name = name.to_uppercase();
@@ -39,5 +39,5 @@ pub fn find_or_create_league(conn: &PgConnection, name: &str) -> Result<League, 
             return Ok(league)
         }
     }
-    Ok(create_league(conn, name)?)
+    create_league(conn, name)
 }

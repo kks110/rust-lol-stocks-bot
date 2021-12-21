@@ -59,7 +59,7 @@ fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
 fn make_team_graph(team_name: &str) ->Result<String, Box<dyn Error>> {
     let conn = establish_connection();
 
-    let team = load_team(&conn, &team_name)?;
+    let team = load_team(&conn, team_name)?;
     let mut elo_history = load_team_elo_history(&conn, &team)?;
     elo_history.reverse();
 

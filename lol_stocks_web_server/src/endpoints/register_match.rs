@@ -38,7 +38,7 @@ fn register(games: Games) -> Result<(), Box<dyn Error>> {
         let winning_team = load_team(&conn, &winner)?;
         let losing_team = load_team(&conn, &loser)?;
 
-        let (winning_elo, losing_elo) = calculate_elo(winning_team.elo.clone(), losing_team.elo.clone());
+        let (winning_elo, losing_elo) = calculate_elo(winning_team.elo, losing_team.elo);
         update_team(&conn, &winning_team.name, winning_elo)?;
         update_team(&conn, &losing_team.name, losing_elo)?;
     }

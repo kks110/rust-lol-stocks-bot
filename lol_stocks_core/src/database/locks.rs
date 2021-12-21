@@ -8,9 +8,9 @@ pub fn load_lock(conn: &PgConnection) -> Result<Lock, Box<dyn Error>> {
     Ok(locks.first(conn)?)
 }
 
-pub fn lock_database<'a>(conn: &PgConnection) -> Result<Lock, Box<dyn Error>> {
+pub fn lock_database(conn: &PgConnection) -> Result<Lock, Box<dyn Error>> {
     use crate::schema::locks::dsl::*;
-    let lock = load_lock(&conn)?;
+    let lock = load_lock(conn)?;
 
     Ok(diesel::update(locks.filter(id.eq(lock.id)))
         .set(locked.eq(true))
@@ -18,9 +18,9 @@ pub fn lock_database<'a>(conn: &PgConnection) -> Result<Lock, Box<dyn Error>> {
     )
 }
 
-pub fn unlock_database<'a>(conn: &PgConnection) -> Result<Lock, Box<dyn Error>> {
+pub fn unlock_database(conn: &PgConnection) -> Result<Lock, Box<dyn Error>> {
     use crate::schema::locks::dsl::*;
-    let lock = load_lock(&conn)?;
+    let lock = load_lock(conn)?;
 
     Ok(diesel::update(locks.filter(id.eq(lock.id)))
         .set(locked.eq(false))

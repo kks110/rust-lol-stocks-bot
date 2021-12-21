@@ -18,7 +18,7 @@ use lol_stocks_core::database::{
 pub async fn db_lock(ctx: &Context, msg: &Message) -> CommandResult {
     let user_name = &msg.author.name;
     let response: String;
-    match turn_key(&user_name) {
+    match turn_key(user_name) {
         Ok(message) => { response = message  },
         Err(e) => { response = format!("An error occurred: {}", e.to_string()); }
     }

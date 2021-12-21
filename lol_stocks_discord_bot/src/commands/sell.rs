@@ -67,7 +67,7 @@ fn sell_shares(amount: i32, team_name: &str, user_name: &str) -> Result<String, 
     }
 
     let team = load_team(&conn, team_name)?;
-    let user = load_user(&conn, &user_name)?;
+    let user = load_user(&conn, user_name)?;
     let users_portfolio = load_users_portfolio(&conn, &user)?;
 
     let new_balance = team.elo * amount + user.balance;
@@ -91,6 +91,6 @@ fn sell_shares(amount: i32, team_name: &str, user_name: &str) -> Result<String, 
 fn update_portfolio(new_balance: i32, user: &User, team: &Team, amount: i32) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
     update_user(&conn, &user.name, new_balance)?;
-    user_portfolio_sell(&conn,&user, &team, amount)?;
+    user_portfolio_sell(&conn,user, team, amount)?;
     Ok("Sale Made!".to_string())
 }

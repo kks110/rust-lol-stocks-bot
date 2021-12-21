@@ -67,7 +67,7 @@ fn buy_shares(amount: i32, team_name: &str, user_name: &str) -> Result<String, B
     }
 
     let team = load_team(&conn, team_name)?;
-    let user = load_user(&conn, &user_name)?;
+    let user = load_user(&conn, user_name)?;
 
     if amount > user.balance {
         return Ok("Not enough funds".to_string())
@@ -81,7 +81,7 @@ fn buy_shares(amount: i32, team_name: &str, user_name: &str) -> Result<String, B
             Err(e) => Err(e)
         }
     } else {
-        return Ok("Not enough funds".to_string())
+        Ok("Not enough funds".to_string())
     }
 }
 

@@ -50,8 +50,8 @@ fn perform_buy_all(team_name: &str, user_name: &str) -> Result<String, Box<dyn E
         return Ok("Sales are locked, wait for the games to finish!".to_string())
     }
 
-    let team = load_team(&conn, &team_name)?;
-    let user = load_user(&conn, &user_name)?;
+    let team = load_team(&conn, team_name)?;
+    let user = load_user(&conn, user_name)?;
 
     let amount = user.balance / team.elo;
     if amount == 0 {

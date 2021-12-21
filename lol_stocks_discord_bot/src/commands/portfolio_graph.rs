@@ -50,7 +50,7 @@ pub async fn portfolio_graph(ctx: &Context, msg: &Message) -> CommandResult {
 fn make_portfolio_graph(user_name: &str) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
 
-    let user = load_user(&conn, &user_name)?;
+    let user = load_user(&conn, user_name)?;
     let portfolio = load_users_portfolio(&conn, &user)?;
     let graph_points: Vec<GraphDataPoint> = graph_data_for_user(&user)?;
 

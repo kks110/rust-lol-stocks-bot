@@ -48,7 +48,7 @@ fn perform_sell_all(team_name: Option<String>, user_name: &str) -> Result<String
         return Ok("Sales are locked, wait for the games to finish!".to_string())
     }
 
-    let user = load_user(&conn, &user_name)?;
+    let user = load_user(&conn, user_name)?;
     let users_portfolio = load_users_portfolio(&conn, &user)?;
 
     if team_name.is_some() {
@@ -67,8 +67,8 @@ fn perform_sell_all(team_name: Option<String>, user_name: &str) -> Result<String
         for portfolio in users_portfolio {
             let team = load_team_by_id(&conn, &portfolio.team_id)?;
             user_portfolio_sell(&conn, &user, &team, portfolio.amount)?;
-            return Ok("Full portfolio sold".to_string())
         }
+        return Ok("Full portfolio sold".to_string())
     }
     Ok("You do not own those shares".to_string())
 }

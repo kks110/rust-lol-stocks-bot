@@ -54,7 +54,7 @@ fn load_market_cap() -> Result<String, Box<dyn Error>> {
 
         market_cap_entries.push(MarketCapEntry{
             team_name: team.name.to_owned(),
-            amount: amount,
+            amount,
             value: amount * team.elo
         })
     }
@@ -65,5 +65,5 @@ fn load_market_cap() -> Result<String, Box<dyn Error>> {
     for entry in market_cap_entries {
         response.push_str(&format!("{}: {} ({})\n", entry.team_name, entry.amount, entry.value));
     }
-    return Ok(response)
+    Ok(response)
 }

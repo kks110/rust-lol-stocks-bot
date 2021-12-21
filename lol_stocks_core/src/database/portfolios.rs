@@ -29,7 +29,7 @@ pub fn create_portfolio<'a>(conn: &PgConnection, team_id: &'a i32, user_id: &'a 
     )
 }
 
-pub fn user_portfolio_purchase<'a>(conn: &PgConnection, purchasing_user: &User, team_purchased: &Team, amount_purchased: i32) -> Result<Portfolio, Box<dyn Error>> {
+pub fn user_portfolio_purchase(conn: &PgConnection, purchasing_user: &User, team_purchased: &Team, amount_purchased: i32) -> Result<Portfolio, Box<dyn Error>> {
     use crate::schema::portfolios::dsl::*;
 
     let users_portfolio: Vec<Portfolio> = Portfolio::belonging_to(purchasing_user).load::<Portfolio>(conn)?;
@@ -41,10 +41,10 @@ pub fn user_portfolio_purchase<'a>(conn: &PgConnection, purchasing_user: &User, 
              )
         }
     }
-    Ok(create_portfolio(conn, &team_purchased.id, &purchasing_user.id, &amount_purchased)?)
+    create_portfolio(conn, &team_purchased.id, &purchasing_user.id, &amount_purchased)
 }
 
-pub fn user_portfolio_sell<'a>(conn: &PgConnection, selling_user: &User, team_being_sold: &Team, amount_sold: i32) -> Result<Portfolio, Box<dyn Error>> {
+pub fn user_portfolio_sell(conn: &PgConnection, selling_user: &User, team_being_sold: &Team, amount_sold: i32) -> Result<Portfolio, Box<dyn Error>> {
     use crate::schema::portfolios::dsl::*;
 
     let users_portfolio: Vec<Portfolio> = load_users_portfolio(conn, selling_user)?;

@@ -13,7 +13,7 @@ pub fn load_teams(conn: &PgConnection) -> Result<Vec<Team>, Box<dyn Error>>  {
 pub fn load_teams_by_league(conn: &PgConnection, league_name: &str) -> Result<Vec<Team>, Box<dyn Error>>  {
     use crate::schema::teams::dsl::*;
 
-    let league = load_league(&conn, league_name)?;
+    let league = load_league(conn, league_name)?;
 
     Ok(teams.filter(league_id.eq(&league.id))
         .order(elo.desc())
@@ -38,7 +38,7 @@ pub fn load_team_by_id(conn: &PgConnection, team_id: &i32) -> Result<Team, Box<d
     )
 }
 
-pub fn update_team<'a>(conn: &PgConnection, team_name: &str, new_elo: i32) -> Result<Team, Box<dyn Error>> {
+pub fn update_team(conn: &PgConnection, team_name: &str, new_elo: i32) -> Result<Team, Box<dyn Error>> {
     use crate::schema::teams::dsl::*;
     let uppercase_team_name = team_name.to_uppercase();
 
@@ -51,7 +51,7 @@ pub fn update_team<'a>(conn: &PgConnection, team_name: &str, new_elo: i32) -> Re
 pub fn create_team<'a>(conn: &PgConnection, name: &'a str, league_name: &'a str) -> Result<Team, Box<dyn Error>> {
     use crate::schema::teams;
 
-    let league = find_or_create_league(&conn, league_name)?;
+    let league = find_or_create_league(conn, league_name)?;
 
     let new_team = NewTeam {
         name,

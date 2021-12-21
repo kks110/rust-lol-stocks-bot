@@ -42,10 +42,9 @@ fn make_view_market(market: Option<String>) -> Result<String, Box<dyn Error>> {
 
     let teams: Vec<Team>;
 
-    if market.is_some() {
-        let market_u = market.unwrap();
-        load_league(&conn, &market_u)?;
-        teams = load_teams_by_league(&conn, &market_u.to_uppercase())?
+    if let Some(market) = market {
+        load_league(&conn, &market)?;
+        teams = load_teams_by_league(&conn, &market.to_uppercase())?
     } else {
         teams = load_teams(&conn)?
     }

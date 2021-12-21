@@ -35,5 +35,5 @@ pub async fn register(ctx: &Context, msg: &Message) -> CommandResult {
 
 fn create_new_user(username: &str) -> Result<User, Box<dyn Error>> {
     let conn = establish_connection();
-    Ok(create_user(&conn, username)?)
+    create_user(&conn, username)
 }

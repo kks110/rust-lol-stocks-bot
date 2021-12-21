@@ -48,19 +48,19 @@ pub async fn portfolio_performance(ctx: &Context, msg: &Message) -> CommandResul
 
 fn make_portfolio_performance(user_name: &str) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
-    let user = load_user(&conn, &user_name)?;
+    let user = load_user(&conn, user_name)?;
     let user_portfolio_history = load_user_portfolio_history(&conn, &user, Option::from(5))?;
 
     let portfolio = load_users_portfolio(&conn, &user)?;
     let current_value = calculate_portfolio_value(&conn, &user, &portfolio)?;
 
-    let mut history_data: Vec<HistoryData> = Vec::new();
-
-    history_data.push(HistoryData{
-        date: Utc::now().date().naive_utc(),
-        value: current_value,
-        difference: current_value - user_portfolio_history.first().unwrap().value
-    });
+    let mut history_data: Vec<HistoryData> = vec![
+        HistoryData{
+            date: Utc::now().date().naive_utc(),
+            value: current_value,
+            difference: current_value - user_portfolio_history.first().unwrap().value
+        }
+    ];
 
     let mut counter = 1;
 
