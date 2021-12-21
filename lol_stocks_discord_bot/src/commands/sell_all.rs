@@ -6,6 +6,9 @@ use serenity::framework::standard::{
     Args,
 };
 
+use std::error::Error;
+use std::result::Result;
+
 use lol_stocks_core::database::{
     connection::establish_connection,
     users::{load_user, update_user},
@@ -18,40 +21,54 @@ use lol_stocks_core::portfolio_calculations::calculate_portfolio_value;
 #[command]
 pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let user_name = msg.author.name.clone();
-    let conn = establish_connection();
-    let db_lock = load_lock(&conn);
+    let team_name: Option<String>;
+
+    match args.single::<String>() {
+        Ok(team) => team_name = Some(team),
+        Err(_) => team_name = None
+    }
+
     let response: String;
 
-    if db_lock.locked {
-        response = format!("Sales are locked, wait for the games to finish!");
-    } else {
-        let user = load_user(&conn, &user_name);
-        let users_portfolio = load_users_portfolio(&conn, &user);
-
-        match args.single::<String>() {
-            Ok(team_name) => {
-                let team = load_team(&conn, &team_name);
-
-                for portfolio in users_portfolio {
-                    if portfolio.team_id == team.id {
-                        let new_balance = team.elo * portfolio.amount + user.balance;
-                        update_user(&conn, &user.name, new_balance);
-                        user_portfolio_sell(&conn,&user, &team, portfolio.amount);
-                    }
-                }
-            }
-            Err(_) => {
-                let new_balance = calculate_portfolio_value(&conn, &user, &users_portfolio);
-                update_user(&conn, &user.name, new_balance);
-                for portfolio in users_portfolio {
-                    let team = load_team_by_id(&conn, &portfolio.team_id);
-                    user_portfolio_sell(&conn, &user, &team, portfolio.amount);
-                }
-            }
-        }
-        response = format!("Sale Made!");
+    match perform_sell_all(team_name, &user_name) {
+        Ok(message) => { response = message },
+        Err(e) => { response = format!("An error has occurred: {}", e) }
     }
-    println!("{} sold all their portfolio", user_name);
+
+    println!("{} sold all of one team or all their portfolio", user_name);
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
+}
+
+fn perform_sell_all(team_name: Option<String>, user_name: &str) -> Result<String, Box<dyn Error>> {
+    let conn = establish_connection();
+    let db_lock = load_lock(&conn)?;
+
+    if db_lock.locked {
+        return Ok("Sales are locked, wait for the games to finish!".to_string())
+    }
+
+    let user = load_user(&conn, &user_name)?;
+    let users_portfolio = load_users_portfolio(&conn, &user)?;
+
+    if team_name.is_some() {
+        let team = load_team(&conn, &team_name.unwrap())?;
+        for portfolio in users_portfolio {
+            if portfolio.team_id == team.id {
+                let new_balance = team.elo * portfolio.amount + user.balance;
+                update_user(&conn, &user.name, new_balance)?;
+                user_portfolio_sell(&conn, &user, &team, portfolio.amount)?;
+                return Ok("Sale Made!".to_string())
+            }
+        }
+    } else {
+        let new_balance = calculate_portfolio_value(&conn, &user, &users_portfolio)?;
+        update_user(&conn, &user.name, new_balance)?;
+        for portfolio in users_portfolio {
+            let team = load_team_by_id(&conn, &portfolio.team_id)?;
+            user_portfolio_sell(&conn, &user, &team, portfolio.amount)?;
+            return Ok("Full portfolio sold".to_string())
+        }
+    }
+    Ok("You do not own those shares".to_string())
 }

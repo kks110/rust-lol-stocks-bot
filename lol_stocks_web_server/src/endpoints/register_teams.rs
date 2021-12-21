@@ -19,6 +19,9 @@ fn register(teams: Teams) {
     let conn = establish_connection();
 
     for team in teams.teams {
-        create_team(&conn, &team.name, &team.league);
+        match create_team(&conn, &team.name, &team.league) {
+            Ok(_) => {}
+            Err(_) => println!("Unable to save team: {}", &team.name)
+        };
     }
 }

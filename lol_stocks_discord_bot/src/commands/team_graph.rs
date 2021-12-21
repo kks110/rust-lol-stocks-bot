@@ -6,6 +6,8 @@ use serenity::framework::standard::{
     Args,
 };
 use std::env;
+use std::error::Error;
+use std::result::Result;
 
 use lol_stocks_core::{
     database::{
@@ -21,12 +23,44 @@ use graph_builder::models::{
 };
 
 #[command]
-pub async fn team_graph(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let conn = establish_connection();
-    let team_name = args.single::<String>()?;
+pub async fn team_graph(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+    let response: String;
+    let mut file_location = "".to_string();
 
-    let team = load_team(&conn, &team_name);
-    let mut elo_history = load_team_elo_history(&conn, &team);
+    match parse_args(args) {
+        Ok(team) => {
+            let team_name = team;
+
+
+            match make_team_graph(&team_name) {
+                Ok(location) => {
+                    response = "".to_string();
+                    file_location.push_str(&location)
+                },
+                Err(e) => { response = format!("An error has occurred: {}", e.to_string()) }
+            }
+        },
+        Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
+    }
+
+    msg.channel_id.send_message(&ctx.http, |m| {
+        m.content(response);
+        m.add_file(&file_location[..])
+    }).await?;
+
+    Ok(())
+}
+
+fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
+    Ok(args.single::<String>()?)
+}
+
+
+fn make_team_graph(team_name: &str) ->Result<String, Box<dyn Error>> {
+    let conn = establish_connection();
+
+    let team = load_team(&conn, &team_name)?;
+    let mut elo_history = load_team_elo_history(&conn, &team)?;
     elo_history.reverse();
 
     let mut graph_points: Vec<GraphDataPoint> = Vec::new();
@@ -66,10 +100,5 @@ pub async fn team_graph(ctx: &Context, msg: &Message, mut args: Args) -> Command
     };
 
     graph_builder::build(data);
-
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.add_file(&file_location[..])
-    }).await?;
-
-    Ok(())
+    Ok(file_location)
 }

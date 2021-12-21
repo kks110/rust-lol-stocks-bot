@@ -2,56 +2,56 @@ use diesel::prelude::*;
 use crate::models::team::{Team, NewTeam};
 use crate::database::leagues::load_league;
 use crate::database::leagues::find_or_create_league;
+use std::error::Error;
 
-pub fn load_teams(conn: &PgConnection) -> Vec<Team>  {
+pub fn load_teams(conn: &PgConnection) -> Result<Vec<Team>, Box<dyn Error>>  {
     use crate::schema::teams::dsl::*;
 
-    teams.order(elo.desc()).load::<Team>(conn).expect("Error loading teams")
+    Ok(teams.order(elo.desc()).load::<Team>(conn)?)
 }
 
-pub fn load_teams_by_league(conn: &PgConnection, league_name: &str) -> Vec<Team>  {
+pub fn load_teams_by_league(conn: &PgConnection, league_name: &str) -> Result<Vec<Team>, Box<dyn Error>>  {
     use crate::schema::teams::dsl::*;
 
-    let league = load_league(&conn, league_name);
+    let league = load_league(&conn, league_name)?;
 
-    teams.filter(league_id.eq(&league.id))
+    Ok(teams.filter(league_id.eq(&league.id))
         .order(elo.desc())
-        .load::<Team>(conn)
-        .expect("Error loading teams")
+        .load::<Team>(conn)?
+    )
 }
 
-pub fn load_team(conn: &PgConnection, team_name: &str) -> Team {
+pub fn load_team(conn: &PgConnection, team_name: &str) -> Result<Team, Box<dyn Error>> {
     use crate::schema::teams::dsl::*;
     let uppercase_team_name = team_name.to_uppercase();
 
-    teams.filter(name.eq(&uppercase_team_name))
-        .first(conn)
-        .expect("Error loading team")
+    Ok(teams.filter(name.eq(&uppercase_team_name))
+        .first(conn)?
+    )
 }
 
-pub fn load_team_by_id(conn: &PgConnection, team_id: &i32) -> Team {
+pub fn load_team_by_id(conn: &PgConnection, team_id: &i32) -> Result<Team, Box<dyn Error>> {
     use crate::schema::teams::dsl::*;
 
-    teams.filter(id.eq(team_id))
-        .first(conn)
-        .expect("Error loading team")
+    Ok(teams.filter(id.eq(team_id))
+        .first(conn)?
+    )
 }
 
-pub fn update_team<'a>(conn: &PgConnection, team_name: &str, new_elo: i32) -> Team {
+pub fn update_team<'a>(conn: &PgConnection, team_name: &str, new_elo: i32) -> Result<Team, Box<dyn Error>> {
     use crate::schema::teams::dsl::*;
     let uppercase_team_name = team_name.to_uppercase();
 
-    let team = diesel::update(teams.filter(name.eq(&uppercase_team_name)))
+    Ok(diesel::update(teams.filter(name.eq(&uppercase_team_name)))
         .set(elo.eq(new_elo))
-        .get_result::<Team>(conn)
-        .expect(&format!("Unable to find team {}", team_name));
-    return team;
+        .get_result::<Team>(conn)?
+    )
 }
 
-pub fn create_team<'a>(conn: &PgConnection, name: &'a str, league_name: &'a str) -> Team {
+pub fn create_team<'a>(conn: &PgConnection, name: &'a str, league_name: &'a str) -> Result<Team, Box<dyn Error>> {
     use crate::schema::teams;
 
-    let league = find_or_create_league(&conn, league_name);
+    let league = find_or_create_league(&conn, league_name)?;
 
     let new_team = NewTeam {
         name,
@@ -59,8 +59,8 @@ pub fn create_team<'a>(conn: &PgConnection, name: &'a str, league_name: &'a str)
         league_id: &league.id
     };
 
-    diesel::insert_into(teams::table)
+    Ok(diesel::insert_into(teams::table)
         .values(&new_team)
-        .get_result(conn)
-        .expect("Error saving team")
+        .get_result(conn)?
+    )
 }

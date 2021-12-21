@@ -1,17 +1,18 @@
 use diesel::prelude::*;
 use crate::models::team_elo_history::{TeamEloHistory, NewTeamEloHistory};
 use crate::models::team::Team;
+use std::error::Error;
 
-pub fn load_team_elo_history(conn: &PgConnection, team: &Team) -> Vec<TeamEloHistory> {
+pub fn load_team_elo_history(conn: &PgConnection, team: &Team) -> Result<Vec<TeamEloHistory>, Box<dyn Error>> {
     use crate::schema::team_elo_histories::dsl::*;
 
-    TeamEloHistory::belonging_to(team)
+    Ok(TeamEloHistory::belonging_to(team)
         .order(date.desc())
-        .load::<TeamEloHistory>(conn)
-        .expect("Error loading team elo history")
+        .load::<TeamEloHistory>(conn)?
+    )
 }
 
-pub fn create_team_elo_history<'a>(conn: &PgConnection, elo: &'a i32, team_id: &'a i32) -> TeamEloHistory {
+pub fn create_team_elo_history<'a>(conn: &PgConnection, elo: &'a i32, team_id: &'a i32) -> Result<TeamEloHistory, Box<dyn Error>> {
     use crate::schema::team_elo_histories;
 
     let new_team_elo_history = NewTeamEloHistory {
@@ -19,8 +20,8 @@ pub fn create_team_elo_history<'a>(conn: &PgConnection, elo: &'a i32, team_id: &
         team_id
     };
 
-    diesel::insert_into(team_elo_histories::table)
+    Ok(diesel::insert_into(team_elo_histories::table)
         .values(&new_team_elo_history)
-        .get_result(conn)
-        .expect("Error saving elo history")
+        .get_result(conn)?
+    )
 }

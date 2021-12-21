@@ -5,35 +5,46 @@ use serenity::framework::standard::{
     macros::command,
 };
 
+use std::error::Error;
+use std::result::Result;
+
 use lol_stocks_core::database::{
     connection::establish_connection,
     locks::{lock_database, unlock_database, load_lock},
     users::load_user,
 };
 
-
 #[command]
 pub async fn db_lock(ctx: &Context, msg: &Message) -> CommandResult {
-    let conn = establish_connection();
-    let lock = load_lock(&conn);
-    let user = load_user(&conn, &msg.author.name);
+    let user_name = &msg.author.name;
     let response: String;
+    match turn_key(&user_name) {
+        Ok(message) => { response = message  },
+        Err(e) => { response = format!("An error occurred: {}", e.to_string()); }
+    }
+    msg.channel_id.say(&ctx.http, response).await?;
+    Ok(())
+}
 
+fn turn_key(user_name: &str) -> Result<String, Box<dyn Error>> {
+    let conn = establish_connection();
+    let user = load_user(&conn, user_name)?;
+    let db_lock = load_lock(&conn)?;
     if user.admin {
-        if lock.locked {
+        if db_lock.locked {
             println!("Unlocking database");
-            unlock_database(&conn);
-            response = String::from("Market is open! Happy Shopping")
+            match unlock_database(&conn) {
+                Ok(_) => Ok("Market is open! Happy Shopping".to_string()),
+                Err(e) => Err(e)
+            }
         } else {
             println!("Locking database");
-            lock_database(&conn);
-            response = String::from("Market is closed! Time to watch some games")
+            match lock_database(&conn) {
+                Ok(_) => Ok("Market is closed! Time to watch some games".to_string()),
+                Err(e) => Err(e)
+            }
         }
     } else {
-        response = String::from("Only admins can do this!")
+        Ok("Only admins can do this!".to_string())
     }
-
-    msg.channel_id.say(&ctx.http, response).await?;
-
-    Ok(())
 }

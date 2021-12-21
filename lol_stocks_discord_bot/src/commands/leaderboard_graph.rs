@@ -5,6 +5,8 @@ use serenity::framework::standard::{
     macros::command,
 };
 use std::env;
+use std::error::Error;
+use std::result::Result;
 
 use crate::helpers::user_graph_data::graph_data_for_user;
 
@@ -23,9 +25,37 @@ use graph_builder::models::{
 
 #[command]
 pub async fn leaderboard_graph(ctx: &Context, msg: &Message) -> CommandResult {
+    let response: Option<String>;
+    let file_location: Option<String>;
+
+    match make_leaderboard_graph() {
+        Ok(location) => {
+            file_location = Some(location);
+            response = None;
+        },
+        Err(e) => {
+            response = Some(format!("An error has occurred: {}", e.to_string()));
+            file_location = None;
+        }
+    }
+
+    msg.channel_id.send_message(&ctx.http, |m| {
+        if response.is_some() {
+            m.content(response.unwrap());
+        }
+        if file_location.is_some() {
+            m.add_file(&file_location.as_ref().unwrap()[..]);
+        }
+        m
+    }).await?;
+
+    Ok(())
+}
+
+fn make_leaderboard_graph() -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
 
-    let users = load_users(&conn);
+    let users = load_users(&conn)?;
 
     let mut data_series: Vec<GraphDataSeries> = vec![];
 
@@ -34,7 +64,7 @@ pub async fn leaderboard_graph(ctx: &Context, msg: &Message) -> CommandResult {
     let mut y_length = 0;
 
     for user in users {
-        let graph_points: Vec<GraphDataPoint> = graph_data_for_user(&user);
+        let graph_points: Vec<GraphDataPoint> = graph_data_for_user(&user)?;
         for point in &graph_points {
             if point.y - 50 < y_lowest_value {
                 y_lowest_value = point.y - 50;
@@ -65,10 +95,5 @@ pub async fn leaderboard_graph(ctx: &Context, msg: &Message) -> CommandResult {
     };
 
     graph_builder::build_multi_series(data);
-
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.add_file(&file_location[..])
-    }).await?;
-
-    Ok(())
+    Ok(file_location)
 }

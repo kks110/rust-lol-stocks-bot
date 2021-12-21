@@ -6,6 +6,9 @@ use serenity::framework::standard::{
     Args,
 };
 
+use std::error::Error;
+use std::result::Result;
+
 use lol_stocks_core::database::{
     connection::establish_connection,
     users::load_user,
@@ -22,19 +25,31 @@ struct Holding {
 
 #[command]
 pub async fn view_portfolio(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let conn = establish_connection();
-
     let user_name = match args.single::<String>() {
         Ok(user) => user,
         Err(_) => msg.author.name.clone()
     };
 
-    let user = load_user(&conn, &user_name);
-    let portfolio = load_users_portfolio(&conn, &user);
+    let response: String;
+
+    match make_portfolio_view(&user_name) {
+        Ok(message) => { response = message },
+        Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
+    }
+
+    println!("{} has viewed their portfolio", user_name);
+    msg.channel_id.say(&ctx.http, response).await?;
+    Ok(())
+}
+
+fn make_portfolio_view(user_name: &str) -> Result<String, Box<dyn Error>> {
+    let conn = establish_connection();
+    let user = load_user(&conn, &user_name)?;
+    let portfolio = load_users_portfolio(&conn, &user)?;
 
     let mut holdings: Vec<Holding> = Vec::new();
     for item in portfolio {
-        let team = load_team_by_id(&conn, &item.team_id);
+        let team = load_team_by_id(&conn, &item.team_id)?;
         let value = team.elo * item.amount;
         holdings.push(Holding { team, value, amount: item.amount })
     }
@@ -56,8 +71,5 @@ pub async fn view_portfolio(ctx: &Context, msg: &Message, mut args: Args) -> Com
 
     let total_value = format!("Total Portfolio Value: {}", value);
     response.push_str(&total_value);
-
-    println!("{} has viewed their portfolio", user_name);
-    msg.channel_id.say(&ctx.http, response).await?;
-    Ok(())
+    Ok(response)
 }
