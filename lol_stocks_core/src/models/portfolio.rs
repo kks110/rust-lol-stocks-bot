@@ -12,8 +12,18 @@ pub struct Portfolio {
 
 #[derive(Insertable)]
 #[table_name="portfolios"]
-pub struct NewPortfolio<'a> {
-    pub team_id: &'a i32,
-    pub user_id: &'a i32,
-    pub amount: &'a i32,
+pub struct NewPortfolio {
+    pub team_id: i32,
+    pub user_id: i32,
+    pub amount: i32,
+}
+
+impl NewPortfolio {
+    pub fn new(team_id: i32, user_id: i32, amount: i32) -> NewPortfolio {
+        NewPortfolio {
+            team_id,
+            user_id,
+            amount
+        }
+    }
 }

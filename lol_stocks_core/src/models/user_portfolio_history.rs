@@ -14,7 +14,16 @@ pub struct UserPortfolioHistory {
 
 #[derive(Insertable)]
 #[table_name="user_portfolio_histories"]
-pub struct NewUserPortfolioHistory<'a> {
-    pub value: &'a i32,
-    pub user_id: &'a i32,
+pub struct NewUserPortfolioHistory {
+    pub value: i32,
+    pub user_id: i32,
+}
+
+impl NewUserPortfolioHistory {
+    pub fn new(value: i32, user_id: i32) -> NewUserPortfolioHistory {
+        NewUserPortfolioHistory {
+            value,
+            user_id
+        }
+    }
 }

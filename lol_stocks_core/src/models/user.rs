@@ -10,7 +10,16 @@ pub struct User {
 
 #[derive(Insertable)]
 #[table_name="users"]
-pub struct NewUser<'a> {
-    pub name: &'a str,
-    pub balance: &'a i32,
+pub struct NewUser {
+    pub name: String,
+    pub balance: i32,
+}
+
+impl NewUser {
+    pub fn new(name: &str) -> NewUser {
+        NewUser {
+            name: String::from(name),
+            balance: 500
+        }
+    }
 }

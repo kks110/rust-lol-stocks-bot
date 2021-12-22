@@ -14,7 +14,16 @@ pub struct TeamEloHistory {
 
 #[derive(Insertable)]
 #[table_name="team_elo_histories"]
-pub struct NewTeamEloHistory<'a> {
-    pub elo: &'a i32,
-    pub team_id: &'a i32,
+pub struct NewTeamEloHistory {
+    pub elo: i32,
+    pub team_id: i32,
+}
+
+impl NewTeamEloHistory {
+    pub fn new(elo: i32, team_id: i32) -> NewTeamEloHistory {
+        NewTeamEloHistory {
+            elo,
+            team_id
+        }
+    }
 }

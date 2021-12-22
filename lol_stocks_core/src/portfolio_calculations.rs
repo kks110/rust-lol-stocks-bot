@@ -11,8 +11,7 @@ use std::error::Error;
 use diesel::PgConnection;
 
 pub fn calculate_portfolio_value(conn: &PgConnection, user: &User, portfolio: &[Portfolio]) -> Result<i32, Box<dyn Error>> {
-    let mut value = 0;
-    value += user.balance;
+    let mut value = user.balance;
 
     for holding in portfolio {
         let team = load_team_by_id(conn, &holding.team_id)?;

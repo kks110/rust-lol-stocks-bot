@@ -14,14 +14,10 @@ pub fn load_all_portfolios(conn: &PgConnection) -> Result<Vec<Portfolio>, Box<dy
     Ok(portfolios.load::<Portfolio>(conn)?)
 }
 
-pub fn create_portfolio<'a>(conn: &PgConnection, team_id: &'a i32, user_id: &'a i32, amount: &'a i32) -> Result<Portfolio, Box<dyn Error>> {
+pub fn create_portfolio(conn: &PgConnection, team_id: i32, user_id: i32, amount: i32) -> Result<Portfolio, Box<dyn Error>> {
     use crate::schema::portfolios;
 
-    let new_portfolio = NewPortfolio {
-        team_id,
-        user_id,
-        amount,
-    };
+    let new_portfolio = NewPortfolio::new(team_id, user_id, amount);
 
     Ok(diesel::insert_into(portfolios::table)
         .values(&new_portfolio)
@@ -41,33 +37,26 @@ pub fn user_portfolio_purchase(conn: &PgConnection, purchasing_user: &User, team
              )
         }
     }
-    create_portfolio(conn, &team_purchased.id, &purchasing_user.id, &amount_purchased)
+    create_portfolio(conn, team_purchased.id, purchasing_user.id, amount_purchased)
 }
 
-pub fn user_portfolio_sell(conn: &PgConnection, selling_user: &User, team_being_sold: &Team, amount_sold: i32) -> Result<Portfolio, Box<dyn Error>> {
+pub fn user_portfolio_sell(conn: &PgConnection, selling_user: &User, team_being_sold: &Team, amount_sold: i32) -> Result<(), Box<dyn Error>> {
     use crate::schema::portfolios::dsl::*;
 
     let users_portfolio: Vec<Portfolio> = load_users_portfolio(conn, selling_user)?;
-    let port: Portfolio = Portfolio {
-        id: 0,
-        team_id: 0,
-        user_id: 0,
-        amount: 0
-    };
 
     for portfolio in users_portfolio {
         if portfolio.team_id == team_being_sold.id {
             if portfolio.amount - amount_sold == 0 {
                 delete_portfolio(conn, portfolio.id)?;
             } else {
-                return Ok(diesel::update(portfolios.filter(id.eq(portfolio.id)))
+                diesel::update(portfolios.filter(id.eq(portfolio.id)))
                     .set(amount.eq(portfolio.amount - amount_sold))
-                    .get_result::<Portfolio>(conn)?
-                )
+                    .get_result::<Portfolio>(conn)?;
             }
         }
     }
-    Ok(port)
+    Ok(())
 }
 
 fn delete_portfolio(conn: &PgConnection, portfolio_id: i32) -> Result<(), Box<dyn Error>> {

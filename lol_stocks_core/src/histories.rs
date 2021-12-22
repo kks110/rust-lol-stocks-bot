@@ -22,7 +22,7 @@ fn update_team_history() -> Result<(), Box<dyn Error>> {
     let teams = load_teams(&conn)?;
 
     for team in teams {
-        create_team_elo_history(&conn, &team.elo, &team.id)?;
+        create_team_elo_history(&conn, team.elo, team.id)?;
     }
     Ok(())
 }
@@ -35,7 +35,7 @@ fn update_user_history() -> Result<(), Box<dyn Error>> {
         let portfolio = load_users_portfolio(&conn, &user)?;
         let portfolio_value = calculate_portfolio_value(&conn, &user, &portfolio)?;
 
-        create_user_portfolio_history(&conn, &portfolio_value, &user.id)?;
+        create_user_portfolio_history(&conn, portfolio_value, user.id)?;
     }
     Ok(())
 }

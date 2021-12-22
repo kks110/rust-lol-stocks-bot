@@ -22,13 +22,10 @@ pub fn load_user_portfolio_history(conn: &PgConnection, user: &User, limit: Opti
     }
 }
 
-pub fn create_user_portfolio_history<'a>(conn: &PgConnection, value: &'a i32, user_id: &'a i32) -> Result<UserPortfolioHistory, Box<dyn Error>> {
+pub fn create_user_portfolio_history(conn: &PgConnection, value: i32, user_id: i32) -> Result<UserPortfolioHistory, Box<dyn Error>> {
     use crate::schema::user_portfolio_histories;
 
-    let new_user_portfolio_history = NewUserPortfolioHistory {
-        value,
-        user_id
-    };
+    let new_user_portfolio_history = NewUserPortfolioHistory::new(value, user_id);
 
     Ok(diesel::insert_into(user_portfolio_histories::table)
         .values(&new_user_portfolio_history)

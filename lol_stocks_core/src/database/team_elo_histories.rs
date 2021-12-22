@@ -12,13 +12,10 @@ pub fn load_team_elo_history(conn: &PgConnection, team: &Team) -> Result<Vec<Tea
     )
 }
 
-pub fn create_team_elo_history<'a>(conn: &PgConnection, elo: &'a i32, team_id: &'a i32) -> Result<TeamEloHistory, Box<dyn Error>> {
+pub fn create_team_elo_history(conn: &PgConnection, elo: i32, team_id: i32) -> Result<TeamEloHistory, Box<dyn Error>> {
     use crate::schema::team_elo_histories;
 
-    let new_team_elo_history = NewTeamEloHistory {
-        elo,
-        team_id
-    };
+    let new_team_elo_history = NewTeamEloHistory::new(elo, team_id);
 
     Ok(diesel::insert_into(team_elo_histories::table)
         .values(&new_team_elo_history)

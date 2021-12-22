@@ -18,10 +18,7 @@ pub fn load_user(conn: &PgConnection, user_name: &str) -> Result<User, Box<dyn E
 pub fn create_user(conn: &PgConnection, name: &str) -> Result<User, Box<dyn Error>> {
     use crate::schema::users;
 
-    let new_user = NewUser {
-        name,
-        balance: &5000,
-    };
+    let new_user = NewUser::new(name);
 
     Ok(diesel::insert_into(users::table)
         .values(&new_user)

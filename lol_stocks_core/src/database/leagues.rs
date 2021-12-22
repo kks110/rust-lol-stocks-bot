@@ -20,9 +20,7 @@ pub fn create_league(conn: &PgConnection, name: &str) -> Result<League, Box<dyn 
 
     let uppercase_league_name = name.to_uppercase();
 
-    let new_league = NewLeague {
-        name: &uppercase_league_name,
-    };
+    let new_league = NewLeague::new(&uppercase_league_name);
 
     Ok(diesel::insert_into(leagues::table)
         .values(&new_league)

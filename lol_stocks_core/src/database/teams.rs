@@ -48,16 +48,12 @@ pub fn update_team(conn: &PgConnection, team_name: &str, new_elo: i32) -> Result
     )
 }
 
-pub fn create_team<'a>(conn: &PgConnection, name: &'a str, league_name: &'a str) -> Result<Team, Box<dyn Error>> {
+pub fn create_team(conn: &PgConnection, name: &str, league_name: &str) -> Result<Team, Box<dyn Error>> {
     use crate::schema::teams;
 
     let league = find_or_create_league(conn, league_name)?;
 
-    let new_team = NewTeam {
-        name,
-        elo: &500,
-        league_id: &league.id
-    };
+    let new_team = NewTeam::new(name,league.id);
 
     Ok(diesel::insert_into(teams::table)
         .values(&new_team)
