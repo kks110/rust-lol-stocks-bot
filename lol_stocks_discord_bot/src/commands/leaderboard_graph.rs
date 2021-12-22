@@ -106,6 +106,6 @@ fn make_leaderboard_graph() -> Result<String, Box<dyn Error>> {
     data_series
     );
 
-    graph_builder::build_multi_series(data);
+    graph_builder::build_multi_series(data)?;
     Ok(file_location)
 }

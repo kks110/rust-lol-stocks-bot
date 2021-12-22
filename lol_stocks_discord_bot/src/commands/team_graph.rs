@@ -108,6 +108,6 @@ fn make_team_graph(team_name: &str) ->Result<String, Box<dyn Error>> {
     graph_points
     );
 
-    graph_builder::build(data);
+    graph_builder::build(data)?;
     Ok(file_location)
 }
