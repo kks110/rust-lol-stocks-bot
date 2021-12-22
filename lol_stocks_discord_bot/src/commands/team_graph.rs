@@ -16,7 +16,7 @@ use lol_stocks_core::{
         team_elo_histories::load_team_elo_history,
     }
 };
-
+use chrono::{Datelike, NaiveDate, Utc};
 use graph_builder::models::{
     graph_data::GraphData,
     graph_data_point::GraphDataPoint
@@ -64,12 +64,12 @@ fn make_team_graph(team_name: &str) ->Result<String, Box<dyn Error>> {
     elo_history.reverse();
 
     let mut graph_points: Vec<GraphDataPoint> = Vec::new();
-    let mut week_number = 1;
     for entry in &elo_history {
-        graph_points.push(GraphDataPoint{ x: week_number, y: entry.elo });
-        week_number += 1;
+        graph_points.push(GraphDataPoint::new(entry.date, entry.elo));
     }
-    graph_points.push(GraphDataPoint{ x: week_number, y: team.elo });
+    let todays_date = Utc::now();
+    let todays_date = NaiveDate::from_ymd(todays_date.year(), todays_date.month(), todays_date.day());
+    graph_points.push(GraphDataPoint{ x: todays_date, y: team.elo });
 
     let mut y_lowest_value: i32 = team.elo - 5;
     let mut y_highest_value: i32 = team.elo + 5;
@@ -83,21 +83,30 @@ fn make_team_graph(team_name: &str) ->Result<String, Box<dyn Error>> {
         }
     }
 
+    let mut earliest_date = graph_points.first().unwrap().x;
+    let latest_date =  NaiveDate::from_ymd(Utc::now().year(), Utc::now().month(),Utc::now().day());
+
+    for point in &graph_points {
+        if point.x < earliest_date {
+            earliest_date = point.x
+        }
+    }
+
     let mut file_location = env::var("GRAPH_LOCATION").expect("GRAPH_LOCATION must be set");
     let file_name = format!("/{}s_elo.png", team.name);
     file_location.push_str(&file_name);
 
-    let data = GraphData {
-        file_name: file_location.clone(),
-        graph_name: format!("{}s Elo", team.name),
-        x_lower: 1,
-        x_upper: (elo_history.len() + 1) as i32,
-        x_description: "Week".to_string(),
-        y_lower: y_lowest_value,
-        y_upper: y_highest_value,
-        y_description: "Portfolio Price".to_string(),
-        data: graph_points
-    };
+    let data = GraphData::new(
+        &file_location,
+        &format!("{}s Elo", team.name),
+        earliest_date,
+        latest_date,
+    "Week",
+    y_lowest_value,
+    y_highest_value,
+    "Portfolio Price",
+    graph_points
+    );
 
     graph_builder::build(data);
     Ok(file_location)

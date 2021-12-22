@@ -11,7 +11,7 @@ use lol_stocks_core::{
 use graph_builder::models::{
     graph_data_point::GraphDataPoint
 };
-
+use chrono::{Datelike, NaiveDate, Utc};
 use std::error::Error;
 
 
@@ -25,11 +25,11 @@ pub fn graph_data_for_user(user: &User) -> Result<Vec<GraphDataPoint>, Box<dyn E
     let current_value = calculate_portfolio_value(&conn, user, &portfolio)?;
 
     let mut graph_points: Vec<GraphDataPoint> = Vec::new();
-    let mut week_number = 1;
     for entry in &portfolio_history {
-        graph_points.push(GraphDataPoint{ x: week_number, y: entry.value });
-        week_number += 1;
+        graph_points.push(GraphDataPoint::new(entry.date, entry.value));
     }
-    graph_points.push(GraphDataPoint{ x: week_number, y: current_value });
+    let todays_date = Utc::now();
+    let todays_date = NaiveDate::from_ymd(todays_date.year(), todays_date.month(), todays_date.day());
+    graph_points.push(GraphDataPoint::new(todays_date, current_value));
     Ok(graph_points)
 }

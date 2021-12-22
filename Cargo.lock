@@ -984,8 +984,9 @@ dependencies = [
 
 [[package]]
 name = "graph_builder"
-version = "2.0.0"
+version = "0.3.0"
 dependencies = [
+ "chrono",
  "plotters",
 ]
 
@@ -1293,7 +1294,7 @@ dependencies = [
 
 [[package]]
 name = "lol_stocks_core"
-version = "2.0.0"
+version = "0.2.1"
 dependencies = [
  "chrono",
  "diesel",
@@ -1302,7 +1303,7 @@ dependencies = [
 
 [[package]]
 name = "lol_stocks_discord_bot"
-version = "2.0.0"
+version = "0.2.1"
 dependencies = [
  "chrono",
  "dotenv",
@@ -1317,7 +1318,7 @@ dependencies = [
 
 [[package]]
 name = "lol_stocks_web_server"
-version = "2.0.0"
+version = "0.2.1"
 dependencies = [
  "actix-web",
  "dotenv",

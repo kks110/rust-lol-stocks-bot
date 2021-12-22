@@ -7,6 +7,7 @@ use serenity::framework::standard::{
 use std::env;
 use std::error::Error;
 use std::result::Result;
+use chrono::{Datelike, NaiveDate, Utc};
 use crate::helpers::user_graph_data::graph_data_for_user;
 
 use lol_stocks_core::{
@@ -75,23 +76,35 @@ fn make_leaderboard_graph() -> Result<String, Box<dyn Error>> {
         if graph_points.len() > y_length {
             y_length = graph_points.len();
         }
-        data_series.push(GraphDataSeries{ name: user.name, series: graph_points });
+        data_series.push(GraphDataSeries::new(&user.name, graph_points));
     }
+
+    let mut earliest_date = NaiveDate::from_ymd(Utc::now().year(), Utc::now().month(),Utc::now().day());
+    let latest_date = NaiveDate::from_ymd(Utc::now().year(), Utc::now().month(),Utc::now().day());
+
+    for series in &data_series {
+        for point in &series.series {
+            if point.x < earliest_date {
+                earliest_date = point.x
+            }
+        }
+    }
+
 
     let mut file_location = env::var("GRAPH_LOCATION").expect("GRAPH_LOCATION must be set");
     file_location.push_str("/leaderboard_graph.png");
 
-    let data = GraphDataMultiSeries {
-        file_name: file_location.clone(),
-        graph_name: String::from("Leaderboard"),
-        x_lower: 1,
-        x_upper: y_length as i32,
-        x_description: "Week".to_string(),
-        y_lower: y_lowest_value,
-        y_upper: y_highest_value,
-        y_description: String::from("Portfolio Price"),
-        data: data_series
-    };
+    let data = GraphDataMultiSeries::new(
+    &file_location,
+    "Leaderboard",
+    earliest_date,
+    latest_date,
+    "Week",
+    y_lowest_value,
+    y_highest_value,
+    "Portfolio Price",
+    data_series
+    );
 
     graph_builder::build_multi_series(data);
     Ok(file_location)

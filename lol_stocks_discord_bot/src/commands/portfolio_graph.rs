@@ -7,6 +7,7 @@ use serenity::framework::standard::{
 use std::env;
 use std::error::Error;
 use std::result::Result;
+use chrono::{Datelike, NaiveDate, Utc};
 
 use crate::helpers::user_graph_data::graph_data_for_user;
 
@@ -68,21 +69,30 @@ fn make_portfolio_graph(user_name: &str) -> Result<String, Box<dyn Error>> {
         }
     }
 
+    let mut earliest_date = graph_points.first().unwrap().x;
+    let latest_date =  NaiveDate::from_ymd(Utc::now().year(), Utc::now().month(),Utc::now().day());
+
+    for point in &graph_points {
+        if point.x < earliest_date {
+            earliest_date = point.x
+        }
+    }
+
     let mut file_location = env::var("GRAPH_LOCATION").expect("GRAPH_LOCATION must be set");
     let file_name = format!("/{}s_portfolio.png", user.name);
     file_location.push_str(&file_name);
 
-    let data = GraphData {
-        file_name: file_location.clone(),
-        graph_name: format!("{}s Portfolio", user.name),
-        x_lower: 1,
-        x_upper: (graph_points.len()) as i32,
-        x_description: "Week".to_string(),
-        y_lower: y_lowest_value,
-        y_upper: y_highest_value,
-        y_description: "Portfolio Price".to_string(),
-        data: graph_points
-    };
+    let data = GraphData::new(
+        &file_location,
+        &format!("{}s Portfolio", user.name),
+        earliest_date,
+        latest_date,
+    "Week",
+    y_lowest_value,
+    y_highest_value,
+    "Portfolio Price",
+    graph_points
+    );
 
     graph_builder::build(data);
     Ok(file_location)

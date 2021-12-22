@@ -1,11 +1,12 @@
 pub mod models;
 
+use chrono::NaiveDate;
 use plotters::prelude::*;
 use models::graph_data::GraphData;
 use models::graph_data_multi_series::GraphDataMultiSeries;
 
 pub fn build(graph_data: GraphData) {
-    let drawing_area = BitMapBackend::new(&graph_data.file_name, (600, 400))
+    let drawing_area = BitMapBackend::new(&graph_data.file_name, (1200, 800))
         .into_drawing_area();
 
     drawing_area.fill(&WHITE).unwrap();
@@ -25,7 +26,7 @@ pub fn build(graph_data: GraphData) {
         .draw()
         .unwrap();
 
-    let mut data_vec: Vec<(i32, i32)> = vec![];
+    let mut data_vec: Vec<(NaiveDate, i32)> = vec![];
     for point in graph_data.data {
         data_vec.push((point.x, point.y))
     }
@@ -37,7 +38,7 @@ pub fn build(graph_data: GraphData) {
 
 
 pub fn build_multi_series(graph_data: GraphDataMultiSeries) {
-    let drawing_area = BitMapBackend::new(&graph_data.file_name, (600, 400))
+    let drawing_area = BitMapBackend::new(&graph_data.file_name, (1200, 800))
         .into_drawing_area();
 
     drawing_area.fill(&WHITE).unwrap();
@@ -59,7 +60,7 @@ pub fn build_multi_series(graph_data: GraphDataMultiSeries) {
 
     for (idx, data_set) in (0..).zip(graph_data.data) {
 
-        let mut data: Vec<(i32, i32)> = vec![];
+        let mut data: Vec<(NaiveDate, i32)> = vec![];
         for series in data_set.series {
             data.push((series.x, series.y))
         }
