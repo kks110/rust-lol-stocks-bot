@@ -19,7 +19,7 @@ impl NewUser {
     pub fn new(name: &str) -> NewUser {
         NewUser {
             name: String::from(name),
-            balance: 500
+            balance: 5000
         }
     }
 }
