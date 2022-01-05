@@ -43,10 +43,12 @@ struct Handler;
 #[async_trait]
 impl EventHandler for Handler {
     async fn ready(&self, _: Context, ready: Ready) {
+        let _ = &__arg1;
         info!("Connected as {}", ready.user.name);
     }
 
     async fn resume(&self, _: Context, _: ResumedEvent) {
+        let _ = &__arg1;
         info!("Resumed");
     }
 }
