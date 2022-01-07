@@ -49,3 +49,12 @@ pub fn update_user(conn: &PgConnection, user_name: &str, new_balance: i32) -> Re
         .get_result::<User>(conn)?
     )
 }
+
+pub fn make_user_admin(conn: &PgConnection, user_name: &str) -> Result<User, Box<dyn Error>> {
+    use crate::schema::users::dsl::*;
+
+    Ok(diesel::update(users.filter(name.eq(user_name)))
+        .set(admin.eq(true))
+        .get_result::<User>(conn)?
+    )
+}

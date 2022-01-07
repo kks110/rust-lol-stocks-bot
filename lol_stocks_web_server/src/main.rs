@@ -12,6 +12,7 @@ use endpoints::{
     register_teams::register_teams,
     teams::teams,
     take_team_snapshot::take_snapshot,
+    make_admin::make_admin,
 };
 
 #[actix_web::main]
@@ -24,12 +25,14 @@ async fn main() -> std::io::Result<()> {
     println!("Webserver Running on 0.0.0.0:8080");
     HttpServer::new(|| {
         App::new()
+            .service(make_admin)
             .service(register_game)
             .service(register_games)
             .service(register_teams)
             .service(padlock)
             .service(teams)
             .service(take_snapshot)
+
     })
         .bind("127.0.0.1:8181")?
         .bind("0.0.0.0:8080")?
