@@ -11,14 +11,14 @@ use std::result::Result;
 use lol_stocks_core::database::{
     connection::establish_connection,
     locks::{lock_database, unlock_database, load_lock},
-    users::load_user,
+    users::load_user_by_discord_id,
 };
 
 #[command]
 pub async fn db_lock(ctx: &Context, msg: &Message) -> CommandResult {
-    let user_name = &msg.author.name;
+    let user_discord_id = msg.author.id.as_u64();
     let response: String;
-    match turn_key(user_name) {
+    match turn_key(user_discord_id) {
         Ok(message) => { response = message  },
         Err(e) => { response = format!("An error occurred: {}", e.to_string()); }
     }
@@ -26,9 +26,9 @@ pub async fn db_lock(ctx: &Context, msg: &Message) -> CommandResult {
     Ok(())
 }
 
-fn turn_key(user_name: &str) -> Result<String, Box<dyn Error>> {
+fn turn_key(user_discord_id: &u64) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
-    let user = load_user(&conn, user_name)?;
+    let user = load_user_by_discord_id(&conn, user_discord_id)?;
     let db_lock = load_lock(&conn)?;
     if user.admin {
         if db_lock.locked {

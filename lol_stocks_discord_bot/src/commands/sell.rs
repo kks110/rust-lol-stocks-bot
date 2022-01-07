@@ -11,11 +11,12 @@ use std::result::Result;
 
 use lol_stocks_core::database::{
     connection::establish_connection,
-    users::{load_user, update_user},
+    users::{load_user_by_discord_id, update_user},
     teams::load_team,
     portfolios::{load_users_portfolio, user_portfolio_sell},
     locks::load_lock,
 };
+
 use lol_stocks_core::models::{
     team::Team,
     user::User
@@ -28,17 +29,15 @@ pub async fn sell(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     match parse_args(args) {
         Ok(team_and_amount) => {
             let (team_name, amount) = team_and_amount;
-            let user_name = msg.author.name.clone();
+            let user_discord_id = msg.author.id.as_u64();
 
 
-            match sell_shares(amount, &team_name, &user_name) {
+            match sell_shares(amount, &team_name, user_discord_id) {
                 Ok(message) => {
-                    println!("{} and purchased {} shares in {}", user_name, amount, team_name);
                     response = message
                 },
                 Err(e) => {
                     response = format!("An error as occurred {}", e.to_string());
-                    println!("{}", response);
                 }
             }
         },
@@ -53,7 +52,7 @@ fn parse_args(mut args: Args) -> Result<(String, i32), Box<dyn Error>> {
     Ok((args.single::<String>()?, args.single::<i32>()?))
 }
 
-fn sell_shares(amount: i32, team_name: &str, user_name: &str) -> Result<String, Box<dyn Error>> {
+fn sell_shares(amount: i32, team_name: &str, user_discord_id: &u64) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
 
     let db_lock = load_lock(&conn)?;
@@ -67,7 +66,7 @@ fn sell_shares(amount: i32, team_name: &str, user_name: &str) -> Result<String, 
     }
 
     let team = load_team(&conn, team_name)?;
-    let user = load_user(&conn, user_name)?;
+    let user = load_user_by_discord_id(&conn, user_discord_id)?;
     let users_portfolio = load_users_portfolio(&conn, &user)?;
 
     let new_balance = team.elo * amount + user.balance;

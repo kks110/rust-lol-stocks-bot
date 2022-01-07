@@ -13,20 +13,20 @@ use lol_stocks_core::database::{
     connection::establish_connection,
     portfolios::user_portfolio_purchase,
     locks::load_lock,
-    users::{load_user, update_user},
+    users::{load_user_by_discord_id, update_user},
     teams::load_team,
 };
 
 #[command]
 pub async fn buy_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-    let user_name = msg.author.name.clone();
+    let user_discord_id = msg.author.id.as_u64();
 
     let response: String;
 
     match parse_args(args) {
         Ok(t) => {
             let team_name = t;
-            match perform_buy_all(&team_name, &user_name) {
+            match perform_buy_all(&team_name, user_discord_id) {
                 Ok(message) => { response = message },
                 Err(e) => { response = format!("An error has occurred: {}", e)}
             }
@@ -42,7 +42,7 @@ fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
     Ok(args.single::<String>()?)
 }
 
-fn perform_buy_all(team_name: &str, user_name: &str) -> Result<String, Box<dyn Error>> {
+fn perform_buy_all(team_name: &str, user_discord_id: &u64) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
     let db_lock = load_lock(&conn)?;
 
@@ -51,7 +51,7 @@ fn perform_buy_all(team_name: &str, user_name: &str) -> Result<String, Box<dyn E
     }
 
     let team = load_team(&conn, team_name)?;
-    let user = load_user(&conn, user_name)?;
+    let user = load_user_by_discord_id(&conn, user_discord_id)?;
 
     let amount = user.balance / team.elo;
     if amount == 0 {

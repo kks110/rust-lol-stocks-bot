@@ -11,7 +11,7 @@ use std::result::Result;
 
 use lol_stocks_core::database::{
     connection::establish_connection,
-    users::{load_user, update_user},
+    users::{load_user_by_discord_id, update_user},
     teams::{load_team_by_id, load_team},
     portfolios::{load_users_portfolio, user_portfolio_sell},
     locks::load_lock,
@@ -20,7 +20,7 @@ use lol_stocks_core::portfolio_calculations::calculate_portfolio_value;
 
 #[command]
 pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let user_name = msg.author.name.clone();
+    let user_discord_id = msg.author.id.as_u64();
     let team_name: Option<String>;
 
     match args.single::<String>() {
@@ -30,17 +30,16 @@ pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandRe
 
     let response: String;
 
-    match perform_sell_all(team_name, &user_name) {
+    match perform_sell_all(team_name, user_discord_id) {
         Ok(message) => { response = message },
         Err(e) => { response = format!("An error has occurred: {}", e) }
     }
 
-    println!("{} sold all of one team or all their portfolio", user_name);
     msg.channel_id.say(&ctx.http, response).await?;
     Ok(())
 }
 
-fn perform_sell_all(team_name: Option<String>, user_name: &str) -> Result<String, Box<dyn Error>> {
+fn perform_sell_all(team_name: Option<String>, user_discord_id: &u64) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
     let db_lock = load_lock(&conn)?;
 
@@ -48,7 +47,7 @@ fn perform_sell_all(team_name: Option<String>, user_name: &str) -> Result<String
         return Ok("Sales are locked, wait for the games to finish!".to_string())
     }
 
-    let user = load_user(&conn, user_name)?;
+    let user = load_user_by_discord_id(&conn, user_discord_id)?;
     let users_portfolio = load_users_portfolio(&conn, &user)?;
 
     if team_name.is_some() {
