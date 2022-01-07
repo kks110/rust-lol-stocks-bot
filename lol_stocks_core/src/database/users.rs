@@ -1,6 +1,8 @@
 use diesel::prelude::*;
 use crate::models::user::{User, NewUser};
 use std::error::Error;
+use bigdecimal::{BigDecimal, FromPrimitive};
+use crate::errors::DiscordIdConversionError;
 
 pub fn load_users(conn: &PgConnection) -> Result<Vec<User>, Box<dyn Error>>  {
     use crate::schema::users::dsl::*;
@@ -15,10 +17,13 @@ pub fn load_user(conn: &PgConnection, user_name: &str) -> Result<User, Box<dyn E
         .first(conn)?)
 }
 
-pub fn create_user(conn: &PgConnection, name: &str) -> Result<User, Box<dyn Error>> {
+pub fn create_user(conn: &PgConnection, name: &str, discord_id: u64) -> Result<User, Box<dyn Error>> {
     use crate::schema::users;
 
-    let new_user = NewUser::new(name);
+    let numeric_discord_id = BigDecimal::from_u64(discord_id)
+        .ok_or(DiscordIdConversionError::new())?;
+
+    let new_user = NewUser::new(name, numeric_discord_id);
 
     Ok(diesel::insert_into(users::table)
         .values(&new_user)

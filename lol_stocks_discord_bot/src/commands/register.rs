@@ -19,7 +19,7 @@ use lol_stocks_core::models::user::User;
 pub async fn register(ctx: &Context, msg: &Message) -> CommandResult {
     let response: String;
 
-    match create_new_user(&msg.author.name) {
+    match create_new_user(&msg.author.name, msg.author.id.0) {
         Ok(user) => {
             println!("{} has registered", user.name);
             response = format!("Updated user {}. Starting Balance is {}", user.name, user.balance);
@@ -33,7 +33,7 @@ pub async fn register(ctx: &Context, msg: &Message) -> CommandResult {
     Ok(())
 }
 
-fn create_new_user(username: &str) -> Result<User, Box<dyn Error>> {
+fn create_new_user(username: &str, discord_id: u64) -> Result<User, Box<dyn Error>> {
     let conn = establish_connection();
-    create_user(&conn, username)
+    create_user(&conn, username, discord_id)
 }

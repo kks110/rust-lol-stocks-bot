@@ -1,4 +1,5 @@
 use crate::schema::users;
+use bigdecimal::BigDecimal;
 
 #[derive(Identifiable, Queryable)]
 pub struct User {
@@ -6,6 +7,7 @@ pub struct User {
     pub name: String,
     pub balance: i32,
     pub admin: bool,
+    pub discord_id: BigDecimal,
 }
 
 #[derive(Insertable)]
@@ -13,13 +15,15 @@ pub struct User {
 pub struct NewUser {
     pub name: String,
     pub balance: i32,
+    pub discord_id: BigDecimal,
 }
 
 impl NewUser {
-    pub fn new(name: &str) -> NewUser {
+    pub fn new(name: &str, discord_id: BigDecimal) -> NewUser {
         NewUser {
             name: String::from(name),
-            balance: 5000
+            balance: 5000,
+            discord_id
         }
     }
 }
