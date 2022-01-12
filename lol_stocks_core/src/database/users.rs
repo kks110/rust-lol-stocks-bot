@@ -21,7 +21,7 @@ pub fn load_user_by_discord_id(conn: &PgConnection, discord_id_number: &u64) -> 
     use crate::schema::users::dsl::*;
 
     let numeric_discord_id = BigDecimal::from_u64(*discord_id_number)
-        .ok_or(DiscordIdConversionError::new())?;
+        .ok_or_else(|| { DiscordIdConversionError::new() })?;
 
     Ok(users.filter(discord_id.eq(numeric_discord_id))
         .first(conn)?)
@@ -31,7 +31,7 @@ pub fn create_user(conn: &PgConnection, name: &str, discord_id: &u64) -> Result<
     use crate::schema::users;
 
     let numeric_discord_id = BigDecimal::from_u64(*discord_id)
-        .ok_or(DiscordIdConversionError::new())?;
+        .ok_or_else(|| { DiscordIdConversionError::new() })?;
 
     let new_user = NewUser::new(name, numeric_discord_id);
 

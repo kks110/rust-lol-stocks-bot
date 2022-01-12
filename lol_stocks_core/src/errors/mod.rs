@@ -14,6 +14,12 @@ impl DiscordIdConversionError {
     }
 }
 
+impl Default for DiscordIdConversionError {
+    fn default() -> Self {
+        DiscordIdConversionError::new()
+    }
+}
+
 impl fmt::Display for DiscordIdConversionError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f,"{}",self.details)
@@ -25,3 +31,5 @@ impl Error for DiscordIdConversionError {
         &self.details
     }
 }
+
+

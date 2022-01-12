@@ -13,7 +13,7 @@ pub async fn make_admin(req: HttpRequest, user: web::Json<User>) -> impl Respond
     let conn = establish_connection();
 
     let key = retrieve_key_from_header(&req);
-    let web_auth_key = env::var("WEB_AUTH_KEY").unwrap_or("".to_string());
+    let web_auth_key = env::var("WEB_AUTH_KEY").unwrap_or_else(|_| "".to_string());
 
     if key == web_auth_key {
         match make_user_admin(&conn, &user.user_name) {
