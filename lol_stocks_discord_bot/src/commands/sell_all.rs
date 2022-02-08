@@ -17,6 +17,7 @@ use lol_stocks_core::database::{
     locks::load_lock,
 };
 use lol_stocks_core::portfolio_calculations::calculate_portfolio_value;
+use crate::helpers::portfolio_view;
 
 #[command]
 pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -28,11 +29,18 @@ pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandRe
         Err(_) => team_name = None
     }
 
-    let response: String;
+    let mut response: String;
 
     match perform_sell_all(team_name, user_discord_id) {
         Ok(message) => { response = message },
         Err(e) => { response = format!("An error has occurred: {}", e) }
+    }
+
+    let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
+
+    match portfolio_view::make_portfolio_view(user) {
+        Ok(message) => { response.push_str(&format!("\n\n{}", message)) },
+        Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
     }
 
     msg.channel_id.say(&ctx.http, response).await?;

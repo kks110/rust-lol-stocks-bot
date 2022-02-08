@@ -21,16 +21,16 @@ use lol_stocks_core::models::{
     team::Team,
     user::User
 };
+use crate::helpers::portfolio_view;
 
 #[command]
 pub async fn sell(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-    let response: String;
+    let mut response: String;
+    let user_discord_id = msg.author.id.as_u64();
 
     match parse_args(args) {
         Ok(team_and_amount) => {
             let (team_name, amount) = team_and_amount;
-            let user_discord_id = msg.author.id.as_u64();
-
 
             match sell_shares(amount, &team_name, user_discord_id) {
                 Ok(message) => {
@@ -42,6 +42,13 @@ pub async fn sell(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
             }
         },
         Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
+    }
+
+    let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
+
+    match portfolio_view::make_portfolio_view(user) {
+        Ok(message) => { response.push_str(&format!("\n\n{}", message)) },
+        Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
     }
 
     msg.channel_id.say(&ctx.http, response).await?;

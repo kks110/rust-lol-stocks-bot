@@ -16,12 +16,13 @@ use lol_stocks_core::database::{
     users::{load_user_by_discord_id, update_user},
     teams::load_team,
 };
+use crate::helpers::portfolio_view;
 
 #[command]
 pub async fn buy_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let user_discord_id = msg.author.id.as_u64();
 
-    let response: String;
+    let mut response: String;
 
     match parse_args(args) {
         Ok(t) => {
@@ -32,6 +33,13 @@ pub async fn buy_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
             }
         },
         Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
+    }
+
+    let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
+
+    match portfolio_view::make_portfolio_view(user) {
+        Ok(message) => { response.push_str(&format!("\n\n{}", message)) },
+        Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
     }
 
     msg.channel_id.say(&ctx.http, response).await?;
