@@ -14,7 +14,7 @@ Shows the market price of all the teams with no args sent. Otherwise, will just 
 
 ##### buy
 ```
-!!buy <team> <amount to buy>
+!!buy <amount to buy> <team>
 ```
 Buys 'Shares' in a team and add to your portfolio.
 
@@ -26,7 +26,7 @@ Buys as many 'Shares' in a team as you can afford.
 
 ##### sell
 ```
-!!sell <team> <amount to buy>
+!!sell <amount to sell> <team>
 ```
 Sells 'Shares' in a team, removes from your portfolio and add to your balance.
 

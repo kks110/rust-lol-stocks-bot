@@ -28,8 +28,8 @@ pub async fn buy(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let user_discord_id = msg.author.id.as_u64();
 
     match parse_args(args) {
-        Ok(team_and_amount) => {
-            let (team_name, amount) = team_and_amount;
+        Ok(amount_and_team) => {
+            let (amount, team_name) = amount_and_team;
 
             match buy_shares(amount, &team_name, user_discord_id) {
                 Ok(message) => {
@@ -56,8 +56,8 @@ pub async fn buy(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     Ok(())
 }
 
-fn parse_args(mut args: Args) -> Result<(String, i32), Box<dyn Error>> {
-    Ok((args.single::<String>()?, args.single::<i32>()?))
+fn parse_args(mut args: Args) -> Result<(i32, String), Box<dyn Error>> {
+    Ok((args.single::<i32>()?, args.single::<String>()?))
 }
 
 fn buy_shares(amount: i32, team_name: &str, user_discord_id: &u64) -> Result<String, Box<dyn Error>> {
