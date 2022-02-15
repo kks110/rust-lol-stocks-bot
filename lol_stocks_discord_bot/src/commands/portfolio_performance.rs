@@ -3,6 +3,7 @@ use serenity::model::prelude::*;
 use serenity::framework::standard::{
     CommandResult,
     macros::command,
+    Args,
 };
 
 use chrono::{
@@ -32,13 +33,16 @@ struct HistoryData {
 }
 
 #[command]
-pub async fn portfolio_performance(ctx: &Context, msg: &Message) -> CommandResult {
-    let user_name = msg.author.name.clone();
+pub async fn portfolio_performance(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    let user_name = match args.single::<String>() {
+        Ok(user) => user,
+        Err(_) => msg.author.name.clone()
+    };
 
-    let response: String;
+    let mut response: String = format!("{}'s portfolio history:\n", &user_name);
 
     match make_portfolio_performance(&user_name) {
-        Ok(message) => { response = message},
+        Ok(message) => { response.push_str(&message)},
         Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
     }
 

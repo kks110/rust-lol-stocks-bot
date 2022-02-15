@@ -62,9 +62,15 @@ Generated a graph based on elo and history of a team.
 
 ##### portfolio_performance
 ```
-!!portfolio_performance
+!!portfolio_performance <user?>
 ```
-Shows your portfolios historic values.
+Shows users portfolios historic values, yours by default.
+
+##### portfolio_graph
+```
+!!portfolio_graph <user?>
+```
+Generated a graph based on users portfolio value and history, yours by default.
 
 ##### leaderboard
 ```

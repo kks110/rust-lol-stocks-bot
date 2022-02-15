@@ -21,8 +21,8 @@ All teams names are their abbreviations and in capitals.
 `!!view_portfolio <user?>` > Shows a users portfolio and how much its worth. If no user is specified it will show your own.
 `!!elo_history_for <team>` > Shows the historic prices of the team.
 `!!team_graph <team>` > Generated a graph based on elo and history of a team.
-`!!portfolio_performance` > Shows your portfolios historic values.
-`!!portfolio_graph` > Generated a graph based on portfolio value and history.
+`!!portfolio_performance <user?>` > Shows users portfolios historic values, yours by default.
+`!!portfolio_graph <user?>` > Generated a graph based on users portfolio value and history, yours by default.
 `!!leaderboard` > Shows all users and their portfolio values.
 `!!leaderboard_graph` > Generated a graph based on all users portfolio value and history.
 `!!market_cap` > Show how many of what shares are owned.

@@ -3,6 +3,7 @@ use serenity::model::prelude::*;
 use serenity::framework::standard::{
     CommandResult,
     macros::command,
+    Args,
 };
 use std::env;
 use std::error::Error;
@@ -26,8 +27,11 @@ use graph_builder::models::{
 };
 
 #[command]
-pub async fn portfolio_graph(ctx: &Context, msg: &Message) -> CommandResult {
-    let user_name = msg.author.name.clone();
+pub async fn portfolio_graph(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    let user_name = match args.single::<String>() {
+        Ok(user) => user,
+        Err(_) => msg.author.name.clone()
+    };
 
     let response: String;
     let mut file_location = "".to_string();
