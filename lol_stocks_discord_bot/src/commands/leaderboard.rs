@@ -25,17 +25,17 @@ struct LeaderboardEntry {
 #[command]
 pub async fn leaderboard(ctx: &Context, msg: &Message) -> CommandResult {
     let mut entries: Vec<LeaderboardEntry> = vec![];
-    let mut error: Option<String> = None;
+    let mut error_occurred: Option<String> = None;
 
     match load_leaderboard() {
         Ok(message) => { entries = message },
-        Err(e) => { error = Some(e.to_string()) }
+        Err(e) => { error_occurred = Some(e.to_string()) }
     }
 
-    if error.is_some() {
+    if error_occurred.is_some() {
         msg.channel_id.say(
             &ctx.http,
-            format!("An Error as occurred: {}", error.unwrap().to_string())
+            format!("An Error as occurred: {}", error_occurred.unwrap().to_string())
         ).await?;
         return Ok(())
     }
