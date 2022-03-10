@@ -24,18 +24,37 @@ struct LeaderboardEntry {
 
 #[command]
 pub async fn leaderboard(ctx: &Context, msg: &Message) -> CommandResult {
-    let response: String;
+    let mut entries: Vec<LeaderboardEntry> = vec![];
+    let mut error: Option<String> = None;
 
     match load_leaderboard() {
-        Ok(message) => { response = message },
-        Err(e) => { response = format!("An Error as occurred: {}", e.to_string()) }
+        Ok(message) => { entries = message },
+        Err(e) => { error = Some(e.to_string()) }
     }
 
-    msg.channel_id.say(&ctx.http, response).await?;
+    if error.is_some() {
+        msg.channel_id.say(
+            &ctx.http,
+            format!("An Error as occurred: {}", error.unwrap().to_string())
+        ).await?;
+        return Ok(())
+    }
+
+    msg.channel_id.send_message(&ctx.http, |m| {
+        m.embed(|e| {
+            let mut response = vec![];
+            for (index, player) in entries.iter().enumerate() {
+                response.push((format!("{}. {}: ", index + 1, player.user_name), format!("{}", player.value), false))
+            };
+            e
+                .title("Leaderboard:".to_string())
+                .fields(response)
+        })
+    }).await?;
     Ok(())
 }
 
-fn load_leaderboard() -> Result<String, Box<dyn Error>> {
+fn load_leaderboard() -> Result<Vec<LeaderboardEntry>, Box<dyn Error>> {
     let conn = establish_connection();
 
     let users = load_users(&conn)?;
@@ -52,10 +71,5 @@ fn load_leaderboard() -> Result<String, Box<dyn Error>> {
 
     leaderboard_entries.sort_by(|a, b| b.value.cmp(&a.value));
 
-    let mut message = String::from("Leaderboard:\n");
-    for entry in leaderboard_entries {
-        let entry_string = format!("{}: {}\n", entry.user_name, entry.value);
-        message.push_str(&entry_string);
-    }
-    Ok(message)
+    Ok(leaderboard_entries)
 }
