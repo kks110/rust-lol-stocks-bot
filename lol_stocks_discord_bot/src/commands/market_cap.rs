@@ -16,54 +16,106 @@ use lol_stocks_core::database::{
     teams::load_team_by_id,
 
 };
+use lol_stocks_core::database::users::load_user_by_id;
+use lol_stocks_core::models::portfolio::Portfolio;
 
-struct MarketCapEntry {
-    pub team_name: String,
+struct OwnerEntry {
+    pub name: String,
     pub amount: i32,
     pub value: i32
 }
 
+struct MarketCapEntry {
+    pub team_name: String,
+    pub amount: i32,
+    pub value: i32,
+    pub owners: Vec<OwnerEntry>
+}
+
 #[command]
 pub async fn market_cap(ctx: &Context, msg: &Message) -> CommandResult {
-    let response: String;
+    let mut entries: Vec<MarketCapEntry>  = vec![];
+    let mut error_occurred: Option<String> = None;
 
     match load_market_cap() {
-        Ok(message) => { response = message},
-        Err(e) => { response = format!("An Error Occurred: {}", e)}
+        Ok(message) => { entries = message},
+        Err(e) => { error_occurred = Some(e.to_string())}
     }
 
-    msg.channel_id.say(&ctx.http, response).await?;
+    if error_occurred.is_some() {
+        msg.channel_id.say(
+            &ctx.http,
+            format!("An Error as occurred: {}", error_occurred.unwrap().to_string())
+        ).await?;
+        return Ok(())
+    }
+
+    msg.channel_id.send_message(&ctx.http, |m| {
+        m.embed(|e| {
+            let mut response = vec![];
+
+
+            for entry in entries {
+                let title = entry.team_name;
+                let mut body: String = "".to_string();
+                body.push_str(&format!("**All.** {} ({})\n", entry.amount, entry.value));
+
+                for owner in entry.owners {
+                    body.push_str(&format!("**{}.** {} ({})\n", owner.name, owner.amount, owner.value));
+                }
+
+                response.push((title, body, false))
+            };
+            e
+                .colour(0xff0000)
+                .title("Market Cap:".to_string())
+                .fields(response)
+        })
+    }).await?;
     Ok(())
 }
 
-fn load_market_cap() -> Result<String, Box<dyn Error>> {
+fn load_market_cap() -> Result<Vec<MarketCapEntry>, Box<dyn Error>> {
     let conn = establish_connection();
 
     let portfolios = load_all_portfolios(&conn)?;
 
-    let mut amount_count: HashMap<i32, i32> = HashMap::new();
+    let mut teams_and_owners: HashMap<i32, Vec<Portfolio>> = HashMap::new();
 
     for portfolio in portfolios {
-        *amount_count.entry(portfolio.team_id).or_insert(0) += portfolio.amount;
+        teams_and_owners.entry(portfolio.team_id).or_insert(vec![]).push(portfolio);
     }
 
     let mut market_cap_entries: Vec<MarketCapEntry> = Vec::new();
 
-    for (team_id, amount) in amount_count {
+    for (team_id, owners) in teams_and_owners {
         let team = load_team_by_id(&conn, &team_id)?;
 
-        market_cap_entries.push(MarketCapEntry{
-            team_name: team.name.to_owned(),
-            amount,
-            value: amount * team.elo
-        })
+        let mut mc_entry = MarketCapEntry{
+            team_name: team.name.to_string(),
+            amount: 0,
+            value: 0,
+            owners: vec![]
+        };
+
+        for owner in owners {
+            let player = load_user_by_id(&conn, &owner.user_id)?;
+            let o = OwnerEntry {
+                name: player.name.to_string(),
+                amount: owner.amount,
+                value: owner.amount * team.elo
+            };
+            mc_entry.amount += o.amount;
+            mc_entry.value += o.value;
+            mc_entry.owners.push(o);
+        }
+
+        mc_entry.owners.sort_by(|a, b| b.value.cmp(&a.value));
+
+        market_cap_entries.push(mc_entry)
     }
 
     market_cap_entries.sort_by(|a, b| b.value.cmp(&a.value));
 
-    let mut response: String = String::from("");
-    for entry in market_cap_entries {
-        response.push_str(&format!("{}: {} ({})\n", entry.team_name, entry.amount, entry.value));
-    }
-    Ok(response)
+    Ok(market_cap_entries)
 }
