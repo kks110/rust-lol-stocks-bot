@@ -58,11 +58,12 @@ pub async fn market_cap(ctx: &Context, msg: &Message) -> CommandResult {
             for entry in entries {
                 let title = entry.team_name;
                 let mut body: String = "".to_string();
-                body.push_str(&format!("**All.** {} ({})\n", entry.amount, entry.value));
-
+                body.push_str(&format!("**All:** {} ({})\n", entry.amount, entry.value));
+                body.push_str("──────────\n");
                 for owner in entry.owners {
-                    body.push_str(&format!("**{}.** {} ({})\n", owner.name, owner.amount, owner.value));
+                    body.push_str(&format!("**{}:** {} ({})\n", owner.name, owner.amount, owner.value));
                 }
+                body.push_str("──────────\n");
 
                 response.push((title, body, false))
             };
