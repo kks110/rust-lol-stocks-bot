@@ -17,6 +17,14 @@ pub fn load_user(conn: &PgConnection, user_name: &str) -> Result<User, Box<dyn E
         .first(conn)?)
 }
 
+pub fn load_user_by_id(conn: &PgConnection, user_id: &i32) -> Result<User, Box<dyn Error>> {
+    use crate::schema::users::dsl::*;
+
+    Ok(users.filter(id.eq(user_id))
+        .first(conn)?)
+}
+
+
 pub fn load_user_by_discord_id(conn: &PgConnection, discord_id_number: &u64) -> Result<User, Box<dyn Error>> {
     use crate::schema::users::dsl::*;
 
