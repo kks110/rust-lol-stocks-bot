@@ -39,18 +39,37 @@ pub async fn portfolio_performance(ctx: &Context, msg: &Message, mut args: Args)
         Err(_) => msg.author.name.clone()
     };
 
-    let mut response: String = format!("{}'s portfolio history:\n", &user_name);
+    let mut entries: Vec<HistoryData> = vec![];
+    let mut error_occurred: Option<String> = None;
 
     match make_portfolio_performance(&user_name) {
-        Ok(message) => { response.push_str(&message)},
-        Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
+        Ok(message) => { entries = message },
+        Err(e) => { error_occurred = Some(e.to_string()) }
     }
 
-    msg.channel_id.say(&ctx.http, response).await?;
+    if error_occurred.is_some() {
+        msg.channel_id.say(
+            &ctx.http,
+            format!("An Error as occurred: {}", error_occurred.unwrap().to_string())
+        ).await?;
+        return Ok(())
+    }
+
+    msg.channel_id.send_message(&ctx.http, |m| {
+        m.embed(|e| {
+            let mut response = vec![];
+            for entry in entries {
+                response.push((format!("{}", entry.date), format!("{} ({}{})", entry.value, plus_sign(entry.difference), entry.difference), false ))
+            };
+            e
+                .title(format!("{}'s portfolio performance", user_name))
+                .fields(response)
+        })
+    }).await?;
     Ok(())
 }
 
-fn make_portfolio_performance(user_name: &str) -> Result<String, Box<dyn Error>> {
+fn make_portfolio_performance(user_name: &str) -> Result<Vec<HistoryData>, Box<dyn Error>> {
     let conn = establish_connection();
     let user = load_user(&conn, user_name)?;
     let user_portfolio_history = load_user_portfolio_history(&conn, &user, Option::from(5))?;
@@ -82,11 +101,5 @@ fn make_portfolio_performance(user_name: &str) -> Result<String, Box<dyn Error>>
         counter += 1;
     }
 
-    let mut  message = String::from("");
-
-    for entry in history_data {
-        let response_line = format!("Date: {}, Value: {} ({}{})\n", entry.date, entry.value, plus_sign(entry.difference), entry.difference);
-        message.push_str(&response_line)
-    }
-    Ok(message)
+    Ok(history_data)
 }
