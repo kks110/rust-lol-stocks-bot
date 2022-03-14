@@ -1,6 +1,5 @@
 use serenity::prelude::*;
 use serenity::model::prelude::*;
-use serenity::utils::Colour;
 use serenity::framework::standard::{
     CommandResult,
     macros::command,
@@ -48,7 +47,7 @@ pub async fn weekly_report(ctx: &Context, msg: &Message) -> CommandResult {
         if weekly_lines.is_some() {
             m.embed(|e| {
                 e.title("Weekly Report:");
-                e.colour(Colour::from_rgb(94, 166, 96));
+                e.colour(0x4287f5);
                 for line in weekly_lines.unwrap() {
                     e.field(line.team_name, format!("{} ({}{})", line.current_elo, plus_sign(line.difference), line.difference), true);
                 }

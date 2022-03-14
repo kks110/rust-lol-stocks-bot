@@ -36,7 +36,7 @@ pub async fn help(ctx: &Context, msg: &Message) -> CommandResult {
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {
             e
-                .colour(0x00ff1e)
+                .colour(0x4287f5)
                 .title("Welcome to the Stock Market Summoner!")
                 .description(HELP_MESSAGE_TITLE)
                 .fields(HELP_MESSAGE_COMMANDS)

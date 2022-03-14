@@ -33,7 +33,7 @@ pub async fn register(ctx: &Context, msg: &Message) -> CommandResult {
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {
             e
-                .colour(0x00ff1e)
+                .colour(0x4287f5)
                 .title(response)
         })
     }).await?;

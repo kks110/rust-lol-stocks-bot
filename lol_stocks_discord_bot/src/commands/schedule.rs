@@ -10,7 +10,7 @@ pub async fn schedule(ctx: &Context, msg: &Message) -> CommandResult {
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| e
-            .colour(0x00ff00)
+            .colour(0x4287f5)
             .title("Schedule Links:".to_string())
             .field("LEC:", "<https://lolesports.com/schedule?leagues=lec>", false)
             .field("LCS:", "<https://lolesports.com/schedule?leagues=lcs>", false)

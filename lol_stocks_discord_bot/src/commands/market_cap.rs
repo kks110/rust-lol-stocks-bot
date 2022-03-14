@@ -68,7 +68,7 @@ pub async fn market_cap(ctx: &Context, msg: &Message) -> CommandResult {
                 response.push((title, body, false))
             };
             e
-                .colour(0xff0000)
+                .colour(0x4287f5)
                 .title("Market Cap:".to_string())
                 .fields(response)
         })
