@@ -22,14 +22,21 @@ pub async fn register(ctx: &Context, msg: &Message) -> CommandResult {
     match create_new_user(&msg.author.name, msg.author.id.as_u64()) {
         Ok(user) => {
             println!("{} has registered", user.name);
-            response = format!("Created user {}. Starting Balance is {}", user.name, user.balance);
+            response = format!("💹 Created user {}. Starting Balance is {}", user.name, user.balance);
         },
         Err(e) => {
             println!("There was an error creating the new user: {}", e.to_string());
             response = format!("There was an error creating the new user: {}", e.to_string());
         }
     }
-    msg.channel_id.say(&ctx.http, response).await?;
+
+    msg.channel_id.send_message(&ctx.http, |m| {
+        m.embed(|e| {
+            e
+                .colour(0x00ff1e)
+                .title(response)
+        })
+    }).await?;
     Ok(())
 }
 
