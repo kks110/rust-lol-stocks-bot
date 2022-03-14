@@ -22,7 +22,14 @@ pub async fn db_lock(ctx: &Context, msg: &Message) -> CommandResult {
         Ok(message) => { response = message  },
         Err(e) => { response = format!("An error occurred: {}", e.to_string()); }
     }
-    msg.channel_id.say(&ctx.http, response).await?;
+
+    msg.channel_id.send_message(&ctx.http, |m| {
+        m.embed(|e| {
+            e
+                .colour(0xfff538)
+                .title(response)
+        })
+    }).await?;
     Ok(())
 }
 
@@ -34,13 +41,13 @@ fn turn_key(user_discord_id: &u64) -> Result<String, Box<dyn Error>> {
         if db_lock.locked {
             println!("Unlocking database");
             match unlock_database(&conn) {
-                Ok(_) => Ok("Market is open! Happy Shopping".to_string()),
+                Ok(_) => Ok("🔓 Market is open! Happy Shopping".to_string()),
                 Err(e) => Err(e)
             }
         } else {
             println!("Locking database");
             match lock_database(&conn) {
-                Ok(_) => Ok("Market is closed! Time to watch some games".to_string()),
+                Ok(_) => Ok("🔒 Market is closed! Time to watch some games".to_string()),
                 Err(e) => Err(e)
             }
         }
