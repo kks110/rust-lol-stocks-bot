@@ -32,18 +32,24 @@ pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandRe
     let mut response: String;
 
     match perform_sell_all(team_name, user_discord_id) {
-        Ok(message) => { response = message },
+        Ok(message) => { response = message }
         Err(e) => { response = format!("An error has occurred: {}", e) }
     }
 
-    let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
+    // let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
 
-    match portfolio_view::make_portfolio_view(user) {
-        Ok(message) => { response.push_str(&format!("\n\n{}", message)) },
-        Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
-    }
+    // match portfolio_view::make_portfolio_view(user) {
+    //     Ok(message) => { response.push_str(&format!("\n\n{}", message)) },
+    //     Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
+    // }
 
-    msg.channel_id.say(&ctx.http, response).await?;
+    msg.channel_id.send_message(&ctx.http, |m| {
+        m.embed(|e| {
+            e
+                .colour(0x4287f5)
+                .title(response)
+        })
+    }).await?;
     Ok(())
 }
 
@@ -52,7 +58,7 @@ fn perform_sell_all(team_name: Option<String>, user_discord_id: &u64) -> Result<
     let db_lock = load_lock(&conn)?;
 
     if db_lock.locked {
-        return Ok("Sales are locked, wait for the games to finish!".to_string())
+        return Ok("🔒 Market is closed".to_string());
     }
 
     let user = load_user_by_discord_id(&conn, user_discord_id)?;
@@ -65,7 +71,7 @@ fn perform_sell_all(team_name: Option<String>, user_discord_id: &u64) -> Result<
                 let new_balance = team.elo * portfolio.amount + user.balance;
                 update_user(&conn, &user.name, new_balance)?;
                 user_portfolio_sell(&conn, &user, &team, portfolio.amount)?;
-                return Ok("Sale Made!".to_string())
+                return Ok("💸 Sale Made!".to_string());
             }
         }
     } else {
@@ -75,7 +81,7 @@ fn perform_sell_all(team_name: Option<String>, user_discord_id: &u64) -> Result<
             let team = load_team_by_id(&conn, &portfolio.team_id)?;
             user_portfolio_sell(&conn, &user, &team, portfolio.amount)?;
         }
-        return Ok("Full portfolio sold".to_string())
+        return Ok("💸 Full portfolio sold".to_string());
     }
-    Ok("You do not own those shares".to_string())
+    Ok("❌ You do not own those shares".to_string())
 }

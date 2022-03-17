@@ -44,14 +44,20 @@ pub async fn sell(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
     }
 
-    let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
+    // let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
+    //
+    // match portfolio_view::make_portfolio_view(user) {
+    //     Ok(message) => { response.push_str(&format!("\n\n{}", message)) },
+    //     Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
+    // }
 
-    match portfolio_view::make_portfolio_view(user) {
-        Ok(message) => { response.push_str(&format!("\n\n{}", message)) },
-        Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
-    }
-
-    msg.channel_id.say(&ctx.http, response).await?;
+    msg.channel_id.send_message(&ctx.http, |m| {
+        m.embed(|e| {
+            e
+                .colour(0x4287f5)
+                .title(response)
+        })
+    }).await?;
     Ok(())
 }
 
@@ -65,11 +71,11 @@ fn sell_shares(amount: i32, team_name: &str, user_discord_id: &u64) -> Result<St
     let db_lock = load_lock(&conn)?;
 
     if db_lock.locked {
-        return Ok("Market is closed".to_string())
+        return Ok("🔒 Market is closed".to_string())
     }
 
     if amount <= 0 {
-        return Ok("Please enter a positive number!".to_string())
+        return Ok("❌ Please enter a positive number!".to_string())
     }
 
     let team = load_team(&conn, team_name)?;
@@ -86,17 +92,17 @@ fn sell_shares(amount: i32, team_name: &str, user_discord_id: &u64) -> Result<St
                     Err(e) => Err(e)
                 }
             } else {
-                Ok("You don't have that many shares".to_string())
+                Ok("❌ You don't have that many shares".to_string())
             }
         }
     }
 
-    Ok("You don't own those shares".to_string())
+    Ok("❌ You don't own those shares".to_string())
 }
 
 fn update_portfolio(new_balance: i32, user: &User, team: &Team, amount: i32) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
     update_user(&conn, &user.name, new_balance)?;
     user_portfolio_sell(&conn,user, team, amount)?;
-    Ok("Sale Made!".to_string())
+    Ok("💸 Sale Made!".to_string())
 }

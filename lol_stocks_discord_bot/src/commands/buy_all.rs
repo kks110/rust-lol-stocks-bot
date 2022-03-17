@@ -35,14 +35,20 @@ pub async fn buy_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
         Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
     }
 
-    let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
+    // let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
+    //
+    // match portfolio_view::make_portfolio_view(user) {
+    //     Ok(message) => { response.push_str(&format!("\n\n{}", message)) },
+    //     Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
+    // }
 
-    match portfolio_view::make_portfolio_view(user) {
-        Ok(message) => { response.push_str(&format!("\n\n{}", message)) },
-        Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
-    }
-
-    msg.channel_id.say(&ctx.http, response).await?;
+    msg.channel_id.send_message(&ctx.http, |m| {
+        m.embed(|e| {
+            e
+                .colour(0x4287f5)
+                .title(response)
+        })
+    }).await?;
     Ok(())
 }
 
@@ -55,7 +61,7 @@ fn perform_buy_all(team_name: &str, user_discord_id: &u64) -> Result<String, Box
     let db_lock = load_lock(&conn)?;
 
     if db_lock.locked {
-        return Ok("Sales are locked, wait for the games to finish!".to_string())
+        return Ok("🔒 Market is closed".to_string())
     }
 
     let team = load_team(&conn, team_name)?;
@@ -63,11 +69,11 @@ fn perform_buy_all(team_name: &str, user_discord_id: &u64) -> Result<String, Box
 
     let amount = user.balance / team.elo;
     if amount == 0 {
-        return Ok("Not enough funds!".to_string())
+        return Ok("❌ Not enough funds!".to_string())
     }
 
     let cost = team.elo * amount;
     update_user(&conn, &user.name, user.balance - cost)?;
     user_portfolio_purchase(&conn, &user, &team, amount)?;
-    Ok("Purchase Made!".to_string())
+    Ok("💸 Purchase Made!".to_string())
 }
