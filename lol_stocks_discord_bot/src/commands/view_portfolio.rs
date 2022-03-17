@@ -26,8 +26,6 @@ pub async fn view_portfolio(ctx: &Context, msg: &Message, mut args: Args) -> Com
 
     let user = portfolio_view::PlayerIdentification::PlayerName(user_name);
 
-
-
     match portfolio_view::list_holdings_for_player(user) {
         Ok(h) => { holdings = h },
         Err(e) => {  error_occurred = Some(e.to_string()) }
