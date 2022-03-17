@@ -27,22 +27,22 @@ struct WeeklyReportLine {
 #[command]
 pub async fn weekly_report(ctx: &Context, msg: &Message) -> CommandResult {
     let weekly_lines: Option<Vec<WeeklyReportLine>>;
-    let response: Option<String>;
+    let error_message: Option<String>;
 
     match make_weekly_report() {
         Ok(weekly_report_lines) => {
             weekly_lines = Some(weekly_report_lines);
-            response = None;
+            error_message = None;
         },
         Err(e) => {
-            response = Some(format!("An error a occurred: {}", e.to_string()));
+            error_message = Some(format!("An error a occurred: {}", e.to_string()));
             weekly_lines = None
         }
     }
 
     msg.channel_id.send_message(&ctx.http, |m| {
-        if let Some(response) = response {
-            m.content(response);
+        if let Some(error_message) = error_message {
+            m.content(error_message);
         }
         if weekly_lines.is_some() {
             m.embed(|e| {

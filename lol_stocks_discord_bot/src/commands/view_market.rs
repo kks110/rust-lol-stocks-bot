@@ -17,6 +17,7 @@ use lol_stocks_core::database::{
     teams::load_teams_by_league,
     leagues::load_league
 };
+use crate::helpers::send_error::send_error;
 
 #[command]
 pub async fn view_market(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -35,10 +36,7 @@ pub async fn view_market(ctx: &Context, msg: &Message, mut args: Args) -> Comman
     }
 
     if error_occurred.is_some() {
-        msg.channel_id.say(
-            &ctx.http,
-            format!("An Error as occurred: {}", error_occurred.unwrap().to_string())
-        ).await?;
+        send_error(ctx, msg, error_occurred.unwrap()).await?;
         return Ok(())
     }
 

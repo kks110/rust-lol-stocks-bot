@@ -8,6 +8,7 @@ use serenity::framework::standard::{
 
 use crate::helpers::portfolio_view;
 use crate::helpers::portfolio_view::PlayersHoldings;
+use crate::helpers::send_error::send_error;
 
 #[command]
 pub async fn view_portfolio(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -32,10 +33,7 @@ pub async fn view_portfolio(ctx: &Context, msg: &Message, mut args: Args) -> Com
     }
 
     if error_occurred.is_some() {
-        msg.channel_id.say(
-            &ctx.http,
-            format!("An Error as occurred: {}", error_occurred.unwrap().to_string())
-        ).await?;
+        send_error(ctx, msg, error_occurred.unwrap()).await?;
         return Ok(())
     }
 

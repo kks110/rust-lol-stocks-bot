@@ -16,6 +16,7 @@ use lol_stocks_core::database::{
     team_elo_histories::load_team_elo_history,
 };
 use crate::helpers::plus_sign::plus_sign;
+use crate::helpers::send_error::send_error;
 
 struct HistoryData {
     pub date: NaiveDate,
@@ -34,20 +35,15 @@ pub async fn elo_history_for(ctx: &Context, msg: &Message, args: Args) -> Comman
         Err(e) => { error_occurred = Some(e.to_string()) }
     };
 
-
     match load_elo_history(&team_name) {
         Ok(message) => { entries = message },
         Err(e) => { error_occurred = Some(e.to_string()) }
     }
 
     if error_occurred.is_some() {
-        msg.channel_id.say(
-            &ctx.http,
-            format!("An Error as occurred: {}", error_occurred.unwrap().to_string())
-        ).await?;
+        send_error(ctx, msg, error_occurred.unwrap()).await?;
         return Ok(())
     }
-
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {

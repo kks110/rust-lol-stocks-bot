@@ -21,13 +21,18 @@ use lol_stocks_core::models::{
     team::Team,
     user::User
 };
-use crate::helpers::portfolio_view;
-use crate::helpers::portfolio_view::PlayersHoldings;
+use crate::helpers::{
+    portfolio_view,
+    send_error,
+};
+use crate::helpers::send_error::send_error;
+
 
 #[command]
 pub async fn sell(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-    let mut response: String;
+    let mut response: String = "".to_string();
     let user_discord_id = msg.author.id.as_u64();
+    let mut error_occurred: Option<String> = None;
 
     match parse_args(args) {
         Ok(amount_and_team) => {
@@ -38,20 +43,19 @@ pub async fn sell(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                     response = message
                 },
                 Err(e) => {
-                    response = format!("An error as occurred {}", e.to_string());
+                    error_occurred = Some(e.to_string());
                 }
             }
         },
-        Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
+        Err(e) => { error_occurred = Some(e.to_string()) }
     }
 
-    let mut holdings: PlayersHoldings = PlayersHoldings{
+    let mut holdings: portfolio_view::PlayersHoldings = portfolio_view::PlayersHoldings{
         holdings: vec![],
         user: "".to_string(),
         balance: 0,
         total_value: 0
     };
-    let mut error_occurred: Option<String> = None;
 
     let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
 
@@ -61,10 +65,7 @@ pub async fn sell(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     }
 
     if error_occurred.is_some() {
-        msg.channel_id.say(
-            &ctx.http,
-            format!("An Error as occurred: {}", error_occurred.unwrap().to_string())
-        ).await?;
+        send_error(ctx, msg, error_occurred.unwrap()).await?;
         return Ok(())
     }
 

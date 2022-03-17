@@ -25,6 +25,7 @@ use lol_stocks_core::{
         portfolios::load_users_portfolio,
     }
 };
+use crate::helpers::send_error::send_error;
 
 struct HistoryData {
     pub date: NaiveDate,
@@ -48,10 +49,7 @@ pub async fn portfolio_performance(ctx: &Context, msg: &Message, mut args: Args)
     }
 
     if error_occurred.is_some() {
-        msg.channel_id.say(
-            &ctx.http,
-            format!("An Error as occurred: {}", error_occurred.unwrap().to_string())
-        ).await?;
+        send_error(ctx, msg, error_occurred.unwrap()).await?;
         return Ok(())
     }
 

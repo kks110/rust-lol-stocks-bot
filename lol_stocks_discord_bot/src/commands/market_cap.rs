@@ -18,6 +18,7 @@ use lol_stocks_core::database::{
 };
 use lol_stocks_core::database::users::load_user_by_id;
 use lol_stocks_core::models::portfolio::Portfolio;
+use crate::helpers::send_error::send_error;
 
 struct OwnerEntry {
     pub name: String,
@@ -43,10 +44,7 @@ pub async fn market_cap(ctx: &Context, msg: &Message) -> CommandResult {
     }
 
     if error_occurred.is_some() {
-        msg.channel_id.say(
-            &ctx.http,
-            format!("An Error as occurred: {}", error_occurred.unwrap().to_string())
-        ).await?;
+        send_error(ctx, msg, error_occurred.unwrap()).await?;
         return Ok(())
     }
 

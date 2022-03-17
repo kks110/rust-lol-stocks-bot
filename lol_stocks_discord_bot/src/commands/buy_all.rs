@@ -16,33 +16,35 @@ use lol_stocks_core::database::{
     users::{load_user_by_discord_id, update_user},
     teams::load_team,
 };
-use crate::helpers::portfolio_view;
-use crate::helpers::portfolio_view::PlayersHoldings;
+use crate::helpers::{
+    portfolio_view,
+    send_error::send_error
+};
+
 
 #[command]
 pub async fn buy_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let user_discord_id = msg.author.id.as_u64();
-
-    let mut response: String;
+    let mut error_occurred: Option<String> = None;
+    let mut response: String = "".to_string();
 
     match parse_args(args) {
         Ok(t) => {
             let team_name = t;
             match perform_buy_all(&team_name, user_discord_id) {
                 Ok(message) => { response = message },
-                Err(e) => { response = format!("An error has occurred: {}", e)}
+                Err(e) => { error_occurred = Some(e.to_string()) }
             }
         },
-        Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
+        Err(e) => { error_occurred = Some(e.to_string()) }
     }
 
-    let mut holdings: PlayersHoldings = PlayersHoldings{
+    let mut holdings: portfolio_view::PlayersHoldings = portfolio_view::PlayersHoldings{
         holdings: vec![],
         user: "".to_string(),
         balance: 0,
         total_value: 0
     };
-    let mut error_occurred: Option<String> = None;
 
     let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
 
@@ -52,10 +54,7 @@ pub async fn buy_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
     }
 
     if error_occurred.is_some() {
-        msg.channel_id.say(
-            &ctx.http,
-            format!("An Error as occurred: {}", error_occurred.unwrap().to_string())
-        ).await?;
+        send_error(ctx, msg, error_occurred.unwrap()).await?;
         return Ok(())
     }
 
