@@ -18,6 +18,7 @@ use lol_stocks_core::database::{
 };
 use lol_stocks_core::portfolio_calculations::calculate_portfolio_value;
 use crate::helpers::portfolio_view;
+use crate::helpers::portfolio_view::PlayersHoldings;
 
 #[command]
 pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -36,12 +37,28 @@ pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandRe
         Err(e) => { response = format!("An error has occurred: {}", e) }
     }
 
-    // let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
+    let mut holdings: PlayersHoldings = PlayersHoldings{
+        holdings: vec![],
+        user: "".to_string(),
+        balance: 0,
+        total_value: 0
+    };
+    let mut error_occurred: Option<String> = None;
 
-    // match portfolio_view::make_portfolio_view(user) {
-    //     Ok(message) => { response.push_str(&format!("\n\n{}", message)) },
-    //     Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
-    // }
+    let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
+
+    match portfolio_view::list_holdings_for_player(user) {
+        Ok(h) => { holdings = h },
+        Err(e) => {  error_occurred = Some(e.to_string()) }
+    }
+
+    if error_occurred.is_some() {
+        msg.channel_id.say(
+            &ctx.http,
+            format!("An Error as occurred: {}", error_occurred.unwrap().to_string())
+        ).await?;
+        return Ok(())
+    }
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {
@@ -50,6 +67,30 @@ pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandRe
                 .title(response)
         })
     }).await?;
+
+    msg.channel_id.send_message(&ctx.http, |m| {
+        m.embed(|e| {
+            let mut response = "".to_string();
+            response.push_str(&format!("**Balance:** {}\n", holdings.balance));
+
+            response.push_str("──────────\n");
+
+            for holding in holdings.holdings {
+                let mut body: String = "".to_string();
+                body.push_str(&format!("**{}:** {} ({})\n", holding.team.name, holding.amount, holding.value));
+                response.push_str(&body);
+            };
+
+            response.push_str("──────────\n");
+            response.push_str(&format!("**Total:** {}", holdings.total_value));
+
+            e
+                .colour(0x4287f5)
+                .title(format!("{}'s Portfolio:", holdings.user))
+                .description(response)
+        })
+    }).await?;
+
     Ok(())
 }
 
