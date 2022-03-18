@@ -4,6 +4,7 @@ use serenity::framework::standard::{
     CommandResult,
     macros::command,
 };
+use crate::helpers::messages;
 
 const HELP_MESSAGE_TITLE: &str = "
 Here is a quick rundown of the things you can do:
@@ -33,14 +34,12 @@ const HELP_MESSAGE_COMMANDS: [(&'static str, &'static str, bool); 17] = [
 
 #[command]
 pub async fn help(ctx: &Context, msg: &Message) -> CommandResult {
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.embed(|e| {
-            e
-                .colour(0x4287f5)
-                .title("Welcome to the Stock Market Summoner!")
-                .description(HELP_MESSAGE_TITLE)
-                .fields(HELP_MESSAGE_COMMANDS)
-        })
-    }).await?;
+    messages::send_message(
+        ctx,
+        msg,
+        "Welcome to the Stock Market Summoner!",
+        Some(HELP_MESSAGE_TITLE),
+        Some(Vec::from(HELP_MESSAGE_COMMANDS))
+    ).await?;
     Ok(())
 }
