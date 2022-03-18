@@ -23,7 +23,6 @@ use lol_stocks_core::models::{
 };
 use crate::helpers::{
     portfolio_view,
-    send_error,
 };
 use crate::helpers::send_error::send_error;
 
