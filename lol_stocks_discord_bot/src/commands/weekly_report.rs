@@ -54,7 +54,7 @@ pub async fn weekly_report(ctx: &Context, msg: &Message) -> CommandResult {
         messages::send_message::<&str, String>(
             ctx,
             msg,
-            "Weekly Report:",
+            "Weekly Report",
             None,
             Some(fields)
         ).await?;
