@@ -13,30 +13,36 @@ use lol_stocks_core::database::{
     users::create_user
 };
 use lol_stocks_core::models::user::User;
+use crate::helpers::messages;
 
 
 #[command]
 pub async fn register(ctx: &Context, msg: &Message) -> CommandResult {
-    let response: String;
+    let mut response: Option<String> = None;
+    let mut error_message: Option<String> = None;
 
     match create_new_user(&msg.author.name, msg.author.id.as_u64()) {
         Ok(user) => {
-            println!("{} has registered", user.name);
-            response = format!("💹 Created user {}. Starting Balance is {}", user.name, user.balance);
+            response = Some(format!("💹 Created user {}. Starting Balance is {}", user.name, user.balance));
         },
-        Err(e) => {
-            println!("There was an error creating the new user: {}", e.to_string());
-            response = format!("There was an error creating the new user: {}", e.to_string());
-        }
+        Err(e) => { error_message = Some(e.to_string()) }
+
     }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.embed(|e| {
-            e
-                .colour(0x4287f5)
-                .title(response)
-        })
-    }).await?;
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
+    }
+
+    if response.is_some() {
+        messages::send_message::<String, String>(
+            ctx,
+            msg,
+            response.unwrap(),
+            None,
+            None
+        ).await?;
+    }
+
     Ok(())
 }
 

@@ -17,13 +17,13 @@ use lol_stocks_core::database::{
     teams::load_teams_by_league,
     leagues::load_league
 };
-use crate::helpers::send_error::send_error;
+use crate::helpers::messages;
 
 #[command]
 pub async fn market(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    let mut teams: Vec<Team> = vec![];
+    let mut teams: Option<Vec<Team>> = None;
     let market: Option<String>;
-    let mut error_occurred: Option<String> = None;
+    let mut error_message: Option<String> = None;
 
     match args.single::<String>() {
         Ok(market_name) => market = Some(market_name.to_lowercase()),
@@ -31,44 +31,41 @@ pub async fn market(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
     }
 
     match make_view_market(&market) {
-        Ok(t) => { teams = t },
-        Err(e) => { error_occurred = Some(e.to_string())}
+        Ok(t) => { teams = Some(t) },
+        Err(e) => { error_message = Some(e.to_string())}
     }
 
-    if error_occurred.is_some() {
-        send_error(ctx, msg, error_occurred.unwrap()).await?;
-        return Ok(())
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
     }
 
     let market_name = market.unwrap_or("".to_string());
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.embed(|e| {
-            let mut message: String = "".to_string();
-            for team in teams {
-                message.push_str(&format!("**{}**: {}\n", team.name, team.elo));
-            }
-            e.description(message);
-
-            if market_name == "lec" {
-                e.thumbnail("attachment://lec.png");
-            } else if market_name == "lcs" {
-                e.thumbnail("attachment://lcs.png");
-            } else {
-                e.thumbnail("attachment://both.png");
-            }
-            e
-        });
-
+    let market_image: &str =
         if market_name == "lec" {
-            m.add_file("./images/lec.png");
+            "lec.png"
         } else if market_name == "lcs" {
-            m.add_file("./images/lcs.png");
+            "lcs.png"
         } else {
-            m.add_file("./images/both.png");
+            "both.png"
+        };
+
+    if teams.is_some() {
+        let mut description: String = "".to_string();
+        for team in teams.unwrap() {
+            description.push_str(&format!("**{}:** {}\n", team.name, team.elo));
         }
-        m
-    }).await?;
+
+        messages::send_image_as_attachment::<String, String>(
+            ctx,
+            msg,
+            format!("{} market", market_name),
+            Some(description),
+            None,
+            market_image
+        ).await?;
+    }
+
     Ok(())
 }
 
