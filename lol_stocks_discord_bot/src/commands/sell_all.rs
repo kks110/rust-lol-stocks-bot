@@ -17,7 +17,7 @@ use lol_stocks_core::database::{
     locks::load_lock,
 };
 use lol_stocks_core::portfolio_calculations::calculate_portfolio_value;
-use crate::helpers::{messages, portfolio_view, send_error::send_error};
+use crate::helpers::{messages, portfolio_view};
 
 #[command]
 pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {

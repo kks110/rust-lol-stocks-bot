@@ -16,7 +16,7 @@ use lol_stocks_core::database::{
     users::{load_user_by_discord_id, update_user},
     teams::load_team,
 };
-use crate::helpers::{messages, portfolio_view, send_error::send_error};
+use crate::helpers::{messages, portfolio_view};
 
 
 #[command]

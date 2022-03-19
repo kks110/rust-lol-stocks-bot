@@ -20,7 +20,7 @@ use lol_stocks_core::models::{
     team::Team,
     user::User
 };
-use crate::helpers::{messages, portfolio_view, send_error::send_error};
+use crate::helpers::{messages, portfolio_view};
 
 #[command]
 pub async fn buy(ctx: &Context, msg: &Message, args: Args) -> CommandResult {

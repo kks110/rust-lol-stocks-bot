@@ -22,8 +22,6 @@ use lol_stocks_core::models::{
     user::User
 };
 use crate::helpers::{messages, portfolio_view};
-use crate::helpers::send_error::send_error;
-
 
 #[command]
 pub async fn sell(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
