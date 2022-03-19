@@ -1,6 +1,6 @@
 [package]
 name = "lol_stocks_core"
-version = "0.2.3"
+version = "0.3.0"
 authors = ["Kelvin Samuel <kelvin@kks110.com>"]
 edition = "2021"
 
