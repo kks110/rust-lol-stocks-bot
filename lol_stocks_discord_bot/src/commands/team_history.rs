@@ -15,8 +15,8 @@ use lol_stocks_core::database::{
     teams::load_team,
     team_elo_histories::load_team_elo_history,
 };
+use crate::helpers::messages;
 use crate::helpers::plus_sign::plus_sign;
-use crate::helpers::send_error::send_error;
 
 struct HistoryData {
     pub date: NaiveDate,
@@ -26,36 +26,44 @@ struct HistoryData {
 
 #[command]
 pub async fn team_history(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-    let mut entries: Vec<HistoryData> = vec![];
-    let mut error_occurred: Option<String> = None;
+    let mut entries: Option<Vec<HistoryData>> = None;
+    let mut error_message: Option<String> = None;
     let mut team_name: String = "".to_string();
 
     match parse_args(args) {
         Ok(name) => { team_name = name },
-        Err(e) => { error_occurred = Some(e.to_string()) }
+        Err(e) => { error_message = Some(e.to_string()) }
     };
 
     match load_elo_history(&team_name) {
-        Ok(message) => { entries = message },
-        Err(e) => { error_occurred = Some(e.to_string()) }
+        Ok(message) => { entries = Some(message) },
+        Err(e) => { error_message = Some(e.to_string()) }
     }
 
-    if error_occurred.is_some() {
-        send_error(ctx, msg, error_occurred.unwrap()).await?;
-        return Ok(())
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
     }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.embed(|e| {
-            let mut response = vec![];
-            for entry in entries {
-                response.push((format!("{}", entry.date), format!("{} ({}{})", entry.value, plus_sign(entry.difference), entry.difference), false ))
-            };
-            e
-                .title(format!("{}'s performance", team_name.to_uppercase()))
-                .fields(response)
-        })
-    }).await?;
+    if entries.is_some() {
+        let mut fields: Vec<(String, String, bool)> = vec![];
+        for entry in entries.unwrap() {
+            fields.push(
+                (
+                    format!("{}", entry.date),
+                    format!("{} ({}{})", entry.value, plus_sign(entry.difference), entry.difference),
+                    false
+                )
+            )
+        }
+        messages::send_message::<&str, String>(
+            ctx,
+            msg,
+            "Weekly Report:",
+            None,
+            Some(fields)
+        ).await?;
+    }
+
     Ok(())
 }
 
