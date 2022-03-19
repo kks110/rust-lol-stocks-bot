@@ -25,7 +25,7 @@ use lol_stocks_core::{
         portfolios::load_users_portfolio,
     }
 };
-use crate::helpers::send_error::send_error;
+use crate::helpers::messages;
 
 struct HistoryData {
     pub date: NaiveDate,
@@ -40,30 +40,38 @@ pub async fn portfolio_history(ctx: &Context, msg: &Message, mut args: Args) -> 
         Err(_) => msg.author.name.clone()
     };
 
-    let mut entries: Vec<HistoryData> = vec![];
-    let mut error_occurred: Option<String> = None;
+    let mut entries: Option<Vec<HistoryData>> = None;
+    let mut error_message: Option<String> = None;
 
     match make_portfolio_performance(&user_name) {
-        Ok(message) => { entries = message },
-        Err(e) => { error_occurred = Some(e.to_string()) }
+        Ok(message) => { entries = Some(message) },
+        Err(e) => { error_message = Some(e.to_string()) }
     }
 
-    if error_occurred.is_some() {
-        send_error(ctx, msg, error_occurred.unwrap()).await?;
-        return Ok(())
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
     }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.embed(|e| {
-            let mut response = vec![];
-            for entry in entries {
-                response.push((format!("{}", entry.date), format!("{} ({}{})", entry.value, plus_sign(entry.difference), entry.difference), false ))
-            };
-            e
-                .title(format!("{}'s portfolio performance", user_name))
-                .fields(response)
-        })
-    }).await?;
+    if entries.is_some() {
+        let mut fields: Vec<(String, String, bool)> = vec![];
+        for entry in entries.unwrap() {
+            fields.push(
+                (format!("{}", entry.date),
+                 format!("{} ({}{})", entry.value, plus_sign(entry.difference), entry.difference),
+                 false
+                )
+            )
+        };
+
+        messages::send_message::<&str, String>(
+            ctx,
+            msg,
+            "Portfolio History",
+            None,
+            Some(fields)
+        ).await?;
+    }
+
     Ok(())
 }
 
