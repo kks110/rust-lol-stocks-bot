@@ -21,7 +21,7 @@ use lol_stocks_core::models::{
     team::Team,
     user::User
 };
-use crate::helpers::{messages, portfolio_view};
+use crate::helpers::{messages, portfolio_view, parse_args};
 
 #[command]
 pub async fn sell(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
@@ -30,7 +30,7 @@ pub async fn sell(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let mut title: Option<String> = None;
     let mut error_message: Option<String> = None;
 
-    match parse_args(args) {
+    match parse_args::parse_int_and_string(args) {
         Ok(amount_and_team) => {
             let (amount, team_name) = amount_and_team;
 
@@ -62,17 +62,13 @@ pub async fn sell(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
             None,
             None
         ).await?;
-    }
 
-    if holdings.is_some() {
-        messages::send_portfolio(ctx, msg, holdings.unwrap()).await?;
+        if holdings.is_some() {
+            messages::send_portfolio(ctx, msg, holdings.unwrap()).await?;
+        }
     }
 
     Ok(())
-}
-
-fn parse_args(mut args: Args) -> Result<(i32, String), Box<dyn Error>> {
-    Ok((args.single::<i32>()?, args.single::<String>()?))
 }
 
 fn sell_shares(amount: i32, team_name: &str, user_discord_id: &u64) -> Result<String, Box<dyn Error>> {

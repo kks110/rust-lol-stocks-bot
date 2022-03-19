@@ -21,14 +21,17 @@ use graph_builder::models::{
     graph_data::GraphData,
     graph_data_point::GraphDataPoint
 };
-use crate::helpers::messages;
+use crate::helpers::{
+    messages,
+    parse_args
+};
 
 #[command]
 pub async fn team_history_graph(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let mut file_location: Option<String> = None;
     let mut error_message: Option<String> = None;
 
-    match parse_args(args) {
+    match parse_args::parse_string(args) {
         Ok(team) => {
             let team_name = team;
 
@@ -53,11 +56,6 @@ pub async fn team_history_graph(ctx: &Context, msg: &Message, args: Args) -> Com
     }
     Ok(())
 }
-
-fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
-    Ok(args.single::<String>()?)
-}
-
 
 fn make_team_graph(team_name: &str) ->Result<String, Box<dyn Error>> {
     let conn = establish_connection();

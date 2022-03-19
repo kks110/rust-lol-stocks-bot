@@ -17,14 +17,14 @@ use lol_stocks_core::database::{
     locks::load_lock,
 };
 use lol_stocks_core::portfolio_calculations::calculate_portfolio_value;
-use crate::helpers::{messages, portfolio_view};
+use crate::helpers::{messages, portfolio_view, parse_args};
 
 #[command]
-pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn sell_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let user_discord_id = msg.author.id.as_u64();
     let team_name: Option<String>;
 
-    match args.single::<String>() {
+    match parse_args::parse_string(args) {
         Ok(team) => team_name = Some(team),
         Err(_) => team_name = None
     }
@@ -57,10 +57,10 @@ pub async fn sell_all(ctx: &Context, msg: &Message, mut args: Args) -> CommandRe
             None,
             None
         ).await?;
-    }
 
-    if holdings.is_some() {
-        messages::send_portfolio(ctx, msg, holdings.unwrap()).await?;
+        if holdings.is_some() {
+            messages::send_portfolio(ctx, msg, holdings.unwrap()).await?;
+        }
     }
 
     Ok(())

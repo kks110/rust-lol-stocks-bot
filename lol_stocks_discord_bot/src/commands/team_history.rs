@@ -15,8 +15,11 @@ use lol_stocks_core::database::{
     teams::load_team,
     team_elo_histories::load_team_elo_history,
 };
-use crate::helpers::messages;
-use crate::helpers::plus_sign::plus_sign;
+use crate::helpers::{
+    messages,
+    parse_args,
+    plus_sign::plus_sign
+};
 
 struct HistoryData {
     pub date: NaiveDate,
@@ -30,7 +33,7 @@ pub async fn team_history(ctx: &Context, msg: &Message, args: Args) -> CommandRe
     let mut error_message: Option<String> = None;
     let mut team_name: String = "".to_string();
 
-    match parse_args(args) {
+    match parse_args::parse_string(args) {
         Ok(name) => { team_name = name },
         Err(e) => { error_message = Some(e.to_string()) }
     };
@@ -65,10 +68,6 @@ pub async fn team_history(ctx: &Context, msg: &Message, args: Args) -> CommandRe
     }
 
     Ok(())
-}
-
-fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
-    Ok(args.single::<String>()?)
 }
 
 fn load_elo_history(team_name: &str) -> Result<Vec<HistoryData>, Box<dyn Error>> {

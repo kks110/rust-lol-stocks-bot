@@ -16,7 +16,7 @@ use lol_stocks_core::database::{
     users::{load_user_by_discord_id, update_user},
     teams::load_team,
 };
-use crate::helpers::{messages, portfolio_view};
+use crate::helpers::{messages, portfolio_view, parse_args};
 
 
 #[command]
@@ -26,7 +26,7 @@ pub async fn buy_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
     let mut title: Option<String> = None;
     let mut error_message: Option<String> = None;
 
-    match parse_args(args) {
+    match parse_args::parse_string(args) {
         Ok(t) => {
             let team_name = t;
             match perform_buy_all(&team_name, user_discord_id) {
@@ -57,17 +57,13 @@ pub async fn buy_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
             None,
             None
         ).await?;
-    }
 
-    if holdings.is_some() {
-        messages::send_portfolio(ctx, msg, holdings.unwrap()).await?;
+        if holdings.is_some() {
+            messages::send_portfolio(ctx, msg, holdings.unwrap()).await?;
+        }
     }
 
     Ok(())
-}
-
-fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
-    Ok(args.single::<String>()?)
 }
 
 fn perform_buy_all(team_name: &str, user_discord_id: &u64) -> Result<String, Box<dyn Error>> {
