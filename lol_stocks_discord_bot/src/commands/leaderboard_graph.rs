@@ -22,32 +22,29 @@ use graph_builder::models::{
     graph_data_point::GraphDataPoint,
     graph_data_series::GraphDataSeries
 };
+use crate::helpers::messages;
 
 #[command]
 pub async fn leaderboard_graph(ctx: &Context, msg: &Message) -> CommandResult {
-    let response: Option<String>;
-    let file_location: Option<String>;
+    let mut file_location: Option<String> = None;
+    let mut error_message: Option<String> = None;
 
     match make_leaderboard_graph() {
-        Ok(location) => {
-            file_location = Some(location);
-            response = None;
-        },
-        Err(e) => {
-            response = Some(format!("An error has occurred: {}", e.to_string()));
-            file_location = None;
-        }
+        Ok(location) => { file_location = Some(location); },
+        Err(e) => { error_message = Some(e.to_string()) }
     }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        if let Some(response) = response {
-            m.content(response);
-        }
-        if file_location.is_some() {
-            m.add_file(&file_location.as_ref().unwrap()[..]);
-        }
-        m
-    }).await?;
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
+    }
+
+    if file_location.is_some() {
+        messages::send_image_message(
+            ctx,
+            msg,
+            file_location.unwrap()
+        ).await?;
+    }
 
     Ok(())
 }

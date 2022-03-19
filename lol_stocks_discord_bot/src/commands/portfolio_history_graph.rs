@@ -25,6 +25,7 @@ use graph_builder::models::{
     graph_data::GraphData,
     graph_data_point::GraphDataPoint
 };
+use crate::helpers::messages;
 
 #[command]
 pub async fn portfolio_history_graph(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -33,21 +34,25 @@ pub async fn portfolio_history_graph(ctx: &Context, msg: &Message, mut args: Arg
         Err(_) => msg.author.name.clone()
     };
 
-    let response: String;
-    let mut file_location = "".to_string();
+    let mut file_location: Option<String> = None;
+    let mut error_message: Option<String> = None;
 
     match make_portfolio_graph(&user_name) {
-        Ok(location) => {
-            response = "".to_string();
-            file_location.push_str(&location)
-        },
-        Err(e) => { response = format!("An error has occurred: {}", e.to_string()) }
+        Ok(location) => { file_location = Some(location); },
+        Err(e) => { error_message = Some(e.to_string()) }
     }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.content(response);
-        m.add_file(&file_location[..])
-    }).await?;
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
+    }
+
+    if file_location.is_some() {
+        messages::send_image_message(
+            ctx,
+            msg,
+            file_location.unwrap()
+        ).await?;
+    }
 
     Ok(())
 }
