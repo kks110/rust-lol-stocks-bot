@@ -18,7 +18,7 @@ use lol_stocks_core::database::{
 };
 use lol_stocks_core::database::users::load_user_by_id;
 use lol_stocks_core::models::portfolio::Portfolio;
-use crate::helpers::send_error::send_error;
+use crate::helpers::messages;
 
 struct OwnerEntry {
     pub name: String,
@@ -35,42 +35,41 @@ struct MarketCapEntry {
 
 #[command]
 pub async fn market_cap(ctx: &Context, msg: &Message) -> CommandResult {
-    let mut entries: Vec<MarketCapEntry>  = vec![];
-    let mut error_occurred: Option<String> = None;
+    let mut entries: Option<Vec<MarketCapEntry>>  = None;
+    let mut error_message: Option<String> = None;
 
     match load_market_cap() {
-        Ok(message) => { entries = message},
-        Err(e) => { error_occurred = Some(e.to_string())}
+        Ok(message) => { entries = Some(message) },
+        Err(e) => { error_message = Some(e.to_string())}
     }
 
-    if error_occurred.is_some() {
-        send_error(ctx, msg, error_occurred.unwrap()).await?;
-        return Ok(())
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
     }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.embed(|e| {
-            let mut response = vec![];
+    if entries.is_some() {
+        let mut fields: Vec<(String, String, bool)> = vec![];
+        for entry in entries.unwrap() {
+            let title = entry.team_name;
+            let mut body: String = "".to_string();
+            body.push_str(&format!("**All:** {} ({})\n", entry.amount, entry.value));
+            body.push_str("──────────\n");
+            for owner in entry.owners {
+                body.push_str(&format!("**{}:** {} ({})\n", owner.name, owner.amount, owner.value));
+            }
+            body.push_str("──────────\n");
 
+            fields.push((title, body, false))
+        };
 
-            for entry in entries {
-                let title = entry.team_name;
-                let mut body: String = "".to_string();
-                body.push_str(&format!("**All:** {} ({})\n", entry.amount, entry.value));
-                body.push_str("──────────\n");
-                for owner in entry.owners {
-                    body.push_str(&format!("**{}:** {} ({})\n", owner.name, owner.amount, owner.value));
-                }
-                body.push_str("──────────\n");
-
-                response.push((title, body, false))
-            };
-            e
-                .colour(0x4287f5)
-                .title("Market Cap:".to_string())
-                .fields(response)
-        })
-    }).await?;
+        messages::send_message::<&str, String>(
+            ctx,
+            msg,
+            "Market Cap",
+            None,
+            Some(fields)
+        ).await?;
+    }
     Ok(())
 }
 

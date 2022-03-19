@@ -16,7 +16,7 @@ use lol_stocks_core::{
         portfolios::load_users_portfolio,
     },
 };
-use crate::helpers::send_error::send_error;
+use crate::helpers::messages;
 
 struct LeaderboardEntry {
     pub user_name: String,
@@ -25,30 +25,39 @@ struct LeaderboardEntry {
 
 #[command]
 pub async fn leaderboard(ctx: &Context, msg: &Message) -> CommandResult {
-    let mut entries: Vec<LeaderboardEntry> = vec![];
-    let mut error_occurred: Option<String> = None;
+    let mut entries: Option<Vec<LeaderboardEntry>> = None;
+    let mut error_message: Option<String> = None;
 
     match load_leaderboard() {
-        Ok(message) => { entries = message },
-        Err(e) => { error_occurred = Some(e.to_string()) }
+        Ok(message) => { entries = Some(message) },
+        Err(e) => { error_message = Some(e.to_string()) }
     }
 
-    if error_occurred.is_some() {
-        send_error(ctx, msg, error_occurred.unwrap()).await?;
-        return Ok(())
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
     }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.embed(|e| {
-            let mut response = vec![];
-            for (index, player) in entries.iter().enumerate() {
-                response.push((format!("{}. {}: ", index + 1, player.user_name), format!("{}", player.value), false))
-            };
-            e
-                .title("Leaderboard:".to_string())
-                .fields(response)
-        })
-    }).await?;
+    if entries.is_some() {
+        let mut fields: Vec<(String, String, bool)> = vec![];
+        for (index, player) in entries.unwrap().iter().enumerate() {
+            fields.push(
+                (
+                    format!("{}. {}: ", index + 1, player.user_name),
+                    format!("{}", player.value),
+                    false
+                )
+            )
+        }
+
+        messages::send_message::<&str, String>(
+            ctx,
+            msg,
+            "Leaderboard",
+            None,
+            Some(fields)
+        ).await?;
+    }
+
     Ok(())
 }
 
