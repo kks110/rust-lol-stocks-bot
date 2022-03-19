@@ -34,7 +34,7 @@ struct HistoryData {
 }
 
 #[command]
-pub async fn portfolio_performance(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn portfolio_history(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let user_name = match args.single::<String>() {
         Ok(user) => user,
         Err(_) => msg.author.name.clone()

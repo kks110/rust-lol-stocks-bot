@@ -17,18 +17,18 @@ use commands::{
     help::*,
     register::*,
     sell::*,
-    view_market::*,
-    view_portfolio::*,
-    db_lock::*,
-    elo_history_for::*,
-    portfolio_performance::*,
+    market::*,
+    portfolio::*,
+    market_lock::*,
+    team_history::*,
+    portfolio_history::*,
     leaderboard::*,
     schedule::*,
     weekly_report::*,
     sell_all::*,
     ping::*,
-    portfolio_graph::*,
-    team_graph::*,
+    portfolio_history_graph::*,
+    team_history_graph::*,
     leaderboard_graph::*,
     market_cap::*,
 };
@@ -54,7 +54,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(help, register, buy, sell, view_market, view_portfolio, db_lock, ping, elo_history_for, portfolio_performance, leaderboard, schedule, weekly_report, sell_all, buy_all, portfolio_graph, team_graph, leaderboard_graph, market_cap)]
+#[commands(help, register, buy, sell, market, portfolio, market_lock, ping, team_history, portfolio_history, leaderboard, schedule, weekly_report, sell_all, buy_all, portfolio_history_graph, team_history_graph, leaderboard_graph, market_cap)]
 struct General;
 
 #[tokio::main]

@@ -15,7 +15,7 @@ use lol_stocks_core::database::{
 };
 
 #[command]
-pub async fn db_lock(ctx: &Context, msg: &Message) -> CommandResult {
+pub async fn market_lock(ctx: &Context, msg: &Message) -> CommandResult {
     let user_discord_id = msg.author.id.as_u64();
     let response: String;
     match turn_key(user_discord_id) {

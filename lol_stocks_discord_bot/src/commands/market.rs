@@ -20,7 +20,7 @@ use lol_stocks_core::database::{
 use crate::helpers::send_error::send_error;
 
 #[command]
-pub async fn view_market(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn market(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let mut teams: Vec<Team> = vec![];
     let market: Option<String>;
     let mut error_occurred: Option<String> = None;

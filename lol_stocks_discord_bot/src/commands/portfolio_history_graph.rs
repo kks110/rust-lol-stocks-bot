@@ -27,7 +27,7 @@ use graph_builder::models::{
 };
 
 #[command]
-pub async fn portfolio_graph(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn portfolio_history_graph(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let user_name = match args.single::<String>() {
         Ok(user) => user,
         Err(_) => msg.author.name.clone()

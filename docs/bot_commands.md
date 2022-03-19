@@ -6,9 +6,9 @@
 ```
 Register to play. This will create an account and give you a starting balance.
 
-##### view_market
+##### market
 ```
-!!view_market <league_name?>
+!!market <league_name?>
 ```
 Shows the market price of all the teams with no args sent. Otherwise, will just show team in the specified league.
 
@@ -36,39 +36,33 @@ Sells 'Shares' in a team, removes from your portfolio and add to your balance.
 ```
 Sells all 'Shares' in a specified team, if no team is specified, will sell your whole portfolio.
 
-##### view_portfolio
+##### portfolio
 ```
-!!view_portfolio <user?>
+!!portfolio <user?>
 ```
 Shows a users portfolio and how much its worth. If no user is specified it will show your own.
 
-##### portfolio_graph
+##### team_history
 ```
-!!portfolio_graph
-``` 
-Generated a graph based on portfolio value and history.
-
-##### elo_history_for
-```
-!!elo_history_for <team>
+!!team_history <team>
 ```
 Shows the historic prices of the team.
 
-##### team_graph
+##### team_history_graph
 ```
-!!team_graph <team>
+!!team_history_graph <team>
 ```
 Generated a graph based on elo and history of a team.
 
-##### portfolio_performance
+##### portfolio_history
 ```
-!!portfolio_performance <user?>
+!!portfolio_history <user?>
 ```
 Shows users portfolios historic values, yours by default.
 
-##### portfolio_graph
+##### portfolio_history_graph
 ```
-!!portfolio_graph <user?>
+!!portfolio_history_graph <user?>
 ```
 Generated a graph based on users portfolio value and history, yours by default.
 
@@ -104,9 +98,9 @@ View the current price of all the teams, but also show the increase / decrease f
 ```
 Show links to the schedule sites.
 
-##### db_lock
+##### market_lock
 ```
-!!db_lock
+!!market_lock
 ```
 The ability to buy and sell will be locked over the weekend to make sure that the games have been updated before people try to buy and sell teams.
 Can be used by admins to lock and unlock the market.

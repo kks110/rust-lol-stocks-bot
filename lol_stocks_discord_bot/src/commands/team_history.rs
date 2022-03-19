@@ -25,7 +25,7 @@ struct HistoryData {
 }
 
 #[command]
-pub async fn elo_history_for(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+pub async fn team_history(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let mut entries: Vec<HistoryData> = vec![];
     let mut error_occurred: Option<String> = None;
     let mut team_name: String = "".to_string();

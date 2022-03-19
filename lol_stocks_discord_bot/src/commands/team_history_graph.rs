@@ -23,7 +23,7 @@ use graph_builder::models::{
 };
 
 #[command]
-pub async fn team_graph(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+pub async fn team_history_graph(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let response: String;
     let mut file_location = "".to_string();
 
