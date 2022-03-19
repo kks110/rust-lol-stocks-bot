@@ -13,23 +13,32 @@ use lol_stocks_core::database::{
     locks::{lock_database, unlock_database, load_lock},
     users::load_user_by_discord_id,
 };
+use crate::helpers::messages;
 
 #[command]
 pub async fn market_lock(ctx: &Context, msg: &Message) -> CommandResult {
     let user_discord_id = msg.author.id.as_u64();
-    let response: String;
+    let mut response: Option<String> = None;
+    let mut error_message: Option<String> = None;
+
     match turn_key(user_discord_id) {
-        Ok(message) => { response = message  },
-        Err(e) => { response = format!("An error occurred: {}", e.to_string()); }
+        Ok(message) => { response = Some(message)  },
+        Err(e) => { error_message = Some(e.to_string()) }
     }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.embed(|e| {
-            e
-                .colour(0xfff538)
-                .title(response)
-        })
-    }).await?;
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
+    }
+
+    if response.is_some() {
+        messages::send_message::<String, &str>(
+            ctx,
+            msg,
+            response.unwrap(),
+            None,
+            None
+        ).await?;
+    }
     Ok(())
 }
 
