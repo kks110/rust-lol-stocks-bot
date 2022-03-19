@@ -16,78 +16,53 @@ use lol_stocks_core::database::{
     users::{load_user_by_discord_id, update_user},
     teams::load_team,
 };
-use crate::helpers::{
-    portfolio_view,
-    send_error::send_error
-};
+use crate::helpers::{messages, portfolio_view, send_error::send_error};
 
 
 #[command]
 pub async fn buy_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let user_discord_id = msg.author.id.as_u64();
-    let mut error_occurred: Option<String> = None;
-    let mut response: String = "".to_string();
+
+    let mut title: Option<String> = None;
+    let mut error_message: Option<String> = None;
 
     match parse_args(args) {
         Ok(t) => {
             let team_name = t;
             match perform_buy_all(&team_name, user_discord_id) {
-                Ok(message) => { response = message },
-                Err(e) => { error_occurred = Some(e.to_string()) }
+                Ok(message) => { title = Some(message) },
+                Err(e) => { error_message = Some(e.to_string()) }
             }
         },
-        Err(e) => { error_occurred = Some(e.to_string()) }
+        Err(e) => { error_message = Some(e.to_string()) }
     }
 
-    let mut holdings: portfolio_view::PlayersHoldings = portfolio_view::PlayersHoldings{
-        holdings: vec![],
-        user: "".to_string(),
-        balance: 0,
-        total_value: 0
-    };
-
+    let mut holdings: Option<portfolio_view::PlayersHoldings> = None;
     let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
 
     match portfolio_view::list_holdings_for_player(user) {
-        Ok(h) => { holdings = h },
-        Err(e) => {  error_occurred = Some(e.to_string()) }
+        Ok(h) => { holdings = Some(h) },
+        Err(e) => {  error_message = Some(e.to_string()) }
     }
 
-    if error_occurred.is_some() {
-        send_error(ctx, msg, error_occurred.unwrap()).await?;
-        return Ok(())
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
     }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.embed(|e| {
-            e
-                .colour(0x4287f5)
-                .title(response)
-        })
-    }).await?;
+    if title.is_some() {
+        messages::send_message::<String, &str>(
+            ctx,
+            msg,
+            title.unwrap(),
+            None,
+            None
+        ).await?;
+    }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.embed(|e| {
-            let mut response = "".to_string();
-            response.push_str(&format!("**Balance:** {}\n", holdings.balance));
+    if holdings.is_some() {
+        messages::send_portfolio(ctx, msg, holdings.unwrap()).await?;
+    }
 
-            response.push_str("──────────\n");
-
-            for holding in holdings.holdings {
-                let mut body: String = "".to_string();
-                body.push_str(&format!("**{}:** {} ({})\n", holding.team.name, holding.amount, holding.value));
-                response.push_str(&body);
-            };
-
-            response.push_str("──────────\n");
-            response.push_str(&format!("**Total:** {}", holdings.total_value));
-
-            e
-                .colour(0x4287f5)
-                .title(format!("{}'s Portfolio:", holdings.user))
-                .description(response)
-        })
-    }).await?;
     Ok(())
 }
 

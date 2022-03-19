@@ -6,9 +6,8 @@ use serenity::framework::standard::{
     Args,
 };
 
-use crate::helpers::portfolio_view;
+use crate::helpers::{messages, portfolio_view};
 use crate::helpers::portfolio_view::PlayersHoldings;
-use crate::helpers::send_error::send_error;
 
 #[command]
 pub async fn portfolio(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
@@ -17,47 +16,44 @@ pub async fn portfolio(ctx: &Context, msg: &Message, mut args: Args) -> CommandR
         Err(_) => msg.author.name.clone()
     };
 
-    let mut holdings: PlayersHoldings = PlayersHoldings{
-        holdings: vec![],
-        user: "".to_string(),
-        balance: 0,
-        total_value: 0
-    };
-    let mut error_occurred: Option<String> = None;
+    let mut holdings: Option<PlayersHoldings> = None;
+    let mut error_message: Option<String> = None;
 
     let user = portfolio_view::PlayerIdentification::PlayerName(user_name);
 
     match portfolio_view::list_holdings_for_player(user) {
-        Ok(h) => { holdings = h },
-        Err(e) => {  error_occurred = Some(e.to_string()) }
+        Ok(h) => { holdings = Some(h) },
+        Err(e) => {  error_message = Some(e.to_string()) }
     }
 
-    if error_occurred.is_some() {
-        send_error(ctx, msg, error_occurred.unwrap()).await?;
-        return Ok(())
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
     }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.embed(|e| {
-            let mut response = "".to_string();
-            response.push_str(&format!("**Balance:** {}\n", holdings.balance));
+    if holdings.is_some() {
+        let h = holdings.unwrap();
+        let mut response = "".to_string();
+        response.push_str(&format!("**Balance:** {}\n", h.balance));
 
-            response.push_str("──────────\n");
+        response.push_str("──────────\n");
 
-            for holding in holdings.holdings {
-                let mut body: String = "".to_string();
-                body.push_str(&format!("**{}:** {} ({})\n", holding.team.name, holding.amount, holding.value));
-                response.push_str(&body);
-            };
+        for holding in h.holdings {
+            let mut body: String = "".to_string();
+            body.push_str(&format!("**{}:** {} ({})\n", holding.team.name, holding.amount, holding.value));
+            response.push_str(&body);
+        };
 
-            response.push_str("──────────\n");
-            response.push_str(&format!("**Total:** {}", holdings.total_value));
+        response.push_str("──────────\n");
+        response.push_str(&format!("**Total:** {}", h.total_value));
 
-            e
-                .colour(0x4287f5)
-                .title(format!("{}'s Portfolio:", holdings.user))
-                .description(response)
-        })
-    }).await?;
+        messages::send_message::<String, String>(
+            ctx,
+            msg,
+            format!("{}'s Portfolio:", h.user),
+            Some(response),
+            None
+        ).await?;
+    }
+
     Ok(())
 }

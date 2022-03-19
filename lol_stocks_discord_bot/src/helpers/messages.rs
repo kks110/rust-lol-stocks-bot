@@ -2,6 +2,7 @@ use std::fmt::Display;
 use serenity::framework::standard::CommandResult;
 use serenity::model::prelude::Message;
 use serenity::prelude::Context;
+use crate::helpers::portfolio_view::PlayersHoldings;
 
 pub async fn send_message<T: Display, S: Display + Into<String>>(
     ctx: &Context,
@@ -76,5 +77,34 @@ pub async fn send_image_as_attachment<T: Display, S: Display + Into<String>>(
         m.add_file(&file_location[..]);
         m
     }).await?;
+    Ok(())
+}
+
+pub async fn send_portfolio(
+    ctx: &Context,
+    msg: &Message,
+    holdings: PlayersHoldings,
+) -> CommandResult {
+    let mut response = "".to_string();
+    response.push_str(&format!("**Balance:** {}\n", holdings.balance));
+
+    response.push_str("──────────\n");
+
+    for holding in holdings.holdings {
+        let mut body: String = "".to_string();
+        body.push_str(&format!("**{}:** {} ({})\n", holding.team.name, holding.amount, holding.value));
+        response.push_str(&body);
+    };
+
+    response.push_str("──────────\n");
+    response.push_str(&format!("**Total:** {}", holdings.total_value));
+
+    send_message::<String, String>(
+    ctx,
+    msg,
+    format!("{}'s Portfolio:", holdings.user),
+    Some(response),
+    None
+    ).await?;
     Ok(())
 }
