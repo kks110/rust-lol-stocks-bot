@@ -11,7 +11,7 @@ use endpoints::{
     },
     register_teams::register_teams,
     teams::teams,
-    take_team_snapshot::take_snapshot,
+    take_snapshot::take_snapshot,
     make_admin::make_admin,
 };
 
