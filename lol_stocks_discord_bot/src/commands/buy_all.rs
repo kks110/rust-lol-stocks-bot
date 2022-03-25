@@ -34,7 +34,7 @@ pub async fn buy_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult 
                 Err(e) => { error_message = Some(e.to_string()) }
             }
         },
-        Err(e) => { error_message = Some(e.to_string()) }
+        Err(e) => { error_message = Some(e) }
     }
 
     let mut holdings: Option<portfolio_view::PlayersHoldings> = None;

@@ -16,12 +16,12 @@ pub async fn send_message<T: Display, S: Display + Into<String>>(
             e.colour(0x4287f5);
             e.title(title);
 
-            if description.is_some() {
-                e.description(description.unwrap());
+            if let Some(desc) = description {
+                e.description(desc);
             }
 
-            if fields.is_some() {
-                e.fields(fields.unwrap());
+            if let Some(f) = fields {
+                e.fields(f);
             }
 
             e
@@ -64,13 +64,14 @@ pub async fn send_image_as_attachment<T: Display, S: Display + Into<String>>(
             e.colour(0x4287f5);
             e.title(title);
 
-            if description.is_some() {
-                e.description(description.unwrap());
+            if let Some(desc) = description {
+                e.description(desc);
             }
 
-            if fields.is_some() {
-                e.fields(fields.unwrap());
+            if let Some(f) = fields {
+                e.fields(f);
             }
+
             e.thumbnail(format!("attachment://{}", attachment))
         });
 

@@ -12,7 +12,7 @@ Here is a quick rundown of the things you can do:
 
 ";
 
-const HELP_MESSAGE_COMMANDS: [(&'static str, &'static str, bool); 17] = [
+const HELP_MESSAGE_COMMANDS: [(&str, &str, bool); 17] = [
     ("`!!register`", "Register to play. This will create an account and give you a starting balance.", false),
     ("`!!market <league?>`", "Shows the market price of all the teams with no args sent. Otherwise, will just show team in the specified league.", false),
     ("`!!buy <amount to buy> <team>`", "Buys 'Shares' in a team and add to your portfolio.", false),

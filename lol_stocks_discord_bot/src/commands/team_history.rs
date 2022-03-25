@@ -35,7 +35,7 @@ pub async fn team_history(ctx: &Context, msg: &Message, args: Args) -> CommandRe
 
     match parse_args::parse_string(args) {
         Ok(name) => { team_name = name },
-        Err(e) => { error_message = Some(e.to_string()) }
+        Err(e) => { error_message = Some(e) }
     };
 
     match load_elo_history(&team_name) {

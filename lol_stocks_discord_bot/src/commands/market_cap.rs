@@ -81,7 +81,7 @@ fn load_market_cap() -> Result<Vec<MarketCapEntry>, Box<dyn Error>> {
     let mut teams_and_owners: HashMap<i32, Vec<Portfolio>> = HashMap::new();
 
     for portfolio in portfolios {
-        teams_and_owners.entry(portfolio.team_id).or_insert(vec![]).push(portfolio);
+        teams_and_owners.entry(portfolio.team_id).or_insert_with(Vec::new).push(portfolio);
     }
 
     let mut market_cap_entries: Vec<MarketCapEntry> = Vec::new();

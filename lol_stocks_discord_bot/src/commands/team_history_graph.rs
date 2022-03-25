@@ -40,7 +40,7 @@ pub async fn team_history_graph(ctx: &Context, msg: &Message, args: Args) -> Com
                 Err(e) => { error_message = Some(e.to_string()) }
             }
         },
-        Err(e) => { error_message = Some(e.to_string()) }
+        Err(e) => { error_message = Some(e) }
     }
 
     if error_message.is_some() {

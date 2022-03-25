@@ -39,7 +39,7 @@ pub async fn market(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
         messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
     }
 
-    let market_name = market.unwrap_or("".to_string());
+    let market_name = market.unwrap_or_else(|| "".to_string());
 
     let market_image: &str =
         if market_name == "lec" {
@@ -75,7 +75,7 @@ fn make_view_market(market: &Option<String>) -> Result<Vec<Team>, Box<dyn Error>
     let teams: Vec<Team>;
 
     if let Some(market) = market {
-        load_league(&conn, &market)?;
+        load_league(&conn, market)?;
         teams = load_teams_by_league(&conn, &market.to_uppercase())?
     } else {
         teams = load_teams(&conn)?

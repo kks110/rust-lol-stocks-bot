@@ -39,7 +39,7 @@ pub async fn buy(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
             }
         },
         Err(e) => {
-            error_message = Some(e.to_string());
+            error_message = Some(e);
         }
     }
 
