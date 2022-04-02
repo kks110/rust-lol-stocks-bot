@@ -33,3 +33,35 @@ impl Error for DiscordIdConversionError {
 }
 
 
+#[derive(Debug)]
+pub struct NoAffordableStock {
+    details: String
+}
+
+impl NoAffordableStock {
+    pub fn new() -> NoAffordableStock {
+        NoAffordableStock{
+            details: "No teams that you can afford".to_string()
+        }
+    }
+}
+
+impl Default for NoAffordableStock {
+    fn default() -> Self {
+        NoAffordableStock::new()
+    }
+}
+
+impl fmt::Display for NoAffordableStock {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,"{}",self.details)
+    }
+}
+
+impl Error for NoAffordableStock {
+    fn description(&self) -> &str {
+        &self.details
+    }
+}
+
+

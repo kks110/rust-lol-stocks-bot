@@ -12,7 +12,7 @@ Here is a quick rundown of the things you can do:
 
 ";
 
-const HELP_MESSAGE_COMMANDS: [(&str, &str, bool); 17] = [
+const HELP_MESSAGE_COMMANDS: [(&str, &str, bool); 19] = [
     ("`!!register`", "Register to play. This will create an account and give you a starting balance.", false),
     ("`!!market <league?>`", "Shows the market price of all the teams with no args sent. Otherwise, will just show team in the specified league.", false),
     ("`!!buy <amount to buy> <team>`", "Buys 'Shares' in a team and add to your portfolio.", false),
@@ -29,6 +29,8 @@ const HELP_MESSAGE_COMMANDS: [(&str, &str, bool); 17] = [
     ("`!!market_cap`", "Show how many of what shares are owned.", false),
     ("`!!schedule`", "Show links to the schedule sites.", false),
     ("`!!weekly_report`", "Shows the +/- for the last week.", false),
+    ("`!!suggest <league?>`", "Suggests you a random team from one or both markets", false),
+    ("`!!suggest_affordable <league?>`", "Suggests you a random team from one or both markets that you have the money to buy", false),
     ("`!!market_lock`", "Can be used by admins to lock and unlock the market.", false),
 ];
 

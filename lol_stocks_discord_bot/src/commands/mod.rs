@@ -17,3 +17,5 @@ pub mod portfolio_history_graph;
 pub mod team_history_graph;
 pub mod leaderboard_graph;
 pub mod market_cap;
+pub mod suggest;
+pub mod suggest_affordable;

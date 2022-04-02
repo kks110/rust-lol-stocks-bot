@@ -83,6 +83,18 @@ Generated a graph based on all users portfolio value and history.
 !!weekly_reports
 ```
 
+##### suggest
+```
+!!suggest <league?>
+```
+Suggests you a random team from one or both markets
+
+##### suggest_affordable
+```
+!!suggest_affordable <league?>
+```
+Suggests you a random team from one or both markets that you have the money to buy
+
 ##### market_cap
 ```
 !!market_cap
