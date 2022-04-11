@@ -65,3 +65,33 @@ impl Error for NoAffordableStock {
 }
 
 
+#[derive(Debug)]
+pub struct AliasSameAsAUserName {
+    details: String
+}
+
+impl AliasSameAsAUserName {
+    pub fn new() -> AliasSameAsAUserName {
+        AliasSameAsAUserName{
+            details: "The alias you are trying to use is the same as someones username".to_string()
+        }
+    }
+}
+
+impl Default for AliasSameAsAUserName {
+    fn default() -> Self {
+        AliasSameAsAUserName::new()
+    }
+}
+
+impl fmt::Display for AliasSameAsAUserName {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,"{}",self.details)
+    }
+}
+
+impl Error for AliasSameAsAUserName {
+    fn description(&self) -> &str {
+        &self.details
+    }
+}

@@ -1,6 +1,3 @@
-use std::error::Error;
-use std::result::Result;
-
 use serenity::prelude::*;
 use serenity::model::prelude::*;
 use serenity::framework::standard::{
@@ -19,7 +16,7 @@ use crate::helpers::{messages, parse_args};
 
 
 #[command]
-pub async fn update_alias(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn update_alias(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
     let mut response: Option<String> = None;
     let mut error_message: Option<String> = None;
     let mut alias: Option<String> = None;

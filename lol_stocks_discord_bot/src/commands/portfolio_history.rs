@@ -25,6 +25,7 @@ use lol_stocks_core::{
         portfolios::load_users_portfolio,
     }
 };
+use lol_stocks_core::database::users::load_user_by_alias;
 use crate::helpers::messages;
 
 struct HistoryData {
@@ -63,10 +64,12 @@ pub async fn portfolio_history(ctx: &Context, msg: &Message, mut args: Args) -> 
             )
         };
 
-        messages::send_message::<&str, String>(
+        let title = format!("{}'s Portfolio History", user_name);
+
+        messages::send_message::<String, String>(
             ctx,
             msg,
-            "Portfolio History",
+            title,
             None,
             Some(fields)
         ).await?;
@@ -77,7 +80,10 @@ pub async fn portfolio_history(ctx: &Context, msg: &Message, mut args: Args) -> 
 
 fn make_portfolio_performance(user_name: &str) -> Result<Vec<HistoryData>, Box<dyn Error>> {
     let conn = establish_connection();
-    let user = load_user(&conn, user_name)?;
+    let user = match load_user(&conn, user_name) {
+        Ok(u) => u,
+        Err(_) => load_user_by_alias(&conn, user_name)?
+    };
     let user_portfolio_history = load_user_portfolio_history(&conn, &user, Option::from(5))?;
 
     let portfolio = load_users_portfolio(&conn, &user)?;

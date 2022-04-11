@@ -25,6 +25,7 @@ use graph_builder::models::{
     graph_data::GraphData,
     graph_data_point::GraphDataPoint
 };
+use lol_stocks_core::database::users::load_user_by_alias;
 use crate::helpers::messages;
 
 #[command]
@@ -60,7 +61,10 @@ pub async fn portfolio_history_graph(ctx: &Context, msg: &Message, mut args: Arg
 fn make_portfolio_graph(user_name: &str) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
 
-    let user = load_user(&conn, user_name)?;
+    let user = match load_user(&conn, user_name) {
+        Ok(u) => u,
+        Err(_) => load_user_by_alias(&conn, user_name)?
+    };
     let portfolio = load_users_portfolio(&conn, &user)?;
     let graph_points: Vec<GraphDataPoint> = graph_data_for_user(&user)?;
 
