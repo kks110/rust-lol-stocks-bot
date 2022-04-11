@@ -35,13 +35,13 @@ pub fn load_user_by_discord_id(conn: &PgConnection, discord_id_number: &u64) -> 
         .first(conn)?)
 }
 
-pub fn create_user(conn: &PgConnection, name: &str, discord_id: &u64) -> Result<User, Box<dyn Error>> {
+pub fn create_user(conn: &PgConnection, name: &str, discord_id: &u64, alias: Option<String>) -> Result<User, Box<dyn Error>> {
     use crate::schema::users;
 
     let numeric_discord_id = BigDecimal::from_u64(*discord_id)
         .ok_or_else(|| { DiscordIdConversionError::new() })?;
 
-    let new_user = NewUser::new(name, numeric_discord_id);
+    let new_user = NewUser::new(name, numeric_discord_id, alias);
 
     Ok(diesel::insert_into(users::table)
         .values(&new_user)
@@ -63,6 +63,15 @@ pub fn make_user_admin(conn: &PgConnection, user_name: &str) -> Result<User, Box
 
     Ok(diesel::update(users.filter(name.eq(user_name)))
         .set(admin.eq(true))
+        .get_result::<User>(conn)?
+    )
+}
+
+pub fn add_user_alias(conn: &PgConnection, user_name: &str, user_alias: &str) -> Result<User, Box<dyn Error>> {
+    use crate::schema::users::dsl::*;
+
+    Ok(diesel::update(users.filter(name.eq(user_name)))
+        .set(alias.eq(user_alias))
         .get_result::<User>(conn)?
     )
 }

@@ -8,6 +8,7 @@ pub struct User {
     pub balance: i32,
     pub admin: bool,
     pub discord_id: BigDecimal,
+    pub alias: Option<String>,
 }
 
 #[derive(Insertable)]
@@ -16,14 +17,16 @@ pub struct NewUser {
     pub name: String,
     pub balance: i32,
     pub discord_id: BigDecimal,
+    pub alias: Option<String>
 }
 
 impl NewUser {
-    pub fn new(name: &str, discord_id: BigDecimal) -> NewUser {
+    pub fn new(name: &str, discord_id: BigDecimal, alias: Option<String>) -> NewUser {
         NewUser {
             name: String::from(name),
             balance: 5000,
-            discord_id
+            discord_id,
+            alias
         }
     }
 }

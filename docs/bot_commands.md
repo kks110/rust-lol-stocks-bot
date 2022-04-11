@@ -2,9 +2,15 @@
 
 ##### register
 ```
-!!register
+!!register <alias?>
 ```
-Register to play. This will create an account and give you a starting balance.
+Register to play. This will create an account and give you a starting balance. Can also add an alias
+
+##### update_alias
+```
+!!update_alias <alias>
+```
+Add a user alias to yourself
 
 ##### market
 ```

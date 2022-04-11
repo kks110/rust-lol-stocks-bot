@@ -6,6 +6,7 @@ use serenity::model::prelude::*;
 use serenity::framework::standard::{
     CommandResult,
     macros::command,
+    Args,
 };
 
 use lol_stocks_core::database::{
@@ -17,11 +18,16 @@ use crate::helpers::messages;
 
 
 #[command]
-pub async fn register(ctx: &Context, msg: &Message) -> CommandResult {
+pub async fn register(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     let mut response: Option<String> = None;
     let mut error_message: Option<String> = None;
 
-    match create_new_user(&msg.author.name, msg.author.id.as_u64()) {
+    let alias: Option<String> = match args.single::<String>() {
+        Ok(a) => Some(a),
+        Err(_) => None
+    };
+
+    match create_new_user(&msg.author.name, msg.author.id.as_u64(), alias) {
         Ok(user) => {
             response = Some(format!("💹 Created user {}. Starting Balance is {}", user.name, user.balance));
         },
@@ -46,7 +52,7 @@ pub async fn register(ctx: &Context, msg: &Message) -> CommandResult {
     Ok(())
 }
 
-fn create_new_user(username: &str, discord_id: &u64) -> Result<User, Box<dyn Error>> {
+fn create_new_user(username: &str, discord_id: &u64, alias: Option<String>) -> Result<User, Box<dyn Error>> {
     let conn = establish_connection();
-    create_user(&conn, username, discord_id)
+    create_user(&conn, username, discord_id, alias)
 }

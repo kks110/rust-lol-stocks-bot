@@ -32,7 +32,8 @@ use commands::{
     leaderboard_graph::*,
     market_cap::*,
     suggest::*,
-    suggest_affordable::*
+    suggest_affordable::*,
+    update_alias::*,
 };
 
 use lol_stocks_core::database::migrations::run_migrations;
@@ -56,7 +57,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(help, register, buy, sell, market, portfolio, market_lock, ping, team_history, portfolio_history, leaderboard, schedule, weekly_report, sell_all, buy_all, portfolio_history_graph, team_history_graph, leaderboard_graph, market_cap, suggest, suggest_affordable)]
+#[commands(help, register, buy, sell, market, portfolio, market_lock, ping, team_history, portfolio_history, leaderboard, schedule, weekly_report, sell_all, buy_all, portfolio_history_graph, team_history_graph, leaderboard_graph, market_cap, suggest, suggest_affordable, update_alias)]
 struct General;
 
 #[tokio::main]
