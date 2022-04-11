@@ -55,6 +55,7 @@ table! {
         balance -> Int4,
         admin -> Bool,
         discord_id -> Numeric,
+        alias -> Nullable<Varchar>,
     }
 }
 

@@ -12,8 +12,9 @@ Here is a quick rundown of the things you can do:
 
 ";
 
-const HELP_MESSAGE_COMMANDS: [(&str, &str, bool); 19] = [
-    ("`!!register`", "Register to play. This will create an account and give you a starting balance.", false),
+const HELP_MESSAGE_COMMANDS: [(&str, &str, bool); 20] = [
+    ("`!!register <alias?>`", "Register to play. This will create an account and give you a starting balance. Can also add an alias", false),
+    ("`!!update_alias <alias>`", "Add a user alias to yourself", false),
     ("`!!market <league?>`", "Shows the market price of all the teams with no args sent. Otherwise, will just show team in the specified league.", false),
     ("`!!buy <amount to buy> <team>`", "Buys 'Shares' in a team and add to your portfolio.", false),
     ("`!!buy_all <team>`", "Buys as many 'Shares' in a team as you can afford.", false),

@@ -19,3 +19,4 @@ pub mod leaderboard_graph;
 pub mod market_cap;
 pub mod suggest;
 pub mod suggest_affordable;
+pub mod update_alias;

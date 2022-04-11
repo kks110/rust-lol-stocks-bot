@@ -4,7 +4,8 @@ use lol_stocks_core::database:: {
     portfolios::load_users_portfolio,
     teams::load_team_by_id,
     users::load_user,
-    users::load_user_by_discord_id
+    users::load_user_by_discord_id,
+    users::load_user_by_alias
 };
 use lol_stocks_core::models::team::Team;
 
@@ -34,7 +35,10 @@ pub fn list_holdings_for_player(user_id: PlayerIdentification) -> Result<Players
             load_user_by_discord_id(&conn, &id)?
         },
         PlayerIdentification::PlayerName(name) => {
-            load_user(&conn, &name)?
+            match load_user(&conn, &name) {
+                Ok(u) => u,
+                Err(_) => load_user_by_alias(&conn, &name)?
+            }
         }
     };
 
