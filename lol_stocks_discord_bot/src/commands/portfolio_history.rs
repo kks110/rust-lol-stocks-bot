@@ -3,6 +3,7 @@ use serenity::model::prelude::*;
 use serenity::framework::standard::{
     CommandResult,
     macros::command,
+    Args,
 };
 
 use chrono::{
@@ -24,6 +25,8 @@ use lol_stocks_core::{
         portfolios::load_users_portfolio,
     }
 };
+use lol_stocks_core::database::users::load_user_by_alias;
+use crate::helpers::messages;
 
 struct HistoryData {
     pub date: NaiveDate,
@@ -32,23 +35,55 @@ struct HistoryData {
 }
 
 #[command]
-pub async fn portfolio_performance(ctx: &Context, msg: &Message) -> CommandResult {
-    let user_name = msg.author.name.clone();
+pub async fn portfolio_history(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    let user_name = match args.single::<String>() {
+        Ok(user) => user,
+        Err(_) => msg.author.name.clone()
+    };
 
-    let response: String;
+    let mut entries: Option<Vec<HistoryData>> = None;
+    let mut error_message: Option<String> = None;
 
     match make_portfolio_performance(&user_name) {
-        Ok(message) => { response = message},
-        Err(e) => { response = format!("An error has occurred: {}", e.to_string())}
+        Ok(message) => { entries = Some(message) },
+        Err(e) => { error_message = Some(e.to_string()) }
     }
 
-    msg.channel_id.say(&ctx.http, response).await?;
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
+    }
+
+    if entries.is_some() {
+        let mut fields: Vec<(String, String, bool)> = vec![];
+        for entry in entries.unwrap() {
+            fields.push(
+                (format!("{}", entry.date),
+                 format!("{} ({}{})", entry.value, plus_sign(entry.difference), entry.difference),
+                 false
+                )
+            )
+        };
+
+        let title = format!("{}'s Portfolio History", user_name);
+
+        messages::send_message::<String, String>(
+            ctx,
+            msg,
+            title,
+            None,
+            Some(fields)
+        ).await?;
+    }
+
     Ok(())
 }
 
-fn make_portfolio_performance(user_name: &str) -> Result<String, Box<dyn Error>> {
+fn make_portfolio_performance(user_name: &str) -> Result<Vec<HistoryData>, Box<dyn Error>> {
     let conn = establish_connection();
-    let user = load_user(&conn, user_name)?;
+    let user = match load_user(&conn, user_name) {
+        Ok(u) => u,
+        Err(_) => load_user_by_alias(&conn, user_name)?
+    };
     let user_portfolio_history = load_user_portfolio_history(&conn, &user, Option::from(5))?;
 
     let portfolio = load_users_portfolio(&conn, &user)?;
@@ -78,11 +113,5 @@ fn make_portfolio_performance(user_name: &str) -> Result<String, Box<dyn Error>>
         counter += 1;
     }
 
-    let mut  message = String::from("");
-
-    for entry in history_data {
-        let response_line = format!("Date: {}, Value: {} ({}{})\n", entry.date, entry.value, plus_sign(entry.difference), entry.difference);
-        message.push_str(&response_line)
-    }
-    Ok(message)
+    Ok(history_data)
 }

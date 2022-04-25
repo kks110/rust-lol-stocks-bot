@@ -1,6 +1,5 @@
 use serenity::prelude::*;
 use serenity::model::prelude::*;
-use serenity::utils::Colour;
 use serenity::framework::standard::{
     CommandResult,
     macros::command,
@@ -10,6 +9,7 @@ use std::error::Error;
 use std::result::Result;
 
 use crate::helpers::plus_sign::plus_sign;
+use crate::helpers::messages;
 
 use lol_stocks_core::{
     database::{
@@ -27,36 +27,39 @@ struct WeeklyReportLine {
 
 #[command]
 pub async fn weekly_report(ctx: &Context, msg: &Message) -> CommandResult {
-    let weekly_lines: Option<Vec<WeeklyReportLine>>;
-    let response: Option<String>;
+    let mut weekly_report_lines: Option<Vec<WeeklyReportLine>> = None;
+    let mut error_message: Option<String> = None;
 
     match make_weekly_report() {
-        Ok(weekly_report_lines) => {
-            weekly_lines = Some(weekly_report_lines);
-            response = None;
-        },
-        Err(e) => {
-            response = Some(format!("An error a occurred: {}", e.to_string()));
-            weekly_lines = None
-        }
+        Ok(lines) => { weekly_report_lines = Some(lines) },
+        Err(e) => { error_message = Some(e.to_string()) }
     }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        if let Some(response) = response {
-            m.content(response);
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
+    }
+
+    if weekly_report_lines.is_some() {
+        let mut fields: Vec<(String, String, bool)> = vec![];
+        for line in weekly_report_lines.unwrap() {
+            fields.push(
+                (
+                    line.team_name,
+                    format!("{} ({}{})", line.current_elo, plus_sign(line.difference), line.difference),
+                    true
+                )
+            )
         }
-        if weekly_lines.is_some() {
-            m.embed(|e| {
-                e.title("Weekly Report:");
-                e.colour(Colour::from_rgb(94, 166, 96));
-                for line in weekly_lines.unwrap() {
-                    e.field(line.team_name, format!("{} ({}{})", line.current_elo, plus_sign(line.difference), line.difference), true);
-                }
-                e
-            });
-        }
-        m
-    }).await?;
+
+        messages::send_message::<&str, String>(
+            ctx,
+            msg,
+            "Weekly Report",
+            None,
+            Some(fields)
+        ).await?;
+    }
+
     Ok(())
 }
 

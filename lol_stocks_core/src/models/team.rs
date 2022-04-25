@@ -1,7 +1,7 @@
 use crate::schema::teams;
 use serde::Serialize;
 
-#[derive(Identifiable, Queryable, Associations, Serialize)]
+#[derive(Identifiable, Queryable, Associations, Serialize, Clone)]
 pub struct Team {
     pub id: i32,
     pub name: String,

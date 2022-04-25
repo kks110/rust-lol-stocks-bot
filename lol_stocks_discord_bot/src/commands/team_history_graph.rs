@@ -21,40 +21,41 @@ use graph_builder::models::{
     graph_data::GraphData,
     graph_data_point::GraphDataPoint
 };
+use crate::helpers::{
+    messages,
+    parse_args
+};
 
 #[command]
-pub async fn team_graph(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-    let response: String;
-    let mut file_location = "".to_string();
+pub async fn team_history_graph(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+    let mut file_location: Option<String> = None;
+    let mut error_message: Option<String> = None;
 
-    match parse_args(args) {
+    match parse_args::parse_string(args) {
         Ok(team) => {
             let team_name = team;
 
-
             match make_team_graph(&team_name) {
-                Ok(location) => {
-                    response = "".to_string();
-                    file_location.push_str(&location)
-                },
-                Err(e) => { response = format!("An error has occurred: {}", e.to_string()) }
+                Ok(location) => { file_location = Some(location); },
+                Err(e) => { error_message = Some(e.to_string()) }
             }
         },
-        Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
+        Err(e) => { error_message = Some(e) }
     }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.content(response);
-        m.add_file(&file_location[..])
-    }).await?;
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
+    }
 
+    if file_location.is_some() {
+        messages::send_image_message(
+            ctx,
+            msg,
+            file_location.unwrap()
+        ).await?;
+    }
     Ok(())
 }
-
-fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
-    Ok(args.single::<String>()?)
-}
-
 
 fn make_team_graph(team_name: &str) ->Result<String, Box<dyn Error>> {
     let conn = establish_connection();

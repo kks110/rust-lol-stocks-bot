@@ -1,6 +1,6 @@
 [package]
 name = "lol_stocks_discord_bot"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Kelvin Samuel <kelvin@kks110.com>"]
 edition = "2021"
 
@@ -16,3 +16,4 @@ tracing = "0.1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 serenity = { version = "0.10", default-features = false, features = ["client", "framework", "standard_framework", "gateway", "model", "rustls_backend"] }
 chrono = "0.4"
+rand = "0.8.5"

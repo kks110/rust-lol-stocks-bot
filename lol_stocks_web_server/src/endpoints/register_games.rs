@@ -18,7 +18,7 @@ pub async fn register_game(game: web::Json<Game>) -> impl Responder {
             HttpResponse::Ok().body("")
         },
         Err(e) => {
-            println!("An error occurred: {}", e.to_string());
+            println!("An error occurred: {}", e);
             HttpResponse::InternalServerError().body(e.to_string())
         }
     }
@@ -33,7 +33,7 @@ pub async fn register_games(game_list: web::Json<Games>) -> impl Responder {
             HttpResponse::Ok().body("")
         },
         Err(e) => {
-            println!("An error occurred: {}", e.to_string());
+            println!("An error occurred: {}", e);
             HttpResponse::InternalServerError().body(e.to_string())
         }
     }

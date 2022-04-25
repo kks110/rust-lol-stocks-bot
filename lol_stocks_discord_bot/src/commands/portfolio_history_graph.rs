@@ -3,6 +3,7 @@ use serenity::model::prelude::*;
 use serenity::framework::standard::{
     CommandResult,
     macros::command,
+    Args,
 };
 use std::env;
 use std::error::Error;
@@ -24,26 +25,35 @@ use graph_builder::models::{
     graph_data::GraphData,
     graph_data_point::GraphDataPoint
 };
+use lol_stocks_core::database::users::load_user_by_alias;
+use crate::helpers::messages;
 
 #[command]
-pub async fn portfolio_graph(ctx: &Context, msg: &Message) -> CommandResult {
-    let user_name = msg.author.name.clone();
+pub async fn portfolio_history_graph(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    let user_name = match args.single::<String>() {
+        Ok(user) => user,
+        Err(_) => msg.author.name.clone()
+    };
 
-    let response: String;
-    let mut file_location = "".to_string();
+    let mut file_location: Option<String> = None;
+    let mut error_message: Option<String> = None;
 
     match make_portfolio_graph(&user_name) {
-        Ok(location) => {
-            response = "".to_string();
-            file_location.push_str(&location)
-        },
-        Err(e) => { response = format!("An error has occurred: {}", e.to_string()) }
+        Ok(location) => { file_location = Some(location); },
+        Err(e) => { error_message = Some(e.to_string()) }
     }
 
-    msg.channel_id.send_message(&ctx.http, |m| {
-        m.content(response);
-        m.add_file(&file_location[..])
-    }).await?;
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
+    }
+
+    if file_location.is_some() {
+        messages::send_image_message(
+            ctx,
+            msg,
+            file_location.unwrap()
+        ).await?;
+    }
 
     Ok(())
 }
@@ -51,7 +61,10 @@ pub async fn portfolio_graph(ctx: &Context, msg: &Message) -> CommandResult {
 fn make_portfolio_graph(user_name: &str) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
 
-    let user = load_user(&conn, user_name)?;
+    let user = match load_user(&conn, user_name) {
+        Ok(u) => u,
+        Err(_) => load_user_by_alias(&conn, user_name)?
+    };
     let portfolio = load_users_portfolio(&conn, &user)?;
     let graph_points: Vec<GraphDataPoint> = graph_data_for_user(&user)?;
 

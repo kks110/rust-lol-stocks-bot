@@ -13,53 +13,77 @@ use lol_stocks_core::database::{
     connection::establish_connection,
     portfolios::user_portfolio_purchase,
     locks::load_lock,
-    users::{load_user, update_user},
+    users::{load_user_by_discord_id, update_user},
     teams::load_team,
 };
+use crate::helpers::{messages, portfolio_view, parse_args};
+
 
 #[command]
 pub async fn buy_all(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-    let user_name = msg.author.name.clone();
+    let user_discord_id = msg.author.id.as_u64();
 
-    let response: String;
+    let mut title: Option<String> = None;
+    let mut error_message: Option<String> = None;
 
-    match parse_args(args) {
+    match parse_args::parse_string(args) {
         Ok(t) => {
             let team_name = t;
-            match perform_buy_all(&team_name, &user_name) {
-                Ok(message) => { response = message },
-                Err(e) => { response = format!("An error has occurred: {}", e)}
+            match perform_buy_all(&team_name, user_discord_id) {
+                Ok(message) => { title = Some(message) },
+                Err(e) => { error_message = Some(e.to_string()) }
             }
         },
-        Err(e) => { response = format!("An error as occurred {}", e.to_string()); }
+        Err(e) => { error_message = Some(e) }
     }
 
-    msg.channel_id.say(&ctx.http, response).await?;
+    let mut holdings: Option<portfolio_view::PlayersHoldings> = None;
+    let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
+
+    match portfolio_view::list_holdings_for_player(user) {
+        Ok(h) => { holdings = Some(h) },
+        Err(e) => {  error_message = Some(e.to_string()) }
+    }
+
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
+    }
+
+    if title.is_some() {
+        messages::send_message::<String, &str>(
+            ctx,
+            msg,
+            title.unwrap(),
+            None,
+            None
+        ).await?;
+
+        if holdings.is_some() {
+            messages::send_portfolio(ctx, msg, holdings.unwrap()).await?;
+        }
+    }
+
     Ok(())
 }
 
-fn parse_args(mut args: Args) -> Result<String, Box<dyn Error>> {
-    Ok(args.single::<String>()?)
-}
-
-fn perform_buy_all(team_name: &str, user_name: &str) -> Result<String, Box<dyn Error>> {
+fn perform_buy_all(team_name: &str, user_discord_id: &u64) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
     let db_lock = load_lock(&conn)?;
 
     if db_lock.locked {
-        return Ok("Sales are locked, wait for the games to finish!".to_string())
+        return Ok("🔒 Market is closed".to_string())
     }
 
     let team = load_team(&conn, team_name)?;
-    let user = load_user(&conn, user_name)?;
+    let user = load_user_by_discord_id(&conn, user_discord_id)?;
 
     let amount = user.balance / team.elo;
     if amount == 0 {
-        return Ok("Not enough funds!".to_string())
+        return Ok("❌ Not enough funds!".to_string())
     }
 
     let cost = team.elo * amount;
     update_user(&conn, &user.name, user.balance - cost)?;
     user_portfolio_purchase(&conn, &user, &team, amount)?;
-    Ok("Purchase Made!".to_string())
+    Ok("💸 Purchase Made!".to_string())
 }

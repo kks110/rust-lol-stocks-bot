@@ -2,19 +2,25 @@
 
 ##### register
 ```
-!!register
+!!register <alias?>
 ```
-Register to play. This will create an account and give you a starting balance.
+Register to play. This will create an account and give you a starting balance. Can also add an alias
 
-##### view_market
+##### update_alias
 ```
-!!view_market <league_name?>
+!!update_alias <alias>
+```
+Add a user alias to yourself
+
+##### market
+```
+!!market <league_name?>
 ```
 Shows the market price of all the teams with no args sent. Otherwise, will just show team in the specified league.
 
 ##### buy
 ```
-!!buy <team> <amount to buy>
+!!buy <amount to buy> <team>
 ```
 Buys 'Shares' in a team and add to your portfolio.
 
@@ -26,7 +32,7 @@ Buys as many 'Shares' in a team as you can afford.
 
 ##### sell
 ```
-!!sell <team> <amount to buy>
+!!sell <amount to sell> <team>
 ```
 Sells 'Shares' in a team, removes from your portfolio and add to your balance.
 
@@ -36,35 +42,35 @@ Sells 'Shares' in a team, removes from your portfolio and add to your balance.
 ```
 Sells all 'Shares' in a specified team, if no team is specified, will sell your whole portfolio.
 
-##### view_portfolio
+##### portfolio
 ```
-!!view_portfolio <user?>
+!!portfolio <user?>
 ```
 Shows a users portfolio and how much its worth. If no user is specified it will show your own.
 
-##### portfolio_graph
+##### team_history
 ```
-!!portfolio_graph
-``` 
-Generated a graph based on portfolio value and history.
-
-##### elo_history_for
-```
-!!elo_history_for <team>
+!!team_history <team>
 ```
 Shows the historic prices of the team.
 
-##### team_graph
+##### team_history_graph
 ```
-!!team_graph <team>
+!!team_history_graph <team>
 ```
 Generated a graph based on elo and history of a team.
 
-##### portfolio_performance
+##### portfolio_history
 ```
-!!portfolio_performance
+!!portfolio_history <user?>
 ```
-Shows your portfolios historic values.
+Shows users portfolios historic values, yours by default.
+
+##### portfolio_history_graph
+```
+!!portfolio_history_graph <user?>
+```
+Generated a graph based on users portfolio value and history, yours by default.
 
 ##### leaderboard
 ```
@@ -83,6 +89,18 @@ Generated a graph based on all users portfolio value and history.
 !!weekly_reports
 ```
 
+##### suggest
+```
+!!suggest <league?>
+```
+Suggests you a random team from one or both markets
+
+##### suggest_affordable
+```
+!!suggest_affordable <league?>
+```
+Suggests you a random team from one or both markets that you have the money to buy
+
 ##### market_cap
 ```
 !!market_cap
@@ -98,9 +116,9 @@ View the current price of all the teams, but also show the increase / decrease f
 ```
 Show links to the schedule sites.
 
-##### db_lock
+##### market_lock
 ```
-!!db_lock
+!!market_lock
 ```
 The ability to buy and sell will be locked over the weekend to make sure that the games have been updated before people try to buy and sell teams.
 Can be used by admins to lock and unlock the market.

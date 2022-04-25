@@ -6,6 +6,7 @@ use serenity::model::prelude::*;
 use serenity::framework::standard::{
     CommandResult,
     macros::command,
+    Args,
 };
 
 use lol_stocks_core::database::{
@@ -13,27 +14,45 @@ use lol_stocks_core::database::{
     users::create_user
 };
 use lol_stocks_core::models::user::User;
+use crate::helpers::messages;
 
 
 #[command]
-pub async fn register(ctx: &Context, msg: &Message) -> CommandResult {
-    let response: String;
+pub async fn register(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    let mut response: Option<String> = None;
+    let mut error_message: Option<String> = None;
 
-    match create_new_user(&msg.author.name) {
+    let alias: Option<String> = match args.single::<String>() {
+        Ok(a) => Some(a),
+        Err(_) => None
+    };
+
+    match create_new_user(&msg.author.name, msg.author.id.as_u64(), alias) {
         Ok(user) => {
-            println!("{} has registered", user.name);
-            response = format!("Updated user {}. Starting Balance is {}", user.name, user.balance);
+            response = Some(format!("💹 Created user {}. Starting Balance is {}", user.name, user.balance));
         },
-        Err(e) => {
-            println!("There was an error creating the new user: {}", e.to_string());
-            response = format!("There was an error creating the new user: {}", e.to_string());
-        }
+        Err(e) => { error_message = Some(e.to_string()) }
+
     }
-    msg.channel_id.say(&ctx.http, response).await?;
+
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
+    }
+
+    if response.is_some() {
+        messages::send_message::<String, String>(
+            ctx,
+            msg,
+            response.unwrap(),
+            None,
+            None
+        ).await?;
+    }
+
     Ok(())
 }
 
-fn create_new_user(username: &str) -> Result<User, Box<dyn Error>> {
+fn create_new_user(username: &str, discord_id: &u64, alias: Option<String>) -> Result<User, Box<dyn Error>> {
     let conn = establish_connection();
-    create_user(&conn, username)
+    create_user(&conn, username, discord_id, alias)
 }

@@ -4,10 +4,16 @@ use serenity::framework::standard::{
     CommandResult,
     macros::command,
 };
+use crate::helpers::messages;
 
 #[command]
 pub async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
-    msg.channel_id.say(&ctx.http, "pong").await?;
-
+    messages::send_message::<&str, &str>(
+        ctx,
+        msg,
+        "🏓 Pong",
+        None,
+        None
+    ).await?;
     Ok(())
 }

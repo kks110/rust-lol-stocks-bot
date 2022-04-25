@@ -16,6 +16,7 @@ use lol_stocks_core::{
         portfolios::load_users_portfolio,
     },
 };
+use crate::helpers::messages;
 
 struct LeaderboardEntry {
     pub user_name: String,
@@ -24,18 +25,43 @@ struct LeaderboardEntry {
 
 #[command]
 pub async fn leaderboard(ctx: &Context, msg: &Message) -> CommandResult {
-    let response: String;
+    let mut entries: Option<Vec<LeaderboardEntry>> = None;
+    let mut error_message: Option<String> = None;
 
     match load_leaderboard() {
-        Ok(message) => { response = message },
-        Err(e) => { response = format!("An Error as occurred: {}", e.to_string()) }
+        Ok(message) => { entries = Some(message) },
+        Err(e) => { error_message = Some(e.to_string()) }
     }
 
-    msg.channel_id.say(&ctx.http, response).await?;
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
+    }
+
+    if entries.is_some() {
+        let mut fields: Vec<(String, String, bool)> = vec![];
+        for (index, player) in entries.unwrap().iter().enumerate() {
+            fields.push(
+                (
+                    format!("{}. {}: ", index + 1, player.user_name),
+                    format!("{}", player.value),
+                    false
+                )
+            )
+        }
+
+        messages::send_message::<&str, String>(
+            ctx,
+            msg,
+            "Leaderboard",
+            None,
+            Some(fields)
+        ).await?;
+    }
+
     Ok(())
 }
 
-fn load_leaderboard() -> Result<String, Box<dyn Error>> {
+fn load_leaderboard() -> Result<Vec<LeaderboardEntry>, Box<dyn Error>> {
     let conn = establish_connection();
 
     let users = load_users(&conn)?;
@@ -52,10 +78,5 @@ fn load_leaderboard() -> Result<String, Box<dyn Error>> {
 
     leaderboard_entries.sort_by(|a, b| b.value.cmp(&a.value));
 
-    let mut message = String::from("Leaderboard:\n");
-    for entry in leaderboard_entries {
-        let entry_string = format!("{}: {}\n", entry.user_name, entry.value);
-        message.push_str(&entry_string);
-    }
-    Ok(message)
+    Ok(leaderboard_entries)
 }

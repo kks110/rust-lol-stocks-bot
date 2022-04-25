@@ -12,65 +12,84 @@ use lol_stocks_core::database::{
     connection::establish_connection,
     portfolios::user_portfolio_purchase,
     locks::load_lock,
-    users::{load_user, update_user},
+    users::{load_user_by_discord_id, update_user},
     teams::load_team,
 };
+
 use lol_stocks_core::models::{
     team::Team,
     user::User
 };
+use crate::helpers::{messages, portfolio_view, parse_args};
 
 #[command]
 pub async fn buy(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
-    let response: String;
+    let user_discord_id = msg.author.id.as_u64();
 
-    match parse_args(args) {
-        Ok(team_and_amount) => {
-            let (team_name, amount) = team_and_amount;
-            let user_name = msg.author.name.clone();
+    let mut title: Option<String> = None;
+    let mut error_message: Option<String> = None;
 
-            match buy_shares(amount, &team_name, &user_name) {
-                Ok(message) => {
-                    println!("{} and purchased {} shares in {}", user_name, amount, team_name);
-                    response = message;
-                },
-                Err(e) => {
-                    response = format!("An error as occurred {}", e.to_string());
-                    println!("{}", response);
-                }
+    match parse_args::parse_int_and_string(args) {
+        Ok(amount_and_team) => {
+            let (amount, team_name) = amount_and_team;
+
+            match buy_shares(amount, &team_name, user_discord_id) {
+                Ok(message) => { title = Some(message); },
+                Err(e) => { error_message = Some(e.to_string()); }
             }
         },
         Err(e) => {
-            response = format!("An error as occurred {}", e.to_string());
+            error_message = Some(e);
         }
     }
 
-    msg.channel_id.say(&ctx.http, response).await?;
+    let mut holdings: Option<portfolio_view::PlayersHoldings> = None;
+    let user = portfolio_view::PlayerIdentification::PlayerId(*user_discord_id);
+
+    match portfolio_view::list_holdings_for_player(user) {
+        Ok(h) => { holdings = Some(h) },
+        Err(e) => {  error_message = Some(e.to_string()) }
+    }
+
+    if error_message.is_some() {
+        messages::send_error_message(ctx, msg, error_message.unwrap()).await?;
+    }
+
+    if title.is_some() {
+        messages::send_message::<String, &str>(
+            ctx,
+            msg,
+            title.unwrap(),
+            None,
+            None
+        ).await?;
+
+        if holdings.is_some() {
+            messages::send_portfolio(ctx, msg, holdings.unwrap()).await?;
+        }
+    }
+
     Ok(())
 }
 
-fn parse_args(mut args: Args) -> Result<(String, i32), Box<dyn Error>> {
-    Ok((args.single::<String>()?, args.single::<i32>()?))
-}
-
-fn buy_shares(amount: i32, team_name: &str, user_name: &str) -> Result<String, Box<dyn Error>> {
+fn buy_shares(amount: i32, team_name: &str, user_discord_id: &u64) -> Result<String, Box<dyn Error>> {
     let conn = establish_connection();
 
     let db_lock = load_lock(&conn)?;
 
     if db_lock.locked {
-        return Ok("Market is closed".to_string())
+        return Ok("🔒 Market is closed".to_string())
     }
 
     if amount <= 0 {
-        return Ok("Please enter a positive number!".to_string())
+        return Ok("❌ Please enter a positive number!".to_string())
     }
 
     let team = load_team(&conn, team_name)?;
-    let user = load_user(&conn, user_name)?;
+    let user = load_user_by_discord_id(&conn, user_discord_id)?;
 
     if amount > user.balance {
-        return Ok("Not enough funds".to_string())
+        return Ok("❌ Not enough funds".to_string())
     }
 
     let cost: i32 = team.elo * amount;
@@ -81,7 +100,7 @@ fn buy_shares(amount: i32, team_name: &str, user_name: &str) -> Result<String, B
             Err(e) => Err(e)
         }
     } else {
-        Ok("Not enough funds".to_string())
+        Ok("❌ Not enough funds".to_string())
     }
 }
 
@@ -89,5 +108,5 @@ fn update_balance(cost: i32, user: User, team: Team, amount: i32) -> Result<Stri
     let conn = establish_connection();
     update_user(&conn, &user.name, user.balance - cost)?;
     user_portfolio_purchase(&conn, &user, &team, amount)?;
-    Ok("Purchase Made!".to_string())
+    Ok("💸 Purchase Made!".to_string())
 }
