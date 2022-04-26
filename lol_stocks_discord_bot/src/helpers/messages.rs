@@ -36,7 +36,7 @@ pub async fn send_error_message<T: Display>(ctx: &Context, msg: &Message, error:
         m.embed(|e| {
             e
                 .colour(0xff5733)
-                .title(format!("❌ An error as occurred: {}", error))
+                .title(format!("❌ An error occurred: {}", error))
         })
     }).await?;
     Ok(())
