@@ -1,3 +1,4 @@
+use std::env;
 use std::fmt::Display;
 use serenity::framework::standard::CommandResult;
 use serenity::model::prelude::Message;
@@ -57,7 +58,8 @@ pub async fn send_image_as_attachment<T: Display, S: Display + Into<String>>(
     fields: Option<Vec<(S, S, bool)>>,
     attachment: &str,
 ) -> CommandResult {
-    let file_location = format!("./images/{}", &attachment);
+    let logo_location = env::var("LOGO_LOCATION").expect("LOGO_LOCATION must be set");
+    let file_location = format!("{}/{}", logo_location, &attachment);
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {
