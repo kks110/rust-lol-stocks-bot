@@ -58,8 +58,8 @@ pub async fn send_image_as_attachment<T: Display, S: Display + Into<String>>(
     fields: Option<Vec<(S, S, bool)>>,
     attachment: &str,
 ) -> CommandResult {
-    let logo_location = env::var("LOGO_LOCATION").expect("LOGO_LOCATION must be set");
-    let file_location = format!("{}/{}", logo_location, &attachment);
+    let logos_location = env::var("LOGOS_LOCATION").expect("LOGOS_LOCATION must be set");
+    let file_location = format!("{}/{}", logos_location, &attachment);
 
     msg.channel_id.send_message(&ctx.http, |m| {
         m.embed(|e| {

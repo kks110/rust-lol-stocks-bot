@@ -21,7 +21,7 @@ $ psql
 > cd /usr/lib/systemd/system
 > sudo nano lol-stocks-discord@.service
 ```
-6. In the file enter the below, changing `ExecStart` to the location of the executable, `Environment="DATABASE_URL` to your DB url, and `Environment="DISCORD_TOKEN` to your discord token.
+6. In the file enter the below, changing `ExecStart` to the location of the executable, `Environment="DATABASE_URL` to your DB url, `Environment="DISCORD_TOKEN` to your discord token, `Environment="LOGOS_LOCATION` is where you put the logos for the leagues.
 ```shell
 ### BEGIN INIT INFO
 # Provides:          lol-stocks-discord
@@ -50,6 +50,7 @@ TimeoutStopSec=10
 Environment="DATABASE_URL=ADD YOUR DB URL HERE"
 Environment="DISCORD_TOKEN=ADD YOUR DISCORD BOT TOKEN HERE"
 Environment="GRAPH_LOCATION=/location/for/graphs/here"
+Environment="LOGOS_LOCATION=/location/for/logos/here"
 
 [Install]
 WantedBy=multi-user.target
