@@ -88,19 +88,15 @@ fn buy_shares(amount: i32, team_name: &str, user_discord_id: &u64) -> Result<Str
     let team = load_team(&conn, team_name)?;
     let user = load_user_by_discord_id(&conn, user_discord_id)?;
 
-    if amount > user.balance {
-        return Ok("❌ Not enough funds".to_string())
-    }
-
     let cost: i32 = team.elo * amount;
 
-    if cost <= user.balance {
-        return match update_balance(cost, user, team, amount) {
-            Ok(s) => Ok(s),
-            Err(e) => Err(e)
-        }
-    } else {
-        Ok("❌ Not enough funds".to_string())
+    if amount > user.balance || cost > user.balance {
+        return Ok(format!("❌ Not enough funds. This would cost {}. You have {}", cost, user.balance))
+    }
+
+    return match update_balance(cost, user, team, amount) {
+        Ok(s) => Ok(s),
+        Err(e) => Err(e)
     }
 }
 
