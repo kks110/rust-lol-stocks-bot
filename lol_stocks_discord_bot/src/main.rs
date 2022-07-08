@@ -36,7 +36,10 @@ use commands::{
     update_alias::*,
 };
 
-use lol_stocks_core::database::migrations::run_migrations;
+use lol_stocks_core::{
+    seed,
+    database::migrations::run_migrations,
+};
 
 mod commands;
 mod helpers;
@@ -68,6 +71,8 @@ async fn main() {
         .expect("Expected a token in the environment");
 
     run_migrations();
+
+    seed::add_bot_user();
 
     println!("Discord Bot Running");
     let framework = StandardFramework::new()
