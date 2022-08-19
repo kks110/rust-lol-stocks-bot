@@ -16,11 +16,14 @@ use lol_stocks_core::{
         portfolios::load_users_portfolio,
     },
 };
+use lol_stocks_core::database::user_portfolio_histories::load_user_portfolio_history;
 use crate::helpers::messages;
+use crate::helpers::plus_sign::plus_sign;
 
 struct LeaderboardEntry {
     pub user_name: String,
-    pub value: i32
+    pub value: i32,
+    pub difference: i32,
 }
 
 #[command]
@@ -43,7 +46,7 @@ pub async fn leaderboard(ctx: &Context, msg: &Message) -> CommandResult {
             fields.push(
                 (
                     format!("{}. {}: ", index + 1, player.user_name),
-                    format!("{}", player.value),
+                    format!("{} ({}{})", player.value, plus_sign(player.difference), player.difference),
                     false
                 )
             )
@@ -69,10 +72,12 @@ fn load_leaderboard() -> Result<Vec<LeaderboardEntry>, Box<dyn Error>> {
 
     for user in users {
         let portfolio = load_users_portfolio(&conn, &user)?;
-        let current_value = calculate_portfolio_value(&conn, &user, &portfolio)?;
+        let value = calculate_portfolio_value(&conn, &user, &portfolio)?;
+        let previous_value = load_user_portfolio_history(&conn, &user, None)?.first().unwrap().value;
         leaderboard_entries.push(LeaderboardEntry {
             user_name: user.name,
-            value: current_value
+            value,
+            difference: value - previous_value
         })
     }
 
