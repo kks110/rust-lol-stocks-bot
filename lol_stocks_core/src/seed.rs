@@ -6,10 +6,11 @@ pub fn add_bot_user() {
     match users::create_user(&conn, "StockBot", &0, None) {
         Ok(_) => { println!("Created StockBot user") }
         Err(e) => {
-            if e.to_string() == *"duplicate key value violates unique constraint \"unique_user_name\"".to_string() {
+            if e.to_string() == *"duplicate key value violates unique constraint \"unique_user_name\"".to_string() ||
+                e.to_string() == *"duplicate key value violates unique constraint \"unique_user_discord_id\"".to_string() {
                 println!("StockBot user already created.")
             } else {
-                panic!("Error creating StockBot user")
+                panic!("Error creating StockBot user: {}", e.to_string())
             }
         }
     }
